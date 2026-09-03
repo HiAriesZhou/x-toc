@@ -2,7 +2,7 @@
 
 ## Repository role
 
-- This is the public source repository for the X-TOC browser extension at `github.com/Aries-0331/x-toc`.
+- This is the public source repository for the X-TOC browser extension at `github.com/HiAriesZhou/x-toc`.
 - X-TOC provides an X/Twitter long-form article table of contents and a local clip workflow.
 - Keep this repository small, implementation-led, and safe for users, contributors, extension reviewers, and the public.
 - This is not the product-planning home for X-TOC and is not the source repository for Bookmark Assistant, Bookmark Assistant Pro, or LiteContext.

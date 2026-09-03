@@ -13,7 +13,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/Aries-0331/x-toc/releases"><img src="https://img.shields.io/badge/version-0.4.7-blue" alt="Version 0.4.7"></a>
+  <a href="https://github.com/HiAriesZhou/x-toc/releases"><img src="https://img.shields.io/badge/version-0.4.7-blue" alt="Version 0.4.7"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License"></a>
   <a href="https://chromewebstore.google.com/detail/nbdgpckkcfkomnmdefinikjijgljgjfp?utm_source=item-share-cb"><img src="https://img.shields.io/chrome-web-store/size/nbdgpckkcfkomnmdefinikjijgljgjfp" alt="Chrome Web Store"></a>
 </p>
@@ -34,7 +34,7 @@ X-TOC 是一个面向 X.com 和 Twitter.com 长文的浏览器扩展。它提供
 ## 从源码安装
 
 ```bash
-git clone https://github.com/Aries-0331/x-toc.git
+git clone https://github.com/HiAriesZhou/x-toc.git
 cd x-toc
 npm install
 npm run build
