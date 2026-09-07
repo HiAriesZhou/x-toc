@@ -20,6 +20,8 @@
 
 X-TOC 是一个面向 X.com 和 Twitter.com 长文的浏览器扩展。它提供文章目录、浮动阅读目录，以及本地摘录保存工作流，帮助你把长文中的有用片段保存下来。
 
+[产品网站](https://x-toc.vercel.app) · [项目案例](https://www.arieszhou.com/zh/projects/x-toc)
+
 ## 功能
 
 - 识别 X/Twitter 长文标题结构。

@@ -20,6 +20,8 @@
 
 X-TOC is a browser extension for X.com and Twitter.com long-form articles. It adds a table of contents, a floating reading panel, and a local clipping workflow for saving selected passages.
 
+[Product website](https://x-toc.vercel.app) · [Project story](https://www.arieszhou.com/projects/x-toc)
+
 ## Features
 
 - Detect headings in X/Twitter long-form articles.
