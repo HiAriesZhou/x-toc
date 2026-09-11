@@ -82,6 +82,13 @@ body {
   color: var(--accent-color);
 }
 
+.options-link-btn:focus-visible,
+.pin-icon-btn:focus-visible,
+.toc-link:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
+}
+
 .pin-icon-btn {
   display: flex;
   align-items: center;

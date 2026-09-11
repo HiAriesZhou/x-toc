@@ -6,6 +6,7 @@
   --text-secondary: #536471;
   --border-color: #eff3f4;
   --accent-color: #1d9bf0;
+  --accent-soft: #e8f5fd;
   --hover-bg: #f7f9f9;
 }
 
@@ -17,6 +18,7 @@
     --text-secondary: #8b98a5;
     --border-color: #38444d;
     --accent-color: #1d9bf0;
+    --accent-soft: #183b52;
     --hover-bg: #273340;
   }
 }
@@ -33,6 +35,12 @@
   padding: 10px 12px;
   border-bottom: 1px solid var(--border-color);
   user-select: none;
+  cursor: grab;
+}
+
+.twitter-toc-panel .panel-brand {
+  color: var(--accent-color);
+  font-weight: 750;
 }
 
 .twitter-toc-panel .drag-handle {
@@ -56,11 +64,19 @@
 }
 
 .twitter-toc-panel .panel-title {
+  flex: 1;
   font-size: 14px;
   font-weight: 600;
+  text-align: center;
 }
 
-.twitter-toc-panel .close-btn {
+.twitter-toc-panel .panel-actions {
+  display: flex;
+  align-items: center;
+}
+
+.twitter-toc-panel .close-btn,
+.twitter-toc-panel .collapse-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -74,8 +90,23 @@
   transition: background 0.15s ease;
 }
 
-.twitter-toc-panel .close-btn:hover {
+.twitter-toc-panel .close-btn:hover,
+.twitter-toc-panel .collapse-btn:hover {
   background: var(--hover-bg);
+}
+
+.twitter-toc-panel .close-btn:focus-visible,
+.twitter-toc-panel .collapse-btn:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 1px;
+}
+
+.twitter-toc-panel.collapsed {
+  resize: none !important;
+}
+
+.twitter-toc-panel.collapsed .toc-panel-body {
+  display: none;
 }
 
 .twitter-toc-panel.dragging {
@@ -96,9 +127,21 @@
   padding: 0;
 }
 
+.twitter-toc-panel .toc-row {
+  margin: 0;
+  padding: 0 8px;
+}
+
 .twitter-toc-panel .toc-item {
-  padding: 8px 16px;
+  position: relative;
+  display: block;
+  width: 100%;
+  border: 0;
+  border-radius: 7px;
+  padding: 8px 10px;
   font-size: 14px;
+  font-family: inherit;
+  text-align: left;
   line-height: 1.35;
   color: var(--text-primary);
   cursor: pointer;
@@ -112,24 +155,46 @@
   background: var(--hover-bg) !important;
 }
 
+.twitter-toc-panel .toc-item:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 1px;
+}
+
+.twitter-toc-panel .toc-item.active {
+  background: var(--accent-soft) !important;
+  color: var(--accent-color);
+  font-weight: 650;
+}
+
+.twitter-toc-panel .toc-item.active::before {
+  content: "";
+  position: absolute;
+  top: 7px;
+  bottom: 7px;
+  left: 0;
+  width: 3px;
+  border-radius: 999px;
+  background: var(--accent-color);
+}
+
 /* Indentation based on heading level */
-.twitter-toc-panel .toc-item.level-1 {
-  padding-left: 16px;
+.twitter-toc-panel .toc-row.level-1 .toc-item {
+  padding-left: 10px;
   font-weight: 600;
 }
 
-.twitter-toc-panel .toc-item.level-2 {
-  padding-left: 32px;
+.twitter-toc-panel .toc-row.level-2 .toc-item {
+  padding-left: 22px;
 }
 
-.twitter-toc-panel .toc-item.level-3 {
-  padding-left: 48px;
+.twitter-toc-panel .toc-row.level-3 .toc-item {
+  padding-left: 34px;
   font-size: 13px;
   color: var(--text-secondary);
 }
 
-.twitter-toc-panel .toc-item.level-4 {
-  padding-left: 64px;
+.twitter-toc-panel .toc-row.level-4 .toc-item {
+  padding-left: 46px;
   font-size: 12px;
   color: var(--text-secondary);
 }

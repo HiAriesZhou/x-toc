@@ -65,6 +65,15 @@ function normalizeWhitespace(value) {
   return value.replace(/\s+/g, ' ').trim();
 }
 
+function escapeTocHtml(value) {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function getMeaningfulArticleLine(article) {
   const lines = (article?.textContent || '')
     .split('\n')
@@ -408,11 +417,24 @@ class TOCPanel {
     this.isDragging = false;
     this.dragOffset = { x: 0, y: 0 };
     this.defaultPosition = { x: 20, y: 100 };
+    this.hasSavedPosition = false;
+    this.activeIndex = -1;
+    this.isCollapsed = false;
+    this.scrollFrame = null;
+    this.handleScroll = () => {
+      if (this.scrollFrame) return;
+      this.scrollFrame = requestAnimationFrame(() => {
+        this.scrollFrame = null;
+        this.updateActiveSection();
+      });
+    };
+    this.handleResize = () => this.keepInViewport();
   }
 
   async init() {
     // Load saved position
     const storage = await chrome.storage.local.get('tocPanelPosition');
+    this.hasSavedPosition = Boolean(storage.tocPanelPosition);
     this.position = storage.tocPanelPosition || this.defaultPosition;
     this.create();
   }
@@ -427,6 +449,8 @@ class TOCPanel {
     this.panel = document.createElement('div');
     this.panel.id = 'twitter-toc-panel';
     this.panel.className = 'twitter-toc-panel';
+    this.panel.setAttribute('role', 'complementary');
+    this.panel.setAttribute('aria-label', 'X-TOC article contents');
     this.panel.style.cssText = `
       position: fixed;
       z-index: 999999;
@@ -452,7 +476,7 @@ class TOCPanel {
     const header = document.createElement('div');
     header.className = 'toc-panel-header';
     header.innerHTML = `
-      <span class="drag-handle" title="Drag to move">
+      <span class="drag-handle" title="Drag to move" aria-hidden="true">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
           <circle cx="9" cy="6" r="1.5"/>
           <circle cx="15" cy="6" r="1.5"/>
@@ -462,12 +486,17 @@ class TOCPanel {
           <circle cx="15" cy="18" r="1.5"/>
         </svg>
       </span>
-      <span class="panel-title">Contents</span>
-      <button class="close-btn" title="Hide panel">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
-          <path d="M14 1.41L12.59 0 7 5.59 1.41 0 0 1.41 5.59 7 0 12.59 1.41 14 7 8.41 12.59 14 14 12.59 8.41 7z"/>
-        </svg>
-      </button>
+      <span class="panel-title"><span class="panel-brand">X-TOC</span><span aria-hidden="true"> · </span>Contents</span>
+      <span class="panel-actions">
+        <button class="collapse-btn" type="button" title="Collapse panel" aria-label="Collapse table of contents" aria-expanded="true">
+          <span aria-hidden="true">−</span>
+        </button>
+        <button class="close-btn" type="button" title="Hide panel" aria-label="Hide table of contents">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
+            <path d="M14 1.41L12.59 0 7 5.59 1.41 0 0 1.41 5.59 7 0 12.59 1.41 14 7 8.41 12.59 14 14 12.59 8.41 7z"/>
+          </svg>
+        </button>
+      </span>
     `;
 
     // Create body with TOC list
@@ -484,16 +513,33 @@ class TOCPanel {
   }
 
   setupEventListeners(header) {
-    const dragHandle = header.querySelector('.drag-handle');
+    const collapseBtn = header.querySelector('.collapse-btn');
     const closeBtn = header.querySelector('.close-btn');
 
     // Drag functionality
-    dragHandle.addEventListener('mousedown', (e) => this.startDrag(e));
+    header.addEventListener('mousedown', (event) => {
+      if (!event.target.closest('button')) this.startDrag(event);
+    });
     document.addEventListener('mousemove', (e) => this.drag(e));
     document.addEventListener('mouseup', () => this.endDrag());
 
     // Close button
+    collapseBtn.addEventListener('click', () => this.toggleCollapsed(collapseBtn));
     closeBtn.addEventListener('click', () => this.hide());
+    this.panel.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') this.hide();
+    });
+    window.addEventListener('resize', this.handleResize);
+  }
+
+  toggleCollapsed(button) {
+    this.isCollapsed = !this.isCollapsed;
+    this.panel.classList.toggle('collapsed', this.isCollapsed);
+    button.setAttribute('aria-expanded', String(!this.isCollapsed));
+    button.setAttribute('aria-label', this.isCollapsed ? 'Expand table of contents' : 'Collapse table of contents');
+    button.setAttribute('title', this.isCollapsed ? 'Expand panel' : 'Collapse panel');
+    button.querySelector('span').textContent = this.isCollapsed ? '+' : '−';
+    this.keepInViewport();
   }
 
   startDrag(e) {
@@ -531,6 +577,7 @@ class TOCPanel {
       x: parseInt(this.panel.style.left),
       y: parseInt(this.panel.style.top)
     };
+    this.hasSavedPosition = true;
     chrome.storage.local.set({ tocPanelPosition: this.position });
   }
 
@@ -541,16 +588,62 @@ class TOCPanel {
 
     // Update TOC content
     const body = this.panel.querySelector('.toc-panel-body');
+    this.activeIndex = -1;
     body.innerHTML = this.renderTOC(toc);
+    if (!this.hasSavedPosition) {
+      this.position = this.getArticleSidePosition();
+      this.panel.style.left = `${this.position.x}px`;
+      this.panel.style.top = `${this.position.y}px`;
+    }
     this.panel.style.display = 'flex';
-    this.keepInViewport();
     this.isVisible = true;
+    this.keepInViewport();
 
     // Add click handlers to TOC items
     body.querySelectorAll('.toc-item').forEach((item, index) => {
       item.addEventListener('click', () => {
         scrollToHeader(index);
+        this.setActiveIndex(index);
       });
+    });
+    window.addEventListener('scroll', this.handleScroll, { passive: true });
+    this.updateActiveSection();
+  }
+
+  getArticleSidePosition() {
+    const panelWidth = Math.min(560, Math.max(340, window.innerWidth * 0.34));
+    const articleRect = findArticleContainer()?.getBoundingClientRect();
+    const preferredX = articleRect ? articleRect.right + 18 : window.innerWidth - panelWidth - 20;
+    const x = Math.max(10, Math.min(preferredX, window.innerWidth - panelWidth - 10));
+    const y = Math.max(72, Math.min(articleRect?.top || 100, window.innerHeight - 180));
+    return { x, y };
+  }
+
+  updateActiveSection() {
+    if (!this.isVisible || headerElements.length === 0) return;
+    const readingLine = 96;
+    let nextIndex = 0;
+
+    headerElements.forEach((header, index) => {
+      if (header.element?.getBoundingClientRect().top <= readingLine) nextIndex = index;
+    });
+
+    this.setActiveIndex(nextIndex);
+  }
+
+  setActiveIndex(index) {
+    if (this.activeIndex === index) return;
+    this.activeIndex = index;
+    const items = this.panel?.querySelectorAll('.toc-item') || [];
+    items.forEach((item, itemIndex) => {
+      const isActive = itemIndex === index;
+      item.classList.toggle('active', isActive);
+      if (isActive) {
+        item.setAttribute('aria-current', 'location');
+        item.scrollIntoView({ block: 'nearest' });
+      } else {
+        item.removeAttribute('aria-current');
+      }
     });
   }
 
@@ -562,8 +655,8 @@ class TOCPanel {
     return `
       <ul class="toc-list">
         ${toc.map((item, index) => `
-          <li class="toc-item level-${item.level}" data-index="${index}">
-            ${item.text}
+          <li class="toc-row level-${item.level}">
+            <button class="toc-item" type="button" data-index="${index}">${escapeTocHtml(item.text)}</button>
           </li>
         `).join('')}
       </ul>
@@ -575,10 +668,12 @@ class TOCPanel {
       this.panel.style.display = 'none';
     }
     this.isVisible = false;
+    window.removeEventListener('scroll', this.handleScroll);
     chrome.storage.local.set({ tocPanelVisible: false });
   }
 
   keepInViewport() {
+    if (!this.panel || !this.isVisible) return;
     const rect = this.panel.getBoundingClientRect();
     const maxX = window.innerWidth - rect.width - 10;
     const maxY = window.innerHeight - rect.height - 10;
@@ -603,6 +698,9 @@ class TOCPanel {
       this.panel.remove();
       this.panel = null;
     }
+    window.removeEventListener('scroll', this.handleScroll);
+    window.removeEventListener('resize', this.handleResize);
+    if (this.scrollFrame) cancelAnimationFrame(this.scrollFrame);
   }
 }
 

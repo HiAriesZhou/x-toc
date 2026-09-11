@@ -1,0 +1,133 @@
+{
+  "twitterTocArticles": {
+    "article_demo_reading": {
+      "id": "article_demo_reading",
+      "url": "https://x.com/xtoc_demo/status/2000000000000000001",
+      "canonicalUrl": "https://x.com/xtoc_demo/status/2000000000000000001",
+      "title": "A field guide to durable product thinking",
+      "authorName": "Mira Chen",
+      "authorHandle": "@mira_demo",
+      "publishedAt": "2026-09-09T08:30:00.000Z",
+      "platform": "x.com",
+      "createdAt": "2026-09-09T08:30:00.000Z",
+      "updatedAt": "2026-09-11T07:08:09.000Z"
+    },
+    "article_demo_agents": {
+      "id": "article_demo_agents",
+      "url": "https://x.com/xtoc_demo/status/2000000000000000002",
+      "canonicalUrl": "https://x.com/xtoc_demo/status/2000000000000000002",
+      "title": "Lessons from building reliable AI workflows",
+      "authorName": "Noah Park",
+      "authorHandle": "@noah_demo",
+      "publishedAt": "2026-09-05T12:00:00.000Z",
+      "platform": "x.com",
+      "createdAt": "2026-09-05T12:00:00.000Z",
+      "updatedAt": "2026-09-10T09:42:00.000Z"
+    },
+    "article_demo_local_first": {
+      "id": "article_demo_local_first",
+      "url": "https://x.com/xtoc_demo/status/2000000000000000003",
+      "canonicalUrl": "https://x.com/xtoc_demo/status/2000000000000000003",
+      "title": "Building a local-first research practice",
+      "authorName": "Avery Lin",
+      "authorHandle": "@avery_demo",
+      "publishedAt": "2026-08-28T03:15:00.000Z",
+      "platform": "x.com",
+      "createdAt": "2026-08-28T03:15:00.000Z",
+      "updatedAt": "2026-09-08T02:20:00.000Z"
+    }
+  },
+  "twitterTocExcerpts": {
+    "excerpt_demo_reading_1": {
+      "id": "excerpt_demo_reading_1",
+      "articleId": "article_demo_reading",
+      "text": "Good long-form reading starts with a visible structure: where you are, what comes next, and how to return.",
+      "contextBefore": "The reader should never have to rebuild the shape of an article from memory.",
+      "contextAfter": "A lightweight table of contents turns that structure into a quiet navigation aid.",
+      "pageUrl": "https://x.com/xtoc_demo/status/2000000000000000001",
+      "selectionLength": 106,
+      "createdAt": "2026-09-11T07:08:09.000Z",
+      "source": "x.com",
+      "tags": ["reading", "product-design"],
+      "note": "Use this when explaining why the TOC should remain visible beside the article."
+    },
+    "excerpt_demo_reading_2": {
+      "id": "excerpt_demo_reading_2",
+      "articleId": "article_demo_reading",
+      "text": "The best navigation stays quiet until the reader needs it, then makes the next useful action obvious without pulling attention away from the text.",
+      "contextBefore": "Reading tools should support concentration instead of competing for it.",
+      "contextAfter": "That balance depends on restrained contrast, predictable placement, and clear current-section feedback.",
+      "pageUrl": "https://x.com/xtoc_demo/status/2000000000000000001",
+      "selectionLength": 146,
+      "createdAt": "2026-09-10T06:35:00.000Z",
+      "source": "x.com",
+      "tags": ["navigation", "focus"]
+    },
+    "excerpt_demo_reading_3": {
+      "id": "excerpt_demo_reading_3",
+      "articleId": "article_demo_reading",
+      "text": "A useful clip keeps the quote, the surrounding context, and the reason you saved it together. Weeks later, that small bundle should still be understandable without reopening every source or reconstructing the original train of thought.",
+      "contextBefore": "Saving a sentence is easy; preserving its usefulness is the harder design problem.",
+      "contextAfter": "Tags help with retrieval, while a short note preserves your own interpretation.",
+      "pageUrl": "https://x.com/xtoc_demo/status/2000000000000000001",
+      "selectionLength": 235,
+      "createdAt": "2026-09-09T11:12:00.000Z",
+      "source": "x.com",
+      "tags": ["clipping", "context"],
+      "note": "Long example for demonstrating Show full clip / Show less."
+    },
+    "excerpt_demo_agents_1": {
+      "id": "excerpt_demo_agents_1",
+      "articleId": "article_demo_agents",
+      "text": "Long workflows make mistakes more expensive, so review points and recovery paths become product features.",
+      "contextBefore": "Agent reliability becomes more visible as tasks span more tools and more time.",
+      "contextAfter": "A good system makes progress inspectable and failure recoverable.",
+      "pageUrl": "https://x.com/xtoc_demo/status/2000000000000000002",
+      "selectionLength": 105,
+      "createdAt": "2026-09-10T09:42:00.000Z",
+      "source": "x.com",
+      "tags": ["agents", "reliability", "workflow"],
+      "note": "Agent UX includes failure handling, not only automation."
+    },
+    "excerpt_demo_agents_2": {
+      "id": "excerpt_demo_agents_2",
+      "articleId": "article_demo_agents",
+      "text": "A checkpoint is most useful when it appears at the moment a human can still change the outcome.",
+      "contextBefore": "More approval steps do not automatically create more control.",
+      "contextAfter": "Timing and context determine whether review reduces risk or only adds friction.",
+      "pageUrl": "https://x.com/xtoc_demo/status/2000000000000000002",
+      "selectionLength": 95,
+      "createdAt": "2026-09-07T04:18:00.000Z",
+      "source": "x.com",
+      "tags": ["human-in-the-loop"]
+    },
+    "excerpt_demo_local_1": {
+      "id": "excerpt_demo_local_1",
+      "articleId": "article_demo_local_first",
+      "text": "Local-first tools keep the primary copy close to the person doing the work and make export a normal part of the product.",
+      "contextBefore": "Ownership is easier to trust when it is visible in everyday behavior.",
+      "contextAfter": "Portable formats also reduce the cost of changing tools later.",
+      "pageUrl": "https://x.com/xtoc_demo/status/2000000000000000003",
+      "selectionLength": 120,
+      "createdAt": "2026-09-08T02:20:00.000Z",
+      "source": "x.com",
+      "tags": ["local-first", "ownership"],
+      "note": "Pairs well with the local storage message in the Options header."
+    },
+    "excerpt_demo_local_2": {
+      "id": "excerpt_demo_local_2",
+      "articleId": "article_demo_local_first",
+      "text": "Export is a promise that saved work can leave with you.",
+      "contextBefore": "A collection becomes more valuable as it grows, which makes portability more important over time.",
+      "contextAfter": "Simple Markdown and structured JSON cover different reuse needs.",
+      "pageUrl": "https://x.com/xtoc_demo/status/2000000000000000003",
+      "selectionLength": 55,
+      "createdAt": "2026-09-03T13:05:00.000Z",
+      "source": "x.com"
+    }
+  },
+  "twitterTocExcerptSettings": {
+    "contextLength": 80,
+    "defaultExportFormat": "markdown"
+  }
+}

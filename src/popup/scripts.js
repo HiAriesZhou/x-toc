@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const root = document.getElementById('root');
 
   function renderOptionsButton() {
-    return '<button class="options-link-btn" id="optionsBtn" type="button">Options</button>';
+    return '<button class="options-link-btn" id="optionsBtn" type="button">Saved clips</button>';
   }
 
   function bindOptionsButton() {
@@ -54,7 +54,7 @@ document.addEventListener('DOMContentLoaded', async () => {
           <h1>Contents</h1>
           <div class="header-actions">
             ${renderOptionsButton()}
-            <button class="pin-icon-btn ${isPanelVisible ? 'active' : ''}" id="pinBtn" title="${isPanelVisible ? 'Unpin from screen' : 'Pin to screen'}">
+            <button class="pin-icon-btn ${isPanelVisible ? 'active' : ''}" id="pinBtn" type="button" title="${isPanelVisible ? 'Hide pinned contents' : 'Pin beside article'}" aria-label="${isPanelVisible ? 'Hide pinned table of contents' : 'Pin table of contents beside article'}">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 ${isPanelVisible ? `
                 <path d="M12 17v5"/>
