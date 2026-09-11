@@ -444,9 +444,15 @@ function bindExcerptManagerEvents() {
       await saveClipEditor(actionTarget);
     } else if (action === 'toggle-expanded') {
       const excerptId = actionTarget.dataset.excerptId;
-      if (expandedExcerptIds.has(excerptId)) expandedExcerptIds.delete(excerptId);
-      else expandedExcerptIds.add(excerptId);
-      renderExcerptManager();
+      const item = actionTarget.closest('.excerpt-item');
+      const isExpanded = !expandedExcerptIds.has(excerptId);
+
+      if (isExpanded) expandedExcerptIds.add(excerptId);
+      else expandedExcerptIds.delete(excerptId);
+
+      item?.classList.toggle('is-expanded', isExpanded);
+      actionTarget.setAttribute('aria-expanded', String(isExpanded));
+      actionTarget.textContent = isExpanded ? 'Show less' : 'Show full clip';
     }
   });
 

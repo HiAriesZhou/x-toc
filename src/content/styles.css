@@ -102,7 +102,14 @@
 }
 
 .twitter-toc-panel.collapsed {
+  width: 220px !important;
+  min-width: 220px !important;
   resize: none !important;
+}
+
+.twitter-toc-panel.collapsed .panel-brand,
+.twitter-toc-panel.collapsed .panel-title-separator {
+  display: none;
 }
 
 .twitter-toc-panel.collapsed .toc-panel-body {

@@ -531,7 +531,7 @@ class TOCPanel {
           <circle cx="15" cy="18" r="1.5"/>
         </svg>
       </span>
-      <span class="panel-title"><span class="panel-brand">X-TOC</span><span aria-hidden="true"> · </span>Contents</span>
+      <span class="panel-title"><span class="panel-brand">X-TOC</span><span class="panel-title-separator" aria-hidden="true"> · </span>Contents</span>
       <span class="panel-actions">
         <button class="collapse-btn" type="button" title="Collapse panel" aria-label="Collapse table of contents" aria-expanded="true">
           <span aria-hidden="true">−</span>
@@ -578,13 +578,19 @@ class TOCPanel {
   }
 
   toggleCollapsed(button) {
-    this.isCollapsed = !this.isCollapsed;
-    this.panel.classList.toggle('collapsed', this.isCollapsed);
-    button.setAttribute('aria-expanded', String(!this.isCollapsed));
-    button.setAttribute('aria-label', this.isCollapsed ? 'Expand table of contents' : 'Collapse table of contents');
-    button.setAttribute('title', this.isCollapsed ? 'Expand panel' : 'Collapse panel');
-    button.querySelector('span').textContent = this.isCollapsed ? '+' : '−';
+    this.setCollapsed(!this.isCollapsed, button);
     this.keepInViewport();
+  }
+
+  setCollapsed(isCollapsed, button = this.panel?.querySelector('.collapse-btn')) {
+    this.isCollapsed = isCollapsed;
+    this.panel?.classList.toggle('collapsed', isCollapsed);
+    if (!button) return;
+
+    button.setAttribute('aria-expanded', String(!isCollapsed));
+    button.setAttribute('aria-label', isCollapsed ? 'Expand table of contents' : 'Collapse table of contents');
+    button.setAttribute('title', isCollapsed ? 'Expand panel' : 'Collapse panel');
+    button.querySelector('span').textContent = isCollapsed ? '+' : '−';
   }
 
   startDrag(e) {
@@ -636,9 +642,12 @@ class TOCPanel {
     this.activeIndex = -1;
     body.innerHTML = this.renderTOC(toc);
     if (!this.hasSavedPosition) {
-      this.position = this.getArticleSidePosition();
+      const placement = this.getArticleSidePlacement();
+      this.position = { x: placement.x, y: placement.y };
+      this.panel.style.width = `${placement.width}px`;
       this.panel.style.left = `${this.position.x}px`;
       this.panel.style.top = `${this.position.y}px`;
+      this.setCollapsed(placement.collapsed);
     }
     this.panel.style.display = 'flex';
     this.isVisible = true;
@@ -655,13 +664,23 @@ class TOCPanel {
     this.updateActiveSection();
   }
 
-  getArticleSidePosition() {
-    const panelWidth = Math.min(560, Math.max(340, window.innerWidth * 0.34));
+  getArticleSidePlacement() {
+    const viewportPadding = 10;
+    const articleGap = 18;
+    const minimumExpandedWidth = 320;
+    const compactWidth = 220;
+    const preferredWidth = Math.min(560, Math.max(340, window.innerWidth * 0.34));
     const articleRect = findArticleContainer()?.getBoundingClientRect();
-    const preferredX = articleRect ? articleRect.right + 18 : window.innerWidth - panelWidth - 20;
-    const x = Math.max(10, Math.min(preferredX, window.innerWidth - panelWidth - 10));
+    const availableRight = articleRect
+      ? window.innerWidth - articleRect.right - articleGap - viewportPadding
+      : preferredWidth;
+    const hasExpandedSpace = availableRight >= minimumExpandedWidth;
+    const width = hasExpandedSpace ? Math.min(preferredWidth, availableRight) : preferredWidth;
+    const visibleWidth = hasExpandedSpace ? width : compactWidth;
+    const preferredX = articleRect ? articleRect.right + articleGap : window.innerWidth - visibleWidth - 20;
+    const x = Math.max(viewportPadding, Math.min(preferredX, window.innerWidth - visibleWidth - viewportPadding));
     const y = Math.max(72, Math.min(articleRect?.top || 100, window.innerHeight - 180));
-    return { x, y };
+    return { x, y, width, collapsed: !hasExpandedSpace };
   }
 
   updateActiveSection() {
