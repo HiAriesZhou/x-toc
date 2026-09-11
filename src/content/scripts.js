@@ -246,6 +246,8 @@ function createSaveExcerptButton() {
   xtocSaveButton.id = 'xtoc-save-excerpt-button';
   xtocSaveButton.type = 'button';
   xtocSaveButton.textContent = 'save to xtoc';
+  xtocSaveButton.dataset.state = 'idle';
+  xtocSaveButton.setAttribute('aria-live', 'polite');
   xtocSaveButton.style.display = 'none';
 
   xtocSaveButton.addEventListener('mousedown', (event) => {
@@ -259,22 +261,37 @@ function createSaveExcerptButton() {
     const selectedText = xtocCurrentSelection?.text;
     if (!selectedText) return;
 
+    xtocSaveButton.dataset.state = 'saving';
     xtocSaveButton.disabled = true;
+    xtocSaveButton.classList.add('xtoc-saving');
+    xtocSaveButton.textContent = 'saving…';
 
     try {
       const result = await saveExcerptToStorage(selectedText);
+      if (xtocSaveButton.dataset.state !== 'saving') return;
+
+      xtocSaveButton.dataset.state = result.duplicate ? 'duplicate' : 'saved';
+      xtocSaveButton.classList.remove('xtoc-saving');
       xtocSaveButton.classList.toggle('xtoc-duplicate', result.duplicate);
       xtocSaveButton.classList.toggle('xtoc-saved', !result.duplicate);
-      xtocSaveButton.textContent = result.duplicate ? 'already saved' : 'saved';
+      xtocSaveButton.textContent = result.duplicate ? 'already saved' : 'saved ✓';
+
+      if (!result.duplicate) {
+        createSaveCelebration(xtocSaveButton);
+      }
 
       setTimeout(() => {
         hideSaveExcerptButton();
         window.getSelection()?.removeAllRanges();
-      }, 900);
+      }, 1200);
     } catch (error) {
       console.error('[TOC] Failed to save excerpt:', error);
+      if (xtocSaveButton.dataset.state !== 'saving') return;
+
+      xtocSaveButton.dataset.state = 'error';
+      xtocSaveButton.classList.remove('xtoc-saving');
       xtocSaveButton.textContent = 'save failed';
-      setTimeout(hideSaveExcerptButton, 1200);
+      setTimeout(hideSaveExcerptButton, 1400);
     }
   });
 
@@ -282,13 +299,35 @@ function createSaveExcerptButton() {
   return xtocSaveButton;
 }
 
+function createSaveCelebration(button) {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const rect = button.getBoundingClientRect();
+  const celebration = document.createElement('span');
+  celebration.className = 'xtoc-save-celebration';
+  celebration.setAttribute('aria-hidden', 'true');
+  celebration.style.left = `${rect.left + (rect.width / 2)}px`;
+  celebration.style.top = `${rect.top + (rect.height / 2)}px`;
+
+  for (let index = 0; index < 8; index += 1) {
+    const particle = document.createElement('span');
+    particle.className = 'xtoc-confetti-particle';
+    celebration.appendChild(particle);
+  }
+
+  document.body.appendChild(celebration);
+  setTimeout(() => celebration.remove(), 760);
+}
+
 function hideSaveExcerptButton() {
   if (!xtocSaveButton) return;
 
   xtocSaveButton.style.display = 'none';
+  xtocSaveButton.style.width = '';
   xtocSaveButton.disabled = false;
+  xtocSaveButton.dataset.state = 'idle';
   xtocSaveButton.textContent = 'save to xtoc';
-  xtocSaveButton.classList.remove('xtoc-saved', 'xtoc-duplicate');
+  xtocSaveButton.classList.remove('xtoc-saving', 'xtoc-saved', 'xtoc-duplicate');
   xtocCurrentSelection = null;
 }
 
@@ -300,12 +339,16 @@ function showSaveExcerptButton(range, text) {
   }
 
   const button = createSaveExcerptButton();
-  button.style.display = 'block';
+  if (button.dataset.state !== 'idle') return;
+
+  button.style.width = '';
+  button.style.display = 'flex';
   button.disabled = false;
   button.textContent = 'save to xtoc';
-  button.classList.remove('xtoc-saved', 'xtoc-duplicate');
+  button.classList.remove('xtoc-saving', 'xtoc-saved', 'xtoc-duplicate');
 
   const buttonRect = button.getBoundingClientRect();
+  button.style.width = `${Math.ceil(buttonRect.width)}px`;
   const gap = 8;
   const top = rect.top > buttonRect.height + gap
     ? rect.top - buttonRect.height - gap
@@ -353,6 +396,8 @@ function getSelectedArticleRange() {
 }
 
 function updateExcerptSelection() {
+  if (xtocSaveButton?.dataset.state && xtocSaveButton.dataset.state !== 'idle') return;
+
   const selectedRange = getSelectedArticleRange();
   if (!selectedRange) {
     hideSaveExcerptButton();
