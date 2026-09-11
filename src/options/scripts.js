@@ -27,6 +27,7 @@ let excerptState = {
 
 let selectedExcerptIds = new Set();
 let editingExcerptIds = new Set();
+let expandedExcerptIds = new Set();
 let excerptSearchQuery = '';
 
 async function loadExcerptData() {
@@ -92,6 +93,13 @@ function formatDisplayDate(value) {
   const date = new Date(value);
   if (Number.isNaN(date.getTime())) return value;
   return date.toLocaleString();
+}
+
+function formatShortDate(value) {
+  if (!value) return 'Unknown date';
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+  return date.toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
 }
 
 function formatAuthor(article) {
@@ -199,7 +207,7 @@ function renderExcerptManager() {
   const hasSelection = selectedCount > 0;
 
   exportMenuBtn.disabled = !hasSavedExcerpts;
-  exportMenuBtn.textContent = hasSelection ? 'Export selected' : 'Export';
+  exportMenuBtn.textContent = hasSelection ? `Export ${selectedCount} clip${selectedCount === 1 ? '' : 's'}` : 'Export all';
   exportMarkdownMenuItem.textContent = hasSelection ? 'Markdown' : 'All clips as Markdown';
   exportJsonMenuItem.textContent = hasSelection ? 'JSON' : 'All clips as JSON';
   selectionSummary.textContent = `${selectedCount} selected`;
@@ -241,23 +249,29 @@ function renderExcerptManager() {
       </div>
 
       <ul class="excerpt-list">
-        ${excerpts.map((excerpt) => `
-          <li class="excerpt-item ${editingExcerptIds.has(excerpt.id) ? 'is-editing' : ''}" data-excerpt-id="${escapeHtml(excerpt.id)}">
+        ${excerpts.map((excerpt) => {
+          const isExpanded = expandedExcerptIds.has(excerpt.id);
+          const canExpand = excerpt.text.length > 180 || excerpt.text.split('\n').length > 3;
+          return `
+          <li class="excerpt-item ${editingExcerptIds.has(excerpt.id) ? 'is-editing' : ''} ${isExpanded ? 'is-expanded' : ''}" data-excerpt-id="${escapeHtml(excerpt.id)}">
             <label class="excerpt-select" title="Select clip">
               <input type="checkbox" data-action="select-excerpt" data-excerpt-id="${escapeHtml(excerpt.id)}" ${selectedExcerptIds.has(excerpt.id) ? 'checked' : ''}>
             </label>
             <div class="excerpt-content">
-              <blockquote>${escapeHtml(excerpt.text)}</blockquote>
+              <blockquote id="clip-text-${escapeHtml(excerpt.id)}">${escapeHtml(excerpt.text)}</blockquote>
               ${editingExcerptIds.has(excerpt.id) ? renderClipEditor(excerpt) : renderClipMeta(excerpt)}
               <div class="excerpt-footer">
-                <span>Saved ${escapeHtml(formatDisplayDate(excerpt.createdAt))}</span>
-                <button class="edit-clip-btn" type="button" data-action="${editingExcerptIds.has(excerpt.id) ? 'save-editor' : 'open-editor'}" data-excerpt-id="${escapeHtml(excerpt.id)}">
-                  ${editingExcerptIds.has(excerpt.id) ? 'Save' : 'Edit'}
-                </button>
+                <span title="Saved ${escapeHtml(formatDisplayDate(excerpt.createdAt))}">Saved ${escapeHtml(formatShortDate(excerpt.createdAt))}</span>
+                <div class="clip-actions">
+                  ${canExpand ? `<button class="text-action-btn" type="button" data-action="toggle-expanded" data-excerpt-id="${escapeHtml(excerpt.id)}" aria-expanded="${isExpanded}" aria-controls="clip-text-${escapeHtml(excerpt.id)}">${isExpanded ? 'Show less' : 'Show full clip'}</button>` : ''}
+                  <button class="edit-clip-btn" type="button" data-action="${editingExcerptIds.has(excerpt.id) ? 'save-editor' : 'open-editor'}" data-excerpt-id="${escapeHtml(excerpt.id)}">
+                    ${editingExcerptIds.has(excerpt.id) ? 'Save' : 'Tags & note'}
+                  </button>
+                </div>
               </div>
             </div>
           </li>
-        `).join('')}
+        `}).join('')}
       </ul>
     </article>
   `).join('');
@@ -428,6 +442,17 @@ function bindExcerptManagerEvents() {
       renderExcerptManager();
     } else if (action === 'save-editor') {
       await saveClipEditor(actionTarget);
+    } else if (action === 'toggle-expanded') {
+      const excerptId = actionTarget.dataset.excerptId;
+      const item = actionTarget.closest('.excerpt-item');
+      const isExpanded = !expandedExcerptIds.has(excerptId);
+
+      if (isExpanded) expandedExcerptIds.add(excerptId);
+      else expandedExcerptIds.delete(excerptId);
+
+      item?.classList.toggle('is-expanded', isExpanded);
+      actionTarget.setAttribute('aria-expanded', String(isExpanded));
+      actionTarget.textContent = isExpanded ? 'Show less' : 'Show full clip';
     }
   });
 
@@ -489,13 +514,6 @@ function bindSelectionActions() {
     renderExcerptManager();
   });
 
-  document.addEventListener('click', (event) => {
-    if (selectedExcerptIds.size === 0) return;
-    if (event.target.closest('.excerpt-item') || event.target.closest('.excerpt-actions')) return;
-
-    selectedExcerptIds = new Set();
-    renderExcerptManager();
-  });
 }
 
 function bindExcerptSearch() {

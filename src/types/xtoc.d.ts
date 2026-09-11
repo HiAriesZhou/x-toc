@@ -1,5 +1,4 @@
 export type XtocExportFormat = 'markdown' | 'json';
-export type XtocPlatform = 'x' | 'twitter' | (string & {});
 
 export interface XtocArticle {
   id: string;
@@ -27,21 +26,11 @@ export interface XtocClip {
   source: string;
   tags?: string[];
   note?: string;
-  liteContextItemId?: string;
-}
-
-export interface XtocLiteContextSettings {
-  enabled: boolean;
-  sourceNamespace: string;
-  defaultTags: string[];
-  includeContext: boolean;
-  exportMode: 'json' | 'context-items';
 }
 
 export interface XtocSettings {
   contextLength: number;
   defaultExportFormat: XtocExportFormat;
-  liteContext?: XtocLiteContextSettings;
 }
 
 export interface XtocStorageShape {
@@ -78,31 +67,9 @@ export interface XtocJsonExportArticle {
   excerpts: XtocJsonExportClip[];
 }
 
-export interface LiteContextContextItem {
-  id: string;
-  type: 'quote' | 'note' | 'web';
-  title: string;
-  content: string;
-  source: {
-    name: string;
-    url: string;
-    platform: XtocPlatform;
-    author?: string | null;
-    publishedAt?: string | null;
-  };
-  tags: string[];
-  metadata: Record<string, unknown>;
-  createdAt: string;
-  updatedAt?: string;
-}
-
 export interface XtocJsonExportV1 {
   version: 1;
   source: 'twitter-toc-extension';
   exportedAt: string;
-  settings?: Partial<XtocSettings>;
   articles: XtocJsonExportArticle[];
-  liteContext?: {
-    items: LiteContextContextItem[];
-  };
 }

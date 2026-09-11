@@ -3,22 +3,27 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>X & Twitter Article TOC - Options</title>
+  <title>Saved Clips — X-TOC</title>
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <div class="container">
     <header class="app-header">
-      <div>
-        <h1>Options</h1>
+      <div class="app-identity">
+        <img src="../logo.png" alt="" width="36" height="36">
+        <div>
+          <span class="app-name">X-TOC</span>
+          <h1>Saved Clips</h1>
+        </div>
       </div>
+      <p class="privacy-note">Stored in this browser. Export anytime.</p>
     </header>
 
     <main class="options-layout">
       <section class="settings-section excerpt-section">
         <div class="section-header">
           <div class="section-title-block">
-            <h2>Saved Clips</h2>
+            <h2>Your library</h2>
             <div class="compact-stats" aria-label="Saved clip stats">
               <span><strong id="articleCount">0</strong> articles</span>
               <span><strong id="excerptCount">0</strong> clips</span>
@@ -30,7 +35,7 @@
               <strong id="selectionSummary">0 selected</strong>
             </button>
             <div class="dropdown" id="exportDropdown">
-              <button class="btn-compact" id="exportMenuBtn" type="button" aria-expanded="false" aria-haspopup="true">Export</button>
+              <button class="btn-compact" id="exportMenuBtn" type="button" aria-expanded="false" aria-haspopup="true">Export all</button>
               <div class="dropdown-menu" id="exportMenu" role="menu">
                 <button type="button" id="exportMarkdownMenuItem" data-action="export-markdown" role="menuitem">All clips as Markdown</button>
                 <button type="button" id="exportJsonMenuItem" data-action="export-json" role="menuitem">All clips as JSON</button>

@@ -110,7 +110,7 @@
       position: relative;
       z-index: 1;
       display: grid;
-      grid-template-columns: 390px 1fr;
+      grid-template-columns: 470px 1fr;
       gap: 26px;
       align-items: end;
       margin-top: 34px;
@@ -133,9 +133,7 @@
     .screenshot .stage {
       position: relative;
       z-index: 1;
-      display: grid;
-      grid-template-columns: 430px 1fr;
-      gap: 28px;
+      display: block;
       margin-top: 34px;
     }
 
@@ -152,6 +150,21 @@
       overflow: hidden;
       height: 456px;
       border-radius: 24px;
+    }
+
+    .screenshot .browser {
+      height: 470px;
+    }
+
+    .screenshot .article-page {
+      width: 100%;
+      padding-right: 430px;
+    }
+
+    .screenshot .article-title,
+    .screenshot .article-meta,
+    .screenshot .selection {
+      max-width: 650px;
     }
 
     .chrome-bar {
@@ -249,6 +262,41 @@
       width: 190px;
       border-radius: 18px;
       padding: 16px;
+    }
+
+    .screenshot .floating-panel {
+      top: 62px;
+      right: 34px;
+      bottom: auto;
+      width: 360px;
+      padding: 18px;
+    }
+
+    .screenshot .floating-panel .panel-title {
+      padding-bottom: 12px;
+      border-bottom: 1px solid var(--soft);
+      font-size: 16px;
+    }
+
+    .screenshot .floating-panel .toc-item {
+      position: relative;
+      margin-top: 4px;
+      border-radius: 8px;
+      padding: 10px 12px;
+      font-size: 14px;
+    }
+
+    .screenshot .floating-panel .toc-item.active {
+      background: #eaf5fd;
+    }
+
+    .screenshot .floating-panel .toc-item.active::before {
+      content: "";
+      position: absolute;
+      inset: 8px auto 8px 0;
+      width: 3px;
+      border-radius: 999px;
+      background: var(--blue);
     }
 
     .panel-title {
@@ -497,14 +545,7 @@
     }
 
     .promo-panel::after {
-      content: "";
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      height: 120px;
-      background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.92));
-      pointer-events: none;
+      display: none;
     }
 
     .promo-panel .options-head {
@@ -545,8 +586,8 @@
     </div>
 
     <div class="headline">
-      <h1>Read, clip, and export X Articles.</h1>
-      <div class="lead">A focused reading helper with floating navigation, local clips, tags, notes, search, and Markdown or JSON export.</div>
+      <h1>Keep your place in every long read.</h1>
+      <div class="lead">Pin the article structure beside the reading column, jump between sections, and stay focused.</div>
     </div>
 
     <div class="stage">
@@ -559,68 +600,19 @@
         </div>
         <div class="article-page">
           <div class="article-kicker">X Article</div>
-          <div class="article-title">Lessons from building reliable AI workflows</div>
+          <div class="article-title">A field guide to durable product thinking</div>
           <div class="article-meta">Long-form article with headings and sections</div>
           <div class="article-line"></div>
           <div class="article-line short"></div>
-          <div class="selection">Persistent agents need reliability and security because longer workflows amplify mistakes, access risks, and recovery problems.</div>
+          <div class="selection">Good long-form reading starts with a visible structure: where you are, what comes next, and how to return.</div>
           <div class="save-button">Save to X-TOC</div>
           <div class="floating-panel">
-            <div class="panel-title">Table of Contents</div>
-            <div class="toc-item active">1. Reliability basics</div>
-            <div class="toc-item">2. Human checkpoints</div>
-            <div class="toc-item">3. Export useful notes</div>
-          </div>
-        </div>
-      </div>
-
-      <div class="options-window">
-        <div class="options-head">
-          <div class="saved-title">
-            Saved Clips
-            <span class="pill">6 articles</span>
-            <span class="pill">12 clips</span>
-          </div>
-          <div class="export">Export</div>
-        </div>
-        <div class="search">Search text, title, author, tags, or notes</div>
-        <div class="clip-list">
-          <div class="clip-card">
-            <div class="clip-card-head">
-              <div class="clip-article">Lessons from building reliable AI workflows</div>
-              <span class="pill">2 clips</span>
-            </div>
-            <div class="clip-body">
-              <div class="check"></div>
-              <div>
-                <div class="quote">Long workflows make mistakes more expensive, so review points and recovery paths become product features.</div>
-                <div class="tags">
-                  <span class="tag">agents</span>
-                  <span class="tag">reliability</span>
-                  <span class="tag">workflow</span>
-                </div>
-                <div class="note">Useful reminder: agent UX is not just automation, it is failure handling.</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="clip-card">
-            <div class="clip-card-head">
-              <div class="clip-article">You Don't Know Embodied AI</div>
-              <span class="pill">3 clips</span>
-            </div>
-            <div class="clip-body">
-              <div class="check"></div>
-              <div>
-                <div class="quote">Language becomes harder when it has to pass through motors, latency, power limits, and physical error.</div>
-                <div class="tags">
-                  <span class="tag">embodied-ai</span>
-                  <span class="tag">robotics</span>
-                  <span class="tag">notes</span>
-                </div>
-                <div class="note">Good contrast between software intent and physical constraints.</div>
-              </div>
-            </div>
+            <div class="panel-title"><span style="color: var(--blue)">X-TOC</span> · Contents</div>
+            <div class="toc-item">A field guide to durable product thinking</div>
+            <div class="toc-item active">1. Start with the reader</div>
+            <div class="toc-item">2. Make structure visible</div>
+            <div class="toc-item">3. Keep useful passages</div>
+            <div class="toc-item">4. Export reusable context</div>
           </div>
         </div>
       </div>
@@ -651,10 +643,10 @@
         <div class="options-head">
           <div class="saved-title">
             Saved Clips
-            <span class="pill">6 articles</span>
-            <span class="pill">12 clips</span>
+            <span class="pill">3 articles</span>
+            <span class="pill">7 clips</span>
           </div>
-          <div class="export">Export</div>
+          <div class="export">Export all</div>
         </div>
         <div class="search">Search saved passages</div>
         <div class="clip-list">
@@ -673,23 +665,6 @@
                   <span class="tag">workflow</span>
                 </div>
                 <div class="note">Agent UX is not just automation, it is failure handling.</div>
-              </div>
-            </div>
-          </div>
-
-          <div class="clip-card">
-            <div class="clip-card-head">
-              <div class="clip-article">You Don't Know Embodied AI</div>
-              <span class="pill">3 clips</span>
-            </div>
-            <div class="clip-body">
-              <div class="check"></div>
-              <div>
-                <div class="quote">Language becomes harder when it has to pass through motors, latency, power limits, and physical error.</div>
-                <div class="tags">
-                  <span class="tag">embodied-ai</span>
-                  <span class="tag">robotics</span>
-                </div>
               </div>
             </div>
           </div>

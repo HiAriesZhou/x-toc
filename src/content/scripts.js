@@ -65,6 +65,15 @@ function normalizeWhitespace(value) {
   return value.replace(/\s+/g, ' ').trim();
 }
 
+function escapeTocHtml(value) {
+  return String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
 function getMeaningfulArticleLine(article) {
   const lines = (article?.textContent || '')
     .split('\n')
@@ -237,6 +246,8 @@ function createSaveExcerptButton() {
   xtocSaveButton.id = 'xtoc-save-excerpt-button';
   xtocSaveButton.type = 'button';
   xtocSaveButton.textContent = 'save to xtoc';
+  xtocSaveButton.dataset.state = 'idle';
+  xtocSaveButton.setAttribute('aria-live', 'polite');
   xtocSaveButton.style.display = 'none';
 
   xtocSaveButton.addEventListener('mousedown', (event) => {
@@ -250,22 +261,37 @@ function createSaveExcerptButton() {
     const selectedText = xtocCurrentSelection?.text;
     if (!selectedText) return;
 
+    xtocSaveButton.dataset.state = 'saving';
     xtocSaveButton.disabled = true;
+    xtocSaveButton.classList.add('xtoc-saving');
+    xtocSaveButton.textContent = 'saving…';
 
     try {
       const result = await saveExcerptToStorage(selectedText);
+      if (xtocSaveButton.dataset.state !== 'saving') return;
+
+      xtocSaveButton.dataset.state = result.duplicate ? 'duplicate' : 'saved';
+      xtocSaveButton.classList.remove('xtoc-saving');
       xtocSaveButton.classList.toggle('xtoc-duplicate', result.duplicate);
       xtocSaveButton.classList.toggle('xtoc-saved', !result.duplicate);
-      xtocSaveButton.textContent = result.duplicate ? 'already saved' : 'saved';
+      xtocSaveButton.textContent = result.duplicate ? 'already saved' : 'saved ✓';
+
+      if (!result.duplicate) {
+        createSaveCelebration(xtocSaveButton);
+      }
 
       setTimeout(() => {
         hideSaveExcerptButton();
         window.getSelection()?.removeAllRanges();
-      }, 900);
+      }, 1200);
     } catch (error) {
       console.error('[TOC] Failed to save excerpt:', error);
+      if (xtocSaveButton.dataset.state !== 'saving') return;
+
+      xtocSaveButton.dataset.state = 'error';
+      xtocSaveButton.classList.remove('xtoc-saving');
       xtocSaveButton.textContent = 'save failed';
-      setTimeout(hideSaveExcerptButton, 1200);
+      setTimeout(hideSaveExcerptButton, 1400);
     }
   });
 
@@ -273,13 +299,35 @@ function createSaveExcerptButton() {
   return xtocSaveButton;
 }
 
+function createSaveCelebration(button) {
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+
+  const rect = button.getBoundingClientRect();
+  const celebration = document.createElement('span');
+  celebration.className = 'xtoc-save-celebration';
+  celebration.setAttribute('aria-hidden', 'true');
+  celebration.style.left = `${rect.left + (rect.width / 2)}px`;
+  celebration.style.top = `${rect.top + (rect.height / 2)}px`;
+
+  for (let index = 0; index < 8; index += 1) {
+    const particle = document.createElement('span');
+    particle.className = 'xtoc-confetti-particle';
+    celebration.appendChild(particle);
+  }
+
+  document.body.appendChild(celebration);
+  setTimeout(() => celebration.remove(), 760);
+}
+
 function hideSaveExcerptButton() {
   if (!xtocSaveButton) return;
 
   xtocSaveButton.style.display = 'none';
+  xtocSaveButton.style.width = '';
   xtocSaveButton.disabled = false;
+  xtocSaveButton.dataset.state = 'idle';
   xtocSaveButton.textContent = 'save to xtoc';
-  xtocSaveButton.classList.remove('xtoc-saved', 'xtoc-duplicate');
+  xtocSaveButton.classList.remove('xtoc-saving', 'xtoc-saved', 'xtoc-duplicate');
   xtocCurrentSelection = null;
 }
 
@@ -291,12 +339,16 @@ function showSaveExcerptButton(range, text) {
   }
 
   const button = createSaveExcerptButton();
-  button.style.display = 'block';
+  if (button.dataset.state !== 'idle') return;
+
+  button.style.width = '';
+  button.style.display = 'flex';
   button.disabled = false;
   button.textContent = 'save to xtoc';
-  button.classList.remove('xtoc-saved', 'xtoc-duplicate');
+  button.classList.remove('xtoc-saving', 'xtoc-saved', 'xtoc-duplicate');
 
   const buttonRect = button.getBoundingClientRect();
+  button.style.width = `${Math.ceil(buttonRect.width)}px`;
   const gap = 8;
   const top = rect.top > buttonRect.height + gap
     ? rect.top - buttonRect.height - gap
@@ -344,6 +396,8 @@ function getSelectedArticleRange() {
 }
 
 function updateExcerptSelection() {
+  if (xtocSaveButton?.dataset.state && xtocSaveButton.dataset.state !== 'idle') return;
+
   const selectedRange = getSelectedArticleRange();
   if (!selectedRange) {
     hideSaveExcerptButton();
@@ -408,11 +462,24 @@ class TOCPanel {
     this.isDragging = false;
     this.dragOffset = { x: 0, y: 0 };
     this.defaultPosition = { x: 20, y: 100 };
+    this.hasSavedPosition = false;
+    this.activeIndex = -1;
+    this.isCollapsed = false;
+    this.scrollFrame = null;
+    this.handleScroll = () => {
+      if (this.scrollFrame) return;
+      this.scrollFrame = requestAnimationFrame(() => {
+        this.scrollFrame = null;
+        this.updateActiveSection();
+      });
+    };
+    this.handleResize = () => this.keepInViewport();
   }
 
   async init() {
     // Load saved position
     const storage = await chrome.storage.local.get('tocPanelPosition');
+    this.hasSavedPosition = Boolean(storage.tocPanelPosition);
     this.position = storage.tocPanelPosition || this.defaultPosition;
     this.create();
   }
@@ -427,6 +494,8 @@ class TOCPanel {
     this.panel = document.createElement('div');
     this.panel.id = 'twitter-toc-panel';
     this.panel.className = 'twitter-toc-panel';
+    this.panel.setAttribute('role', 'complementary');
+    this.panel.setAttribute('aria-label', 'X-TOC article contents');
     this.panel.style.cssText = `
       position: fixed;
       z-index: 999999;
@@ -452,7 +521,7 @@ class TOCPanel {
     const header = document.createElement('div');
     header.className = 'toc-panel-header';
     header.innerHTML = `
-      <span class="drag-handle" title="Drag to move">
+      <span class="drag-handle" title="Drag to move" aria-hidden="true">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
           <circle cx="9" cy="6" r="1.5"/>
           <circle cx="15" cy="6" r="1.5"/>
@@ -462,12 +531,17 @@ class TOCPanel {
           <circle cx="15" cy="18" r="1.5"/>
         </svg>
       </span>
-      <span class="panel-title">Contents</span>
-      <button class="close-btn" title="Hide panel">
-        <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
-          <path d="M14 1.41L12.59 0 7 5.59 1.41 0 0 1.41 5.59 7 0 12.59 1.41 14 7 8.41 12.59 14 14 12.59 8.41 7z"/>
-        </svg>
-      </button>
+      <span class="panel-title"><span class="panel-brand">X-TOC</span><span class="panel-title-separator" aria-hidden="true"> · </span>Contents</span>
+      <span class="panel-actions">
+        <button class="collapse-btn" type="button" title="Collapse panel" aria-label="Collapse table of contents" aria-expanded="true">
+          <span aria-hidden="true">−</span>
+        </button>
+        <button class="close-btn" type="button" title="Hide panel" aria-label="Hide table of contents">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
+            <path d="M14 1.41L12.59 0 7 5.59 1.41 0 0 1.41 5.59 7 0 12.59 1.41 14 7 8.41 12.59 14 14 12.59 8.41 7z"/>
+          </svg>
+        </button>
+      </span>
     `;
 
     // Create body with TOC list
@@ -484,16 +558,39 @@ class TOCPanel {
   }
 
   setupEventListeners(header) {
-    const dragHandle = header.querySelector('.drag-handle');
+    const collapseBtn = header.querySelector('.collapse-btn');
     const closeBtn = header.querySelector('.close-btn');
 
     // Drag functionality
-    dragHandle.addEventListener('mousedown', (e) => this.startDrag(e));
+    header.addEventListener('mousedown', (event) => {
+      if (!event.target.closest('button')) this.startDrag(event);
+    });
     document.addEventListener('mousemove', (e) => this.drag(e));
     document.addEventListener('mouseup', () => this.endDrag());
 
     // Close button
+    collapseBtn.addEventListener('click', () => this.toggleCollapsed(collapseBtn));
     closeBtn.addEventListener('click', () => this.hide());
+    this.panel.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') this.hide();
+    });
+    window.addEventListener('resize', this.handleResize);
+  }
+
+  toggleCollapsed(button) {
+    this.setCollapsed(!this.isCollapsed, button);
+    this.keepInViewport();
+  }
+
+  setCollapsed(isCollapsed, button = this.panel?.querySelector('.collapse-btn')) {
+    this.isCollapsed = isCollapsed;
+    this.panel?.classList.toggle('collapsed', isCollapsed);
+    if (!button) return;
+
+    button.setAttribute('aria-expanded', String(!isCollapsed));
+    button.setAttribute('aria-label', isCollapsed ? 'Expand table of contents' : 'Collapse table of contents');
+    button.setAttribute('title', isCollapsed ? 'Expand panel' : 'Collapse panel');
+    button.querySelector('span').textContent = isCollapsed ? '+' : '−';
   }
 
   startDrag(e) {
@@ -531,6 +628,7 @@ class TOCPanel {
       x: parseInt(this.panel.style.left),
       y: parseInt(this.panel.style.top)
     };
+    this.hasSavedPosition = true;
     chrome.storage.local.set({ tocPanelPosition: this.position });
   }
 
@@ -541,16 +639,75 @@ class TOCPanel {
 
     // Update TOC content
     const body = this.panel.querySelector('.toc-panel-body');
+    this.activeIndex = -1;
     body.innerHTML = this.renderTOC(toc);
+    if (!this.hasSavedPosition) {
+      const placement = this.getArticleSidePlacement();
+      this.position = { x: placement.x, y: placement.y };
+      this.panel.style.width = `${placement.width}px`;
+      this.panel.style.left = `${this.position.x}px`;
+      this.panel.style.top = `${this.position.y}px`;
+      this.setCollapsed(placement.collapsed);
+    }
     this.panel.style.display = 'flex';
-    this.keepInViewport();
     this.isVisible = true;
+    this.keepInViewport();
 
     // Add click handlers to TOC items
     body.querySelectorAll('.toc-item').forEach((item, index) => {
       item.addEventListener('click', () => {
         scrollToHeader(index);
+        this.setActiveIndex(index);
       });
+    });
+    window.addEventListener('scroll', this.handleScroll, { passive: true });
+    this.updateActiveSection();
+  }
+
+  getArticleSidePlacement() {
+    const viewportPadding = 10;
+    const articleGap = 18;
+    const minimumExpandedWidth = 320;
+    const compactWidth = 220;
+    const preferredWidth = Math.min(560, Math.max(340, window.innerWidth * 0.34));
+    const articleRect = findArticleContainer()?.getBoundingClientRect();
+    const availableRight = articleRect
+      ? window.innerWidth - articleRect.right - articleGap - viewportPadding
+      : preferredWidth;
+    const hasExpandedSpace = availableRight >= minimumExpandedWidth;
+    const width = hasExpandedSpace ? Math.min(preferredWidth, availableRight) : preferredWidth;
+    const visibleWidth = hasExpandedSpace ? width : compactWidth;
+    const preferredX = articleRect ? articleRect.right + articleGap : window.innerWidth - visibleWidth - 20;
+    const x = Math.max(viewportPadding, Math.min(preferredX, window.innerWidth - visibleWidth - viewportPadding));
+    const y = Math.max(72, Math.min(articleRect?.top || 100, window.innerHeight - 180));
+    return { x, y, width, collapsed: !hasExpandedSpace };
+  }
+
+  updateActiveSection() {
+    if (!this.isVisible || headerElements.length === 0) return;
+    const readingLine = 96;
+    let nextIndex = 0;
+
+    headerElements.forEach((header, index) => {
+      if (header.element?.getBoundingClientRect().top <= readingLine) nextIndex = index;
+    });
+
+    this.setActiveIndex(nextIndex);
+  }
+
+  setActiveIndex(index) {
+    if (this.activeIndex === index) return;
+    this.activeIndex = index;
+    const items = this.panel?.querySelectorAll('.toc-item') || [];
+    items.forEach((item, itemIndex) => {
+      const isActive = itemIndex === index;
+      item.classList.toggle('active', isActive);
+      if (isActive) {
+        item.setAttribute('aria-current', 'location');
+        item.scrollIntoView({ block: 'nearest' });
+      } else {
+        item.removeAttribute('aria-current');
+      }
     });
   }
 
@@ -562,8 +719,8 @@ class TOCPanel {
     return `
       <ul class="toc-list">
         ${toc.map((item, index) => `
-          <li class="toc-item level-${item.level}" data-index="${index}">
-            ${item.text}
+          <li class="toc-row level-${item.level}">
+            <button class="toc-item" type="button" data-index="${index}">${escapeTocHtml(item.text)}</button>
           </li>
         `).join('')}
       </ul>
@@ -575,10 +732,12 @@ class TOCPanel {
       this.panel.style.display = 'none';
     }
     this.isVisible = false;
+    window.removeEventListener('scroll', this.handleScroll);
     chrome.storage.local.set({ tocPanelVisible: false });
   }
 
   keepInViewport() {
+    if (!this.panel || !this.isVisible) return;
     const rect = this.panel.getBoundingClientRect();
     const maxX = window.innerWidth - rect.width - 10;
     const maxY = window.innerHeight - rect.height - 10;
@@ -603,6 +762,9 @@ class TOCPanel {
       this.panel.remove();
       this.panel = null;
     }
+    window.removeEventListener('scroll', this.handleScroll);
+    window.removeEventListener('resize', this.handleResize);
+    if (this.scrollFrame) cancelAnimationFrame(this.scrollFrame);
   }
 }
 

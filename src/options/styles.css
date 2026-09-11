@@ -62,10 +62,38 @@ body {
   margin-bottom: 24px;
 }
 
+.app-identity {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.app-identity img {
+  border-radius: 9px;
+  box-shadow: 0 5px 16px rgba(15, 20, 25, 0.12);
+}
+
+.app-name {
+  display: block;
+  color: var(--accent-color);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
 .app-header h1 {
-  font-size: 26px;
+  margin-top: 3px;
+  font-size: 24px;
   font-weight: 760;
   line-height: 1.18;
+}
+
+.privacy-note {
+  align-self: center;
+  color: var(--text-secondary);
+  font-size: 12px;
 }
 
 .options-layout {
@@ -87,16 +115,21 @@ body {
 }
 
 .excerpt-section {
-  overflow: hidden;
+  overflow: visible;
 }
 
 .section-header {
+  position: sticky;
+  top: 0;
+  z-index: 8;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
   padding: 14px 16px;
   border-bottom: 1px solid var(--soft-border);
+  border-radius: 14px 14px 0 0;
+  background: var(--bg-elevated);
 }
 
 .section-title-block {
@@ -631,6 +664,12 @@ body {
   -webkit-line-clamp: unset;
 }
 
+.excerpt-item.is-expanded blockquote {
+  display: block;
+  overflow: visible;
+  -webkit-line-clamp: unset;
+}
+
 .excerpt-footer {
   display: flex;
   align-items: center;
@@ -639,6 +678,36 @@ body {
   margin-top: 8px;
   color: var(--text-muted);
   font-size: 12px;
+}
+
+.clip-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.text-action-btn {
+  border: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 2px;
+}
+
+.text-action-btn:hover,
+.text-action-btn:focus-visible {
+  color: var(--accent-color);
+}
+
+.text-action-btn:focus-visible,
+.edit-clip-btn:focus-visible,
+.btn-compact:focus-visible,
+.selection-summary:focus-visible,
+.dropdown-menu button:focus-visible {
+  outline: 2px solid var(--accent-color);
+  outline-offset: 2px;
 }
 
 .edit-clip-btn {
@@ -669,6 +738,10 @@ body {
   .section-header {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .privacy-note {
+    align-self: flex-start;
   }
 
   .options-layout {
