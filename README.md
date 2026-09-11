@@ -23,6 +23,8 @@
   <a href="https://chromewebstore.google.com/detail/nbdgpckkcfkomnmdefinikjijgljgjfp?utm_source=item-share-cb"><strong>Install from the Chrome Web Store</strong></a>
 </p>
 
+**Star 不会修复 Bug，但会让修 Bug 的人开心。**
+
 X-TOC helps you navigate structured X Articles, save useful passages with their source context, and move your clips into an open format when you are done reading.
 
 <p align="center">

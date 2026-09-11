@@ -23,6 +23,8 @@
   <a href="https://chromewebstore.google.com/detail/nbdgpckkcfkomnmdefinikjijgljgjfp?utm_source=item-share-cb"><strong>从 Chrome 应用商店安装</strong></a>
 </p>
 
+**Star 不会修复 Bug，但会让修 Bug 的人开心。**
+
 X-TOC 帮你浏览有标题结构的 X 长文，在阅读时连同来源上下文保存有用段落，并在读完后把摘录带到开放格式中。
 
 <p align="center">
