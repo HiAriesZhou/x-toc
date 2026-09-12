@@ -88,6 +88,7 @@ Before creating a GitHub Release:
 4. Verify the release contains the manifest with:
    `git show <tag>:.portfolio/project.json`
 5. Do not publish a release when this verification fails.
+6. Before publishing a source manifest schema change, validate it against the Portfolio contract.
 
 ## Release-readiness checks
 
