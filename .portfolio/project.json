@@ -1,0 +1,66 @@
+{
+  "schemaVersion": 1,
+  "slug": "x-toc",
+  "id": "twitter-toc-extension",
+  "title": "X-TOC",
+  "releaseVersion": "0.4.8",
+  "releaseStatus": "published",
+  "links": {
+    "homepage": "https://x-toc.vercel.app",
+    "install": "https://chromewebstore.google.com/detail/nbdgpckkcfkomnmdefinikjijgljgjfp?utm_source=item-share-cb",
+    "repository": "https://github.com/HiAriesZhou/x-toc"
+  },
+  "assets": {
+    "cover": "store-assets/chrome-store-screenshot-1280x800.png",
+    "logo": "src/logo.png"
+  },
+  "technology": {
+    "stack": ["JavaScript", "Extension.js", "Chrome Storage", "Markdown", "JSON"],
+    "applicationCategory": "BrowserApplication",
+    "operatingSystem": "Google Chrome"
+  },
+  "locales": {
+    "en": {
+      "description": "A lightweight, open-source reading companion for X/Twitter long-form articles. Navigate by heading, save passages with their source context, organize clips, and export them as Markdown or JSON.",
+      "edition": "Open source · Clips stay local",
+      "imageAlt": "X-TOC showing a table of contents and a save-to-X-TOC action beside an X long-form article",
+      "summary": "A lightweight, open-source Chrome extension for navigating structured X Articles, saving useful passages with their source context, and exporting clips as Markdown or JSON.",
+      "status": "Available",
+      "productType": "Chrome extension",
+      "features": ["Article navigation", "Context-rich clips", "Search, tags, and notes", "Markdown/JSON export"],
+      "capabilities": [
+        "Detect headings and navigate sections in X.com and Twitter.com long-form articles",
+        "Use popup and movable floating table-of-contents views",
+        "Save passages locally with article metadata and surrounding context",
+        "Search clips, add tags or notes, and export selected or all clips as Markdown or JSON"
+      ],
+      "boundaries": [
+        "Designed for X/Twitter long-form article pages",
+        "Navigation depends on headings present in the article",
+        "Clips, tags, notes, and settings remain in local extension storage unless exported",
+        "Saved passages are not restored as highlights in the original article or synced to a cloud service"
+      ]
+    },
+    "zh": {
+      "description": "面向 X/Twitter 长文的轻量开源阅读伴侣。按标题浏览文章，连同来源上下文保存段落，整理摘录，并导出为 Markdown 或 JSON。",
+      "edition": "开源 · 摘录保存在本地",
+      "imageAlt": "X-TOC 在 X 长文旁显示文章目录与保存摘录操作",
+      "summary": "一个轻量开源的 Chrome 扩展，用于浏览有标题结构的 X 长文，连同来源上下文保存有用段落，并将摘录导出为 Markdown 或 JSON。",
+      "status": "已上线",
+      "productType": "Chrome 扩展",
+      "features": ["文章导航", "保留上下文的摘录", "搜索、标签与笔记", "Markdown/JSON 导出"],
+      "capabilities": [
+        "识别 X.com 和 Twitter.com 长文标题并跳转章节",
+        "通过 Popup 和可移动的浮动目录查看文章结构",
+        "连同文章信息和前后文在本地保存段落",
+        "搜索摘录、添加标签或笔记，并将选中内容或全部内容导出为 Markdown 或 JSON"
+      ],
+      "boundaries": [
+        "面向 X/Twitter 长文章页面",
+        "目录效果取决于原文是否包含标题结构",
+        "摘录、标签、笔记和设置默认保留在扩展本地存储中，除非主动导出",
+        "当前不会在原文恢复高亮，也不会把摘录同步到云端"
+      ]
+    }
+  }
+}

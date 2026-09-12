@@ -79,6 +79,8 @@ npm run build:edge
 
 Chrome/Chromium 是当前有文档说明的商店与本地加载路径。Firefox 和 Edge 有各自的构建目标，分发前仍需在对应浏览器中验证。
 
+供下游站点使用的公开产品元数据位于 [`.portfolio/project.json`](.portfolio/project.json)。发布公开版本时，请同步更新清单及其引用的资源。发布工作流可在完成配置后立即通知作品集；否则作品集会通过定时拉取发现变更。
+
 ## 隐私
 
 摘录、标签、笔记和设置都保存在 `chrome.storage.local` 中。只有你主动操作时才会生成导出文件。X-TOC 不会把已保存的摘录发送到外部服务器。

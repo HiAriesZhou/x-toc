@@ -79,6 +79,8 @@ npm run build:edge
 
 Chrome/Chromium is the documented store and load-unpacked path. Firefox and Edge have separate build targets and should be tested in their own browsers before distribution.
 
+Public product metadata for downstream sites lives in [`.portfolio/project.json`](.portfolio/project.json). Update the manifest and its referenced assets as part of a public release. The release workflow can notify a configured portfolio immediately; otherwise the portfolio's scheduled pull discovers the change.
+
 ## Privacy
 
 Saved clips, tags, notes, and settings remain in `chrome.storage.local`. Exports happen only when you request them. X-TOC does not send saved clips to an external server.
