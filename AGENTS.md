@@ -78,6 +78,17 @@ npm run build:zip
 - ContextItem-compatible output must be additive, user-triggered, tested with legacy v1 consumers, and must not imply upload or synchronization. Do not expose a planned ContextItem mapping as a public contract before its implementation and approval.
 - Update tests whenever storage serialization, selection filtering, Markdown rendering, JSON fields, or export versioning changes.
 
+## Portfolio release contract
+
+Before creating a GitHub Release:
+
+1. Update `.portfolio/project.json` from shipped behavior.
+2. Commit the manifest and every referenced asset before creating the release tag.
+3. Create the tag from that exact commit.
+4. Verify the release contains the manifest with:
+   `git show <tag>:.portfolio/project.json`
+5. Do not publish a release when this verification fails.
+
 ## Release-readiness checks
 
 Before reporting a release-ready change:
