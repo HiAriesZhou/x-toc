@@ -29,3 +29,21 @@ jobs:
             --header "X-GitHub-Api-Version: 2022-11-28" \
             "https://api.github.com/repos/$PORTFOLIO_REPOSITORY/dispatches" \
             --data "$payload"
+
+      - name: Notify GitHub profile
+        env:
+          DISPATCH_TOKEN: ${{ secrets.PROFILE_DISPATCH_TOKEN }}
+          PROFILE_REPOSITORY: HiAriesZhou/HiAriesZhou
+        run: |
+          if [ -z "$DISPATCH_TOKEN" ]; then
+            echo "Profile dispatch is not configured; the daily profile refresh remains active."
+            exit 0
+          fi
+          payload="$(jq -n --arg revision "$GITHUB_SHA" '{event_type:"x-toc-release",client_payload:{repository:"HiAriesZhou/x-toc",revision:$revision}}')"
+          curl --fail-with-body \
+            --request POST \
+            --header "Accept: application/vnd.github+json" \
+            --header "Authorization: Bearer $DISPATCH_TOKEN" \
+            --header "X-GitHub-Api-Version: 2022-11-28" \
+            "https://api.github.com/repos/$PROFILE_REPOSITORY/dispatches" \
+            --data "$payload"
