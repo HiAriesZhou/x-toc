@@ -573,6 +573,24 @@
       padding: 13px 17px;
       box-shadow: 0 20px 50px rgba(15, 20, 25, 0.24);
     }
+    /* Reflow the reading demo for social cards; keep store layouts unchanged. */
+    body[data-variant="social"] .screenshot { display: block; width: 1280px; height: 640px; padding: 32px 46px; }
+    body[data-variant="social"] .logo { width: 48px; height: 48px; border-radius: 12px; }
+    body[data-variant="social"] .brand-name { font-size: 26px; }
+    body[data-variant="social"] .headline { margin-top: 24px; grid-template-columns: 570px 1fr; }
+    body[data-variant="social"] h1 { font-size: 44px; }
+    body[data-variant="social"] .lead { font-size: 20px; }
+    body[data-variant="social"] .stage { margin-top: 24px; }
+    body[data-variant="social"] .browser { height: 350px; }
+    body[data-variant="social"] .chrome-bar { height: 32px; }
+    body[data-variant="social"] .article-page { padding-top: 20px; }
+    body[data-variant="social"] .article-title { font-size: 25px; }
+    body[data-variant="social"] .article-meta { margin-top: 8px; }
+    body[data-variant="social"] .article-line { margin-top: 12px; height: 7px; }
+    body[data-variant="social"] .article-line.short { display: none; }
+    body[data-variant="social"] .selection { margin-top: 12px; padding: 12px 16px; }
+    body[data-variant="social"] .floating-panel { top: 22px; }
+    body[data-variant="social"] .save-button { margin-top: 12px; }
   </style>
 </head>
 <body>

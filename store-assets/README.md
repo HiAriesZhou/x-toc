@@ -37,3 +37,13 @@ If `chrome.storage` is undefined, use the Console's execution-context selector t
 Use an isolated browser profile for screenshots. Restoring real data after loading the fixture is intentionally left to the profile boundary instead of adding a destructive reset command.
 
 `chrome-store-assets.html` is the source for the generated 1280 × 800 screenshot and 1400 × 560 marquee image.
+
+## Social preview
+
+`x-toc-social-1280x640.png` is an opaque RGB PNG for GitHub and website link cards. It reflows the reading demo at 1280 × 640 rather than cropping the store screenshot. The content is fictional demo data describing released behavior.
+
+To reproduce it, open `chrome-store-assets.html?variant=social` and capture the `.screenshot` element at a device scale factor of 1. Keep the output below 1 MB for GitHub.
+
+For the repository card, upload the PNG in GitHub **Settings → Social preview → Edit**. Committing the file alone does not configure GitHub's preview.
+
+The website repository serves an identical copy at `public/images/x-toc-social-1280x640.png`. Its metadata references that public path for both Open Graph and the X large-image card. When updating the artwork, update both copies and their dimensions together.
