@@ -2,7 +2,7 @@
   "private": true,
   "name": "twitter-toc-extension",
   "description": "Add a floating table of contents and save useful excerpts while reading X/Twitter long-form articles.",
-  "version": "0.4.8",
+  "version": "0.4.9",
   "license": "MIT",
   "type": "module",
   "author": {

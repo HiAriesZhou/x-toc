@@ -20,3 +20,10 @@ chrome.contextMenus.onClicked.addListener((info, tab) => {
     chrome.action.openPopup();
   }
 });
+
+// Open the clip library from the pinned in-page panel.
+chrome.runtime.onMessage.addListener((message) => {
+  if (message.action === 'openClips') {
+    chrome.runtime.openOptionsPage();
+  }
+});

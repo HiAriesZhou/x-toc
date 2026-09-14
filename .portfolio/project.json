@@ -3,13 +3,13 @@
   "slug": "x-toc",
   "id": "twitter-toc-extension",
   "title": "X-TOC",
-  "releaseVersion": "0.4.8",
+  "releaseVersion": "0.4.9",
   "releaseStatus": "published",
   "links": {
     "homepage": "https://x-toc.vercel.app",
     "install": "https://chromewebstore.google.com/detail/nbdgpckkcfkomnmdefinikjijgljgjfp?utm_source=item-share-cb",
     "repository": "https://github.com/HiAriesZhou/x-toc",
-    "release": "https://github.com/HiAriesZhou/x-toc/releases/tag/v0.4.8",
+    "release": "https://github.com/HiAriesZhou/x-toc/releases/tag/v0.4.9",
     "projectStory": "https://www.arieszhou.com/projects/x-toc"
   },
   "assets": {
@@ -33,9 +33,9 @@
       "features": ["Pinned article navigation", "Local context-rich clips", "Search, tags, and notes", "Markdown and JSON export"],
       "capabilities": [
         "Detect headings and navigate sections in X.com and Twitter.com long-form articles",
-        "Pin, collapse, and move a table of contents beside the article while tracking the current section",
+        "Pin, collapse, and move a table of contents beside the article with stable current-section tracking",
         "Save selected passages locally with article metadata, surrounding context, and clear save feedback",
-        "Search clips, add tags or notes, and export selected or all clips as Markdown or JSON"
+        "Open the local clip library from the pinned panel, search clips, add tags or notes, and export selected or all clips as Markdown or JSON"
       ],
       "boundaries": [
         "Designed for X/Twitter long-form article pages",
@@ -54,9 +54,9 @@
       "features": ["固定文章目录导航", "保留上下文的本地摘录", "搜索、标签与笔记", "Markdown 与 JSON 导出"],
       "capabilities": [
         "识别 X.com 和 Twitter.com 长文标题并跳转章节",
-        "在文章旁固定、收起和移动目录，并跟随显示当前章节",
+        "在文章旁固定、收起和移动目录，并稳定跟随显示当前章节",
         "连同文章信息和前后文在本地保存所选段落，并提供清晰的保存反馈",
-        "搜索摘录、添加标签或笔记，并将选中内容或全部内容导出为 Markdown 或 JSON"
+        "从固定目录直接打开本地摘录库，搜索摘录、添加标签或笔记，并将选中内容或全部内容导出为 Markdown 或 JSON"
       ],
       "boundaries": [
         "面向 X/Twitter 长文章页面",

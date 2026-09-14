@@ -1,3 +1,10 @@
+import {
+  areTocEntriesEqual,
+  clampScrollTarget,
+  getActiveSectionIndex,
+  hasReachedScrollTarget
+} from './navigation-utils.js';
+
 // Content script for extracting TOC from Twitter/X articles
 
 let tocData = [];
@@ -21,11 +28,46 @@ const DEFAULT_EXCERPT_SETTINGS = {
   defaultExportFormat: 'markdown'
 };
 
+const TOC_SCROLL_OFFSET = 70;
+const TOC_READING_LINE = 96;
+const TOC_NAVIGATION_TIMEOUT = 2500;
+const TOC_NAVIGATION_KEYS = new Set([
+  'ArrowUp',
+  'ArrowDown',
+  'PageUp',
+  'PageDown',
+  'Home',
+  'End',
+  ' '
+]);
+
 function isExtensionElement(element) {
   return Boolean(
     element?.closest?.('#twitter-toc-panel') ||
     element?.closest?.('#xtoc-save-excerpt-button')
   );
+}
+
+function isExtensionMutation(mutation) {
+  const changedNodes = [...mutation.addedNodes, ...mutation.removedNodes];
+  if (changedNodes.length === 0) return isExtensionElement(mutation.target);
+
+  return changedNodes.every((node) => {
+    const element = node.nodeType === Node.ELEMENT_NODE ? node : node.parentElement;
+    return isExtensionElement(element);
+  });
+}
+
+function isExtensionContextAvailable() {
+  try {
+    return Boolean(globalThis.chrome?.runtime?.id);
+  } catch {
+    return false;
+  }
+}
+
+function isExtensionContextError(error) {
+  return /extension context invalidated/i.test(error?.message || '');
 }
 
 function getCanonicalUrl() {
@@ -466,12 +508,28 @@ class TOCPanel {
     this.activeIndex = -1;
     this.isCollapsed = false;
     this.scrollFrame = null;
+    this.navigationTargetIndex = null;
+    this.navigationTargetScroll = null;
+    this.navigationTimeout = null;
     this.handleScroll = () => {
       if (this.scrollFrame) return;
       this.scrollFrame = requestAnimationFrame(() => {
         this.scrollFrame = null;
+        if (this.navigationTargetIndex !== null) {
+          if (hasReachedScrollTarget(window.scrollY, this.navigationTargetScroll)) {
+            this.finishNavigation();
+          } else {
+            this.setActiveIndex(this.navigationTargetIndex);
+          }
+          return;
+        }
         this.updateActiveSection();
       });
+    };
+    this.handleUserScrollIntent = (event) => {
+      if (this.navigationTargetIndex === null) return;
+      if (event.type === 'keydown' && !TOC_NAVIGATION_KEYS.has(event.key)) return;
+      this.cancelNavigation();
     };
     this.handleResize = () => this.keepInViewport();
   }
@@ -533,12 +591,23 @@ class TOCPanel {
       </span>
       <span class="panel-title"><span class="panel-brand">X-TOC</span><span class="panel-title-separator" aria-hidden="true"> · </span>Contents</span>
       <span class="panel-actions">
+        <button class="clips-btn" type="button" title="Open clips" aria-label="Open clips">
+          <svg class="panel-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+          </svg>
+          <span class="clips-label">Clips</span>
+        </button>
         <button class="collapse-btn" type="button" title="Collapse panel" aria-label="Collapse table of contents" aria-expanded="true">
-          <span aria-hidden="true">−</span>
+          <svg class="panel-action-icon collapse-icon collapse-icon-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m6 15 6-6 6 6"/>
+          </svg>
+          <svg class="panel-action-icon collapse-icon collapse-icon-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="m6 9 6 6 6-6"/>
+          </svg>
         </button>
         <button class="close-btn" type="button" title="Hide panel" aria-label="Hide table of contents">
-          <svg width="14" height="14" viewBox="0 0 14 14" fill="currentColor">
-            <path d="M14 1.41L12.59 0 7 5.59 1.41 0 0 1.41 5.59 7 0 12.59 1.41 14 7 8.41 12.59 14 14 12.59 8.41 7z"/>
+          <svg class="panel-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M18 6 6 18M6 6l12 12"/>
           </svg>
         </button>
       </span>
@@ -558,6 +627,7 @@ class TOCPanel {
   }
 
   setupEventListeners(header) {
+    const clipsBtn = header.querySelector('.clips-btn');
     const collapseBtn = header.querySelector('.collapse-btn');
     const closeBtn = header.querySelector('.close-btn');
 
@@ -568,13 +638,16 @@ class TOCPanel {
     document.addEventListener('mousemove', (e) => this.drag(e));
     document.addEventListener('mouseup', () => this.endDrag());
 
-    // Close button
+    clipsBtn.addEventListener('click', () => this.openClips());
     collapseBtn.addEventListener('click', () => this.toggleCollapsed(collapseBtn));
     closeBtn.addEventListener('click', () => this.hide());
     this.panel.addEventListener('keydown', (event) => {
       if (event.key === 'Escape') this.hide();
     });
     window.addEventListener('resize', this.handleResize);
+    window.addEventListener('wheel', this.handleUserScrollIntent, { passive: true });
+    window.addEventListener('touchstart', this.handleUserScrollIntent, { passive: true });
+    window.addEventListener('keydown', this.handleUserScrollIntent);
   }
 
   toggleCollapsed(button) {
@@ -590,7 +663,57 @@ class TOCPanel {
     button.setAttribute('aria-expanded', String(!isCollapsed));
     button.setAttribute('aria-label', isCollapsed ? 'Expand table of contents' : 'Collapse table of contents');
     button.setAttribute('title', isCollapsed ? 'Expand panel' : 'Collapse panel');
-    button.querySelector('span').textContent = isCollapsed ? '+' : '−';
+  }
+
+  openClips() {
+    if (!isExtensionContextAvailable()) {
+      this.showReconnectMessage();
+      return;
+    }
+
+    try {
+      const pendingMessage = chrome.runtime.sendMessage({ action: 'openClips' });
+      pendingMessage?.catch((error) => this.handleExtensionError(error));
+    } catch (error) {
+      this.handleExtensionError(error);
+    }
+  }
+
+  persistLocalState(values) {
+    if (!isExtensionContextAvailable()) {
+      this.showReconnectMessage();
+      return;
+    }
+
+    try {
+      const pendingWrite = chrome.storage.local.set(values);
+      pendingWrite?.catch((error) => this.handleExtensionError(error));
+    } catch (error) {
+      this.handleExtensionError(error);
+    }
+  }
+
+  handleExtensionError(error) {
+    if (isExtensionContextError(error) || !isExtensionContextAvailable()) {
+      this.showReconnectMessage();
+      return;
+    }
+
+    console.error('[X-TOC] Extension action failed:', error);
+  }
+
+  showReconnectMessage() {
+    const title = this.panel?.querySelector('.panel-title');
+    const clipsButton = this.panel?.querySelector('.clips-btn');
+    if (title) {
+      title.textContent = 'Reload page to reconnect X-TOC';
+      title.classList.add('context-invalid');
+    }
+    if (clipsButton) {
+      clipsButton.disabled = true;
+      clipsButton.setAttribute('title', 'Reload this page to reconnect X-TOC');
+      clipsButton.setAttribute('aria-label', 'Reload this page to reconnect X-TOC');
+    }
   }
 
   startDrag(e) {
@@ -629,7 +752,7 @@ class TOCPanel {
       y: parseInt(this.panel.style.top)
     };
     this.hasSavedPosition = true;
-    chrome.storage.local.set({ tocPanelPosition: this.position });
+    this.persistLocalState({ tocPanelPosition: this.position });
   }
 
   show(toc) {
@@ -639,6 +762,7 @@ class TOCPanel {
 
     // Update TOC content
     const body = this.panel.querySelector('.toc-panel-body');
+    this.clearNavigation();
     this.activeIndex = -1;
     body.innerHTML = this.renderTOC(toc);
     if (!this.hasSavedPosition) {
@@ -657,7 +781,6 @@ class TOCPanel {
     body.querySelectorAll('.toc-item').forEach((item, index) => {
       item.addEventListener('click', () => {
         scrollToHeader(index);
-        this.setActiveIndex(index);
       });
     });
     window.addEventListener('scroll', this.handleScroll, { passive: true });
@@ -668,7 +791,6 @@ class TOCPanel {
     const viewportPadding = 10;
     const articleGap = 18;
     const minimumExpandedWidth = 320;
-    const compactWidth = 220;
     const preferredWidth = Math.min(560, Math.max(340, window.innerWidth * 0.34));
     const articleRect = findArticleContainer()?.getBoundingClientRect();
     const availableRight = articleRect
@@ -676,23 +798,45 @@ class TOCPanel {
       : preferredWidth;
     const hasExpandedSpace = availableRight >= minimumExpandedWidth;
     const width = hasExpandedSpace ? Math.min(preferredWidth, availableRight) : preferredWidth;
-    const visibleWidth = hasExpandedSpace ? width : compactWidth;
-    const preferredX = articleRect ? articleRect.right + articleGap : window.innerWidth - visibleWidth - 20;
-    const x = Math.max(viewportPadding, Math.min(preferredX, window.innerWidth - visibleWidth - viewportPadding));
+    const preferredX = articleRect ? articleRect.right + articleGap : window.innerWidth - width - 20;
+    const x = Math.max(viewportPadding, Math.min(preferredX, window.innerWidth - width - viewportPadding));
     const y = Math.max(72, Math.min(articleRect?.top || 100, window.innerHeight - 180));
     return { x, y, width, collapsed: !hasExpandedSpace };
   }
 
   updateActiveSection() {
     if (!this.isVisible || headerElements.length === 0) return;
-    const readingLine = 96;
-    let nextIndex = 0;
-
-    headerElements.forEach((header, index) => {
-      if (header.element?.getBoundingClientRect().top <= readingLine) nextIndex = index;
-    });
-
+    const headerTops = headerElements.map((header) => (
+      header.element?.getBoundingClientRect().top ?? Number.POSITIVE_INFINITY
+    ));
+    const isAtPageEnd = window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 4;
+    const nextIndex = getActiveSectionIndex(headerTops, TOC_READING_LINE, isAtPageEnd);
     this.setActiveIndex(nextIndex);
+  }
+
+  startNavigation(index, targetScroll) {
+    this.clearNavigation();
+    this.navigationTargetIndex = index;
+    this.navigationTargetScroll = targetScroll;
+    this.setActiveIndex(index);
+    this.navigationTimeout = setTimeout(() => this.finishNavigation(), TOC_NAVIGATION_TIMEOUT);
+  }
+
+  finishNavigation() {
+    if (this.navigationTargetIndex === null) return;
+    this.clearNavigation();
+    this.updateActiveSection();
+  }
+
+  clearNavigation() {
+    clearTimeout(this.navigationTimeout);
+    this.navigationTimeout = null;
+    this.navigationTargetIndex = null;
+    this.navigationTargetScroll = null;
+  }
+
+  cancelNavigation() {
+    this.finishNavigation();
   }
 
   setActiveIndex(index) {
@@ -704,7 +848,14 @@ class TOCPanel {
       item.classList.toggle('active', isActive);
       if (isActive) {
         item.setAttribute('aria-current', 'location');
-        item.scrollIntoView({ block: 'nearest' });
+        const body = this.panel?.querySelector('.toc-panel-body');
+        const itemRect = item.getBoundingClientRect();
+        const bodyRect = body?.getBoundingClientRect();
+        if (body && bodyRect && itemRect.top < bodyRect.top) {
+          body.scrollTop -= bodyRect.top - itemRect.top;
+        } else if (body && bodyRect && itemRect.bottom > bodyRect.bottom) {
+          body.scrollTop += itemRect.bottom - bodyRect.bottom;
+        }
       } else {
         item.removeAttribute('aria-current');
       }
@@ -733,7 +884,8 @@ class TOCPanel {
     }
     this.isVisible = false;
     window.removeEventListener('scroll', this.handleScroll);
-    chrome.storage.local.set({ tocPanelVisible: false });
+    this.clearNavigation();
+    this.persistLocalState({ tocPanelVisible: false });
   }
 
   keepInViewport() {
@@ -753,7 +905,7 @@ class TOCPanel {
       this.hide();
     } else {
       this.show(toc);
-      chrome.storage.local.set({ tocPanelVisible: true });
+      this.persistLocalState({ tocPanelVisible: true });
     }
   }
 
@@ -764,7 +916,11 @@ class TOCPanel {
     }
     window.removeEventListener('scroll', this.handleScroll);
     window.removeEventListener('resize', this.handleResize);
+    window.removeEventListener('wheel', this.handleUserScrollIntent);
+    window.removeEventListener('touchstart', this.handleUserScrollIntent);
+    window.removeEventListener('keydown', this.handleUserScrollIntent);
     if (this.scrollFrame) cancelAnimationFrame(this.scrollFrame);
+    this.clearNavigation();
   }
 }
 
@@ -892,14 +1048,18 @@ function scrollToHeader(index) {
   if (header && header.element) {
     // Get the element's position
     const rect = header.element.getBoundingClientRect();
-    // Calculate scroll position with offset for Twitter's fixed header (approx 60px)
-    const offset = 70;
     const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-    const targetScroll = rect.top + scrollTop - offset;
+    const maximumScroll = document.documentElement.scrollHeight - window.innerHeight;
+    const targetScroll = clampScrollTarget(
+      rect.top + scrollTop - TOC_SCROLL_OFFSET,
+      maximumScroll
+    );
+
+    if (tocPanel?.isVisible) tocPanel.startNavigation(index, targetScroll);
 
     window.scrollTo({
       top: targetScroll,
-      behavior: 'smooth'
+      behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth'
     });
 
     header.element.style.transition = 'background-color 0.3s ease';
@@ -932,11 +1092,14 @@ async function init() {
   // Watch for dynamic content (SPA navigation)
   const observer = new MutationObserver((mutations) => {
     handleExcerptRouteChange();
+    if (mutations.every(isExtensionMutation)) return;
     clearTimeout(window.tocExtractTimeout);
     window.tocExtractTimeout = setTimeout(() => {
-      tocData = extractTOC();
-      if (tocPanel.isVisible) {
-        tocPanel.show(tocData);
+      const nextToc = extractTOC();
+      const tocChanged = !areTocEntriesEqual(tocData, nextToc);
+      tocData = nextToc;
+      if (tocPanel.isVisible && tocChanged) {
+        tocPanel.show(nextToc);
       }
     }, 1000);
   });

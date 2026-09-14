@@ -73,47 +73,88 @@
 .twitter-toc-panel .panel-actions {
   display: flex;
   align-items: center;
+  gap: 2px;
+}
+
+.twitter-toc-panel .close-btn,
+.twitter-toc-panel .collapse-btn,
+.twitter-toc-panel .clips-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 28px;
+  min-width: 28px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  border-radius: 6px;
+  font: inherit;
+  cursor: pointer;
+  color: var(--text-secondary);
+  transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 .twitter-toc-panel .close-btn,
 .twitter-toc-panel .collapse-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
   width: 28px;
-  height: 28px;
-  border: none;
-  background: transparent;
-  border-radius: 6px;
-  cursor: pointer;
-  color: var(--text-secondary);
-  transition: background 0.15s ease;
+}
+
+.twitter-toc-panel .clips-btn {
+  gap: 5px;
+  padding: 0 8px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.twitter-toc-panel .panel-action-icon {
+  width: 16px;
+  height: 16px;
+  flex: 0 0 16px;
 }
 
 .twitter-toc-panel .close-btn:hover,
-.twitter-toc-panel .collapse-btn:hover {
+.twitter-toc-panel .collapse-btn:hover,
+.twitter-toc-panel .clips-btn:hover {
   background: var(--hover-bg);
+  color: var(--text-primary);
 }
 
 .twitter-toc-panel .close-btn:focus-visible,
-.twitter-toc-panel .collapse-btn:focus-visible {
+.twitter-toc-panel .collapse-btn:focus-visible,
+.twitter-toc-panel .clips-btn:focus-visible {
   outline: 2px solid var(--accent-color);
   outline-offset: 1px;
 }
 
-.twitter-toc-panel.collapsed {
-  width: 220px !important;
-  min-width: 220px !important;
-  resize: none !important;
+.twitter-toc-panel .collapse-icon-down {
+  display: none;
 }
 
-.twitter-toc-panel.collapsed .panel-brand,
-.twitter-toc-panel.collapsed .panel-title-separator {
-  display: none;
+.twitter-toc-panel.collapsed {
+  resize: none !important;
 }
 
 .twitter-toc-panel.collapsed .toc-panel-body {
   display: none;
+}
+
+.twitter-toc-panel.collapsed .collapse-icon-up {
+  display: none;
+}
+
+.twitter-toc-panel .clips-btn:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.twitter-toc-panel .panel-title.context-invalid {
+  color: var(--text-secondary);
+  font-size: 12px;
+}
+
+.twitter-toc-panel.collapsed .collapse-icon-down {
+  display: block;
 }
 
 .twitter-toc-panel.dragging {
