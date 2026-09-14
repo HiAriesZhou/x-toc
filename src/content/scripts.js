@@ -512,6 +512,9 @@ class TOCPanel {
     this.navigationTargetScroll = null;
     this.navigationTimeout = null;
     this.collapseLayoutTimeout = null;
+    this.layoutResizeObserver = null;
+    this.layoutResizeFrame = null;
+    this.layoutSignature = null;
     this.handleScroll = () => {
       if (this.scrollFrame) return;
       this.scrollFrame = requestAnimationFrame(() => {
@@ -549,8 +552,13 @@ class TOCPanel {
   create() {
     // Remove existing panel if any
     if (this.panel) {
+      this.layoutResizeObserver?.disconnect();
+      if (this.layoutResizeFrame) cancelAnimationFrame(this.layoutResizeFrame);
       this.panel.remove();
     }
+    this.layoutResizeObserver = null;
+    this.layoutResizeFrame = null;
+    this.layoutSignature = null;
 
     // Create panel element
     this.panel = document.createElement('div');
@@ -632,6 +640,30 @@ class TOCPanel {
 
     // Add event listeners
     this.setupEventListeners(header);
+    this.setupLayoutObserver(header, body);
+  }
+
+  setupLayoutObserver(header, body) {
+    if (typeof ResizeObserver !== 'function') return;
+
+    this.layoutResizeObserver = new ResizeObserver(() => {
+      const panelWidth = Math.round(this.panel?.getBoundingClientRect().width || 0);
+      const headerHeight = Math.round(header.getBoundingClientRect().height);
+      const bodyHeight = Math.round(body.scrollHeight);
+      const signature = `${panelWidth}:${headerHeight}:${bodyHeight}`;
+      if (signature === this.layoutSignature) return;
+      this.layoutSignature = signature;
+      if (this.layoutResizeFrame) return;
+
+      this.layoutResizeFrame = requestAnimationFrame(() => {
+        this.layoutResizeFrame = null;
+        this.syncCurtainHeight();
+        this.keepInViewport();
+      });
+    });
+    this.layoutResizeObserver.observe(this.panel);
+    this.layoutResizeObserver.observe(header);
+    this.layoutResizeObserver.observe(body);
   }
 
   setupEventListeners(header) {
@@ -947,6 +979,11 @@ class TOCPanel {
     window.removeEventListener('touchstart', this.handleUserScrollIntent);
     window.removeEventListener('keydown', this.handleUserScrollIntent);
     if (this.scrollFrame) cancelAnimationFrame(this.scrollFrame);
+    if (this.layoutResizeFrame) cancelAnimationFrame(this.layoutResizeFrame);
+    this.layoutResizeObserver?.disconnect();
+    this.layoutResizeFrame = null;
+    this.layoutResizeObserver = null;
+    this.layoutSignature = null;
     clearTimeout(this.collapseLayoutTimeout);
     this.clearNavigation();
   }

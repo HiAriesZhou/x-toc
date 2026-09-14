@@ -403,22 +403,60 @@ function markEditingClip(excerptId, isEditing) {
   button?.setAttribute('aria-expanded', String(isEditing));
 }
 
-function hideClipEditor() {
-  if (!clipEditorState) return;
+function setClipEditorSaving(editorState, isSaving) {
+  if (clipEditorState !== editorState) return;
+  editorState.isSaving = isSaving;
+  const saveButton = document.querySelector('#clipEditorForm .primary-button');
+  const form = document.getElementById('clipEditorForm');
+  const cancelButton = document.getElementById('cancelClipEditorBtn');
+  const closeButton = document.getElementById('closeClipEditorBtn');
+  const tagInput = document.getElementById('clipTagInput');
+  const noteInput = document.getElementById('clipNoteInput');
+  saveButton.disabled = isSaving;
+  saveButton.textContent = isSaving ? 'Saving…' : 'Save';
+  cancelButton.disabled = isSaving;
+  closeButton.disabled = isSaving;
+  tagInput.disabled = isSaving;
+  noteInput.disabled = isSaving;
+  form.setAttribute('aria-busy', String(isSaving));
+}
+
+function hideClipEditor(expectedState = clipEditorState) {
+  if (!clipEditorState || clipEditorState !== expectedState) return;
   markEditingClip(clipEditorState.excerptId, false);
-  clipEditorState = null;
   const popover = document.getElementById('clipEditorPopover');
+  if (popover.contains(document.activeElement)) {
+    if (clipEditorState.anchor?.isConnected) {
+      clipEditorState.anchor.focus();
+    } else {
+      document.activeElement?.blur();
+    }
+  }
+  clipEditorState = null;
   popover.classList.remove('open');
-  popover.setAttribute('aria-hidden', 'true');
   popover.toggleAttribute('inert', true);
+  popover.setAttribute('aria-hidden', 'true');
   setClipEditorStatus('');
 }
 
 function requestCloseClipEditor() {
   if (!clipEditorState) return;
+  if (clipEditorState.isSaving) {
+    setClipEditorStatus('Saving this clip…');
+    return;
+  }
   if (isClipEditorDirty()) {
     setClipEditorStatus('Save or cancel your changes first.');
     document.querySelector('#clipEditorForm .primary-button')?.focus();
+    return;
+  }
+  hideClipEditor();
+}
+
+function cancelClipEditor() {
+  if (!clipEditorState) return;
+  if (clipEditorState.isSaving) {
+    setClipEditorStatus('Saving this clip…');
     return;
   }
   hideClipEditor();
@@ -429,6 +467,10 @@ function openClipEditor(actionTarget) {
   const excerpt = excerptState.excerpts[excerptId];
   if (!excerpt) return;
 
+  if (clipEditorState?.isSaving) {
+    setClipEditorStatus('Saving this clip…');
+    return;
+  }
   if (clipEditorState?.excerptId === excerptId) {
     document.getElementById('clipTagInput').focus();
     return;
@@ -448,7 +490,8 @@ function openClipEditor(actionTarget) {
     note,
     initialTags: tags,
     initialNote: note,
-    anchor: actionTarget
+    anchor: actionTarget,
+    isSaving: false
   };
 
   const preview = excerpt.text.replace(/\s+/g, ' ').trim();
@@ -466,6 +509,7 @@ function openClipEditor(actionTarget) {
   popover.toggleAttribute('inert', false);
   popover.setAttribute('aria-hidden', 'false');
   popover.classList.add('open');
+  setClipEditorSaving(clipEditorState, false);
   requestAnimationFrame(() => {
     positionClipEditor(actionTarget);
     document.getElementById('clipTagInput').focus();
@@ -498,19 +542,38 @@ function addDraftTags() {
 
 async function saveClipEditor() {
   if (!clipEditorState) return;
-  const excerpt = excerptState.excerpts[clipEditorState.excerptId];
+  const editorState = clipEditorState;
+  if (editorState.isSaving) return;
+  const excerptId = editorState.excerptId;
+  const excerpt = excerptState.excerpts[excerptId];
   if (!excerpt) {
-    hideClipEditor();
+    hideClipEditor(editorState);
     return;
   }
 
   const now = new Date().toISOString();
   const pendingTag = document.getElementById('clipTagInput').value;
-  const { tags } = mergeClipTagInput(clipEditorState.tags, pendingTag);
+  const { tags } = mergeClipTagInput(editorState.tags, pendingTag);
   const withTags = updateClipTags(excerpt, tags, { now });
-  excerptState.excerpts[clipEditorState.excerptId] = updateClipNote(withTags, clipEditorState.note, { now });
-  await saveExcerptState();
-  hideClipEditor();
+  excerptState.excerpts[excerptId] = updateClipNote(withTags, editorState.note, { now });
+  setClipEditorSaving(editorState, true);
+
+  try {
+    await saveExcerptState();
+  } catch (error) {
+    excerptState.excerpts[excerptId] = excerpt;
+    setClipEditorSaving(editorState, false);
+    if (clipEditorState === editorState) {
+      setClipEditorStatus('Could not save this clip. Try again.');
+      document.querySelector('#clipEditorForm .primary-button')?.focus();
+    }
+    console.error('[X-TOC] Could not save clip changes:', error);
+    return;
+  }
+
+  if (clipEditorState !== editorState) return;
+  setClipEditorSaving(editorState, false);
+  hideClipEditor(editorState);
   renderExcerptManager();
 }
 
@@ -661,7 +724,7 @@ function bindClipEditor() {
   popover.toggleAttribute('inert', true);
 
   document.getElementById('closeClipEditorBtn').addEventListener('click', requestCloseClipEditor);
-  document.getElementById('cancelClipEditorBtn').addEventListener('click', hideClipEditor);
+  document.getElementById('cancelClipEditorBtn').addEventListener('click', cancelClipEditor);
   const tagInput = document.getElementById('clipTagInput');
   tagInput.addEventListener('compositionstart', () => {
     isTagInputComposing = true;
