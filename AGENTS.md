@@ -78,6 +78,14 @@ npm run build:zip
 - ContextItem-compatible output must be additive, user-triggered, tested with legacy v1 consumers, and must not imply upload or synchronization. Do not expose a planned ContextItem mapping as a public contract before its implementation and approval.
 - Update tests whenever storage serialization, selection filtering, Markdown rendering, JSON fields, or export versioning changes.
 
+## Development version policy
+
+- Before preparing a development/debug build containing extension changes, automatically ensure its version is newer than the latest confirmed official release; do not wait for a separate bump-version request.
+- Determine the official baseline from the latest published, non-prerelease GitHub Release and any explicitly confirmed browser-store release. Do not infer a published release from working-tree version fields or an unpublished tag. If the baseline cannot be verified, report that limitation rather than guessing.
+- Default to the next patch version (for example, official `0.4.8` becomes development `0.4.9`), unless the user specifies a different version. If the working version is already newer, retain it throughout that development cycle; repeated edits and builds do not require further increments. Documentation-only changes do not trigger a bump.
+- Keep `package.json`, `src/manifest.json`, any existing local lockfile's root version, and version badges consistent, and verify generated manifests after building. Do not force-add ignored lockfiles or build artifacts.
+- A development bump does not authorize commit, push, deployment, tag creation, store submission, or publication. Never move an existing release tag. Update Portfolio release metadata as part of the release preparation contract below; do not mark a development build as published merely because its version increased.
+
 ## Portfolio release contract
 
 Before creating a GitHub Release:

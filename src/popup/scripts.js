@@ -3,7 +3,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const root = document.getElementById('root');
 
   function renderOptionsButton() {
-    return '<button class="options-link-btn" id="optionsBtn" type="button">Saved clips</button>';
+    return '<button class="options-link-btn" id="optionsBtn" type="button">Clips</button>';
   }
 
   function bindOptionsButton() {
