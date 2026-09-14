@@ -45,6 +45,10 @@
           </div>
         </div>
         <div class="excerpt-search-row">
+          <label class="select-all-control" for="selectAllVisible">
+            <input class="clip-checkbox" id="selectAllVisible" type="checkbox">
+            <span id="selectAllLabel">Select all</span>
+          </label>
           <div class="excerpt-search" role="search">
             <input id="excerptSearchInput" type="search" autocomplete="off" aria-label="Search clips" placeholder="Search text, title, author, tags, or notes">
           </div>
@@ -56,6 +60,39 @@
       </section>
     </main>
   </div>
+
+  <aside class="clip-editor-popover" id="clipEditorPopover" role="dialog" aria-modal="false" aria-labelledby="clipEditorHeading" aria-describedby="clipEditorTitle" aria-hidden="true">
+    <div class="clip-editor-header">
+      <div class="clip-editor-heading">
+        <span class="editor-eyebrow" id="clipEditorHeading">Edit clip</span>
+        <p id="clipEditorTitle" class="clip-editor-preview"></p>
+      </div>
+      <button class="icon-button" id="closeClipEditorBtn" type="button" aria-label="Close editor" title="Close editor">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+          <path d="M18 6 6 18M6 6l12 12"/>
+        </svg>
+      </button>
+    </div>
+    <form id="clipEditorForm">
+      <div class="clip-editor-field clip-editor-tags-field">
+        <div class="clip-editor-field-label">
+          <label for="clipTagInput">Tags</label>
+          <span id="clipTagHint">Enter or comma to add</span>
+        </div>
+        <input id="clipTagInput" class="clip-tag-input" type="text" autocomplete="off" placeholder="Type a tag" aria-describedby="clipTagHint clipEditorStatus">
+        <div class="clip-editor-tags" id="clipEditorTags" aria-label="Added tags"></div>
+      </div>
+      <div class="clip-editor-field">
+        <label for="clipNoteInput">Note</label>
+        <textarea id="clipNoteInput" rows="2" placeholder="Add a short note"></textarea>
+      </div>
+      <p class="clip-editor-status" id="clipEditorStatus" role="status" aria-live="polite"></p>
+      <div class="clip-editor-footer">
+        <button class="secondary-button" id="cancelClipEditorBtn" type="button">Cancel</button>
+        <button class="primary-button" type="submit">Save</button>
+      </div>
+    </form>
+  </aside>
 
   <script type="module" src="scripts.js"></script>
 </body>
