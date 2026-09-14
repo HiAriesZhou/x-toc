@@ -1,11 +1,16 @@
 import {
-  addClipTag,
   filterExcerptGroups,
+  getAuthorProfileUrl,
   getClipDisplayMeta,
   getClipLibraryEmptyState,
+  getSelectionState,
+  getVisibleExcerptIds,
+  mergeClipTagInput,
   normalizeClipNote,
-  removeClipTag,
-  updateClipNote
+  normalizeClipTags,
+  splitClipTagInput,
+  updateClipNote,
+  updateClipTags
 } from './clip-utils.js';
 import {
   renderAllJson,
@@ -26,9 +31,10 @@ let excerptState = {
 };
 
 let selectedExcerptIds = new Set();
-let editingExcerptIds = new Set();
 let expandedExcerptIds = new Set();
 let excerptSearchQuery = '';
+let clipEditorState = null;
+let isTagInputComposing = false;
 
 async function loadExcerptData() {
   const data = await chrome.storage.local.get([
@@ -109,6 +115,20 @@ function formatAuthor(article) {
   return article.authorName || article.authorHandle || 'Unknown';
 }
 
+function renderAuthorMeta(article) {
+  const label = formatAuthor(article);
+  const profileUrl = getAuthorProfileUrl(article.authorHandle);
+  if (!profileUrl) {
+    return `<span class="article-meta-pill">${escapeHtml(label)}</span>`;
+  }
+
+  return `
+    <a class="article-meta-pill author-profile-link" href="${escapeHtml(profileUrl)}" target="_blank" rel="noreferrer" title="View ${escapeHtml(article.authorHandle)} on X">
+      ${escapeHtml(label)}
+    </a>
+  `;
+}
+
 function getSelectedExcerptCount() {
   selectedExcerptIds = new Set(
     Array.from(selectedExcerptIds).filter((excerptId) => excerptState.excerpts[excerptId])
@@ -116,54 +136,20 @@ function getSelectedExcerptCount() {
   return selectedExcerptIds.size;
 }
 
-function renderTagChips(excerpt, { editable }) {
+function renderTagChips(excerpt) {
   const displayMeta = getClipDisplayMeta(excerpt);
   if (!displayMeta.hasTags) return '';
 
   return `
     <div class="tag-list">
-      ${displayMeta.tags.map((tag) => {
-        if (!editable) {
-          return `<span class="tag-chip tag-chip-readonly">${escapeHtml(tag)}</span>`;
-        }
-
-        return `
-          <button class="tag-chip" type="button" data-action="remove-tag" data-excerpt-id="${escapeHtml(excerpt.id)}" data-tag="${escapeHtml(tag)}" title="Remove tag">
-            <span>${escapeHtml(tag)}</span>
-            <span aria-hidden="true">×</span>
-          </button>
-        `;
-      }).join('')}
-    </div>
-  `;
-}
-
-function renderClipEditor(excerpt) {
-  return `
-    <div class="excerpt-editor">
-      <div class="editor-section editor-tags-section" aria-label="Clip tags">
-        <div class="editor-section-header">
-          <span class="editor-label">Tags</span>
-        </div>
-        <div class="editor-section-content">
-          ${renderTagChips(excerpt, { editable: true })}
-          <button class="editor-add-btn" type="button" data-action="show-tag-input" data-excerpt-id="${escapeHtml(excerpt.id)}" aria-label="Add tag">+</button>
-          <div class="tag-editor hidden" data-role="tag-editor">
-            <input type="text" data-role="tag-input" aria-label="Add tag" placeholder="Add tag">
-          </div>
-        </div>
-      </div>
-      <div class="editor-section editor-note-section">
-        <span class="editor-label">Note</span>
-        <textarea data-role="note-input" rows="2" placeholder="Add a note">${escapeHtml(excerpt.note || '')}</textarea>
-      </div>
+      ${displayMeta.tags.map((tag) => `<span class="tag-chip tag-chip-readonly">${escapeHtml(tag)}</span>`).join('')}
     </div>
   `;
 }
 
 function renderClipMeta(excerpt) {
   const displayMeta = getClipDisplayMeta(excerpt);
-  const tagsHtml = renderTagChips(excerpt, { editable: false });
+  const tagsHtml = renderTagChips(excerpt);
   const note = normalizeClipNote(excerpt.note);
   const noteHtml = displayMeta.hasNote
     ? `<div class="clip-note">${escapeHtml(note)}</div>`
@@ -190,6 +176,8 @@ function renderExcerptManager() {
   const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
   const clearSelectionBtn = document.getElementById('clearSelectionBtn');
   const selectionSummary = document.getElementById('selectionSummary');
+  const selectAllVisible = document.getElementById('selectAllVisible');
+  const selectAllLabel = document.getElementById('selectAllLabel');
   const articleCount = document.getElementById('articleCount');
   const excerptCount = document.getElementById('excerptCount');
   const allGroups = groupExcerptsByArticle();
@@ -205,16 +193,25 @@ function renderExcerptManager() {
   const totalExcerpts = groups.reduce((count, group) => count + group.excerpts.length, 0);
   const selectedCount = getSelectedExcerptCount();
   const hasSelection = selectedCount > 0;
+  const visibleExcerptIds = getVisibleExcerptIds(groups);
+  const visibleSelection = getSelectionState(visibleExcerptIds, selectedExcerptIds);
+  const hiddenSelectedCount = selectedCount - visibleSelection.selectedVisibleCount;
 
   exportMenuBtn.disabled = !hasSavedExcerpts;
   exportMenuBtn.textContent = hasSelection ? `Export ${selectedCount} clip${selectedCount === 1 ? '' : 's'}` : 'Export all';
   exportMarkdownMenuItem.textContent = hasSelection ? 'Markdown' : 'All clips as Markdown';
   exportJsonMenuItem.textContent = hasSelection ? 'JSON' : 'All clips as JSON';
-  selectionSummary.textContent = `${selectedCount} selected`;
+  selectionSummary.textContent = hiddenSelectedCount > 0
+    ? `${selectedCount} selected · ${hiddenSelectedCount} hidden`
+    : `${selectedCount} selected`;
   clearSelectionBtn.classList.toggle('hidden', !hasSelection);
   deleteSelectedBtn.classList.toggle('hidden', !hasSelection);
   articleCount.textContent = groups.length;
   excerptCount.textContent = totalExcerpts;
+  selectAllVisible.checked = visibleSelection.allSelected;
+  selectAllVisible.indeterminate = visibleSelection.someSelected;
+  selectAllVisible.disabled = visibleExcerptIds.length === 0;
+  selectAllLabel.textContent = hasSearchQuery ? 'Select results' : 'Select all';
   if (searchInput && searchInput.value !== excerptSearchQuery) {
     searchInput.value = excerptSearchQuery;
   }
@@ -229,9 +226,20 @@ function renderExcerptManager() {
     return;
   }
 
-  manager.innerHTML = groups.map(({ article, excerpts }) => `
+  manager.innerHTML = groups.map(({ article, excerpts }) => {
+    const groupExcerptIds = excerpts.map((excerpt) => excerpt.id);
+    const groupSelection = getSelectionState(groupExcerptIds, selectedExcerptIds);
+    const groupSelectControl = excerpts.length > 1
+      ? `
+        <label class="group-select" title="Select clips in this article">
+          <input class="clip-checkbox" type="checkbox" data-action="select-group" data-article-id="${escapeHtml(article.id)}" aria-label="Select clips in ${escapeHtml(article.title || 'this article')}" ${groupSelection.allSelected ? 'checked' : ''}>
+        </label>
+      `
+      : '<span class="group-select-placeholder" aria-hidden="true"></span>';
+    return `
     <article class="article-excerpt-group" data-article-id="${escapeHtml(article.id)}">
       <div class="article-group-header">
+        ${groupSelectControl}
         <div class="article-title-block">
           <div class="article-title-row">
             <h3>
@@ -241,8 +249,8 @@ function renderExcerptManager() {
               </a>
             </h3>
             <div class="article-meta-row">
-              <span>${escapeHtml(formatAuthor(article))}</span>
-              <span>${excerpts.length} clip${excerpts.length === 1 ? '' : 's'}</span>
+              ${renderAuthorMeta(article)}
+              <span class="article-meta-pill">${excerpts.length} clip${excerpts.length === 1 ? '' : 's'}</span>
             </div>
           </div>
         </div>
@@ -253,28 +261,45 @@ function renderExcerptManager() {
           const isExpanded = expandedExcerptIds.has(excerpt.id);
           const canExpand = excerpt.text.length > 180 || excerpt.text.split('\n').length > 3;
           return `
-          <li class="excerpt-item ${editingExcerptIds.has(excerpt.id) ? 'is-editing' : ''} ${isExpanded ? 'is-expanded' : ''}" data-excerpt-id="${escapeHtml(excerpt.id)}">
+          <li class="excerpt-item ${clipEditorState?.excerptId === excerpt.id ? 'is-editing' : ''} ${selectedExcerptIds.has(excerpt.id) ? 'is-selected' : ''} ${isExpanded ? 'is-expanded' : ''}" data-excerpt-id="${escapeHtml(excerpt.id)}">
             <label class="excerpt-select" title="Select clip">
-              <input type="checkbox" data-action="select-excerpt" data-excerpt-id="${escapeHtml(excerpt.id)}" ${selectedExcerptIds.has(excerpt.id) ? 'checked' : ''}>
+              <input class="clip-checkbox" type="checkbox" data-action="select-excerpt" data-excerpt-id="${escapeHtml(excerpt.id)}" aria-label="Select clip" ${selectedExcerptIds.has(excerpt.id) ? 'checked' : ''}>
             </label>
             <div class="excerpt-content">
-              <blockquote id="clip-text-${escapeHtml(excerpt.id)}">${escapeHtml(excerpt.text)}</blockquote>
-              ${editingExcerptIds.has(excerpt.id) ? renderClipEditor(excerpt) : renderClipMeta(excerpt)}
-              <div class="excerpt-footer">
-                <span title="Saved ${escapeHtml(formatDisplayDate(excerpt.createdAt))}">Saved ${escapeHtml(formatShortDate(excerpt.createdAt))}</span>
-                <div class="clip-actions">
+              <div class="excerpt-primary-row">
+                <blockquote id="clip-text-${escapeHtml(excerpt.id)}">${escapeHtml(excerpt.text)}</blockquote>
+                <div class="clip-primary-actions">
+                  <time datetime="${escapeHtml(excerpt.createdAt)}" title="Saved ${escapeHtml(formatDisplayDate(excerpt.createdAt))}">${escapeHtml(formatShortDate(excerpt.createdAt))}</time>
                   ${canExpand ? `<button class="text-action-btn" type="button" data-action="toggle-expanded" data-excerpt-id="${escapeHtml(excerpt.id)}" aria-expanded="${isExpanded}" aria-controls="clip-text-${escapeHtml(excerpt.id)}">${isExpanded ? 'Show less' : 'Show full clip'}</button>` : ''}
-                  <button class="edit-clip-btn" type="button" data-action="${editingExcerptIds.has(excerpt.id) ? 'save-editor' : 'open-editor'}" data-excerpt-id="${escapeHtml(excerpt.id)}">
-                    ${editingExcerptIds.has(excerpt.id) ? 'Save' : 'Tags & note'}
+                  <button class="edit-clip-btn" type="button" data-action="open-editor" data-excerpt-id="${escapeHtml(excerpt.id)}" aria-expanded="${clipEditorState?.excerptId === excerpt.id}" aria-controls="clipEditorPopover">
+                    Edit
                   </button>
                 </div>
               </div>
+              ${renderClipMeta(excerpt)}
             </div>
           </li>
         `}).join('')}
       </ul>
     </article>
-  `).join('');
+  `;
+  }).join('');
+
+  manager.querySelectorAll('[data-action="select-group"]').forEach((checkbox) => {
+    const group = groups.find(({ article }) => article.id === checkbox.dataset.articleId);
+    const groupSelection = getSelectionState(
+      group?.excerpts.map((excerpt) => excerpt.id) || [],
+      selectedExcerptIds
+    );
+    checkbox.indeterminate = groupSelection.someSelected;
+  });
+
+  if (clipEditorState) {
+    const nextAnchor = manager.querySelector(
+      `[data-action="open-editor"][data-excerpt-id="${CSS.escape(clipEditorState.excerptId)}"]`
+    );
+    if (nextAnchor) requestAnimationFrame(() => positionClipEditor(nextAnchor));
+  }
 }
 
 async function saveExcerptState() {
@@ -286,6 +311,10 @@ async function saveExcerptState() {
 
 async function deleteSelectedExcerpts() {
   const articleIds = new Set();
+
+  if (clipEditorState && selectedExcerptIds.has(clipEditorState.excerptId)) {
+    hideClipEditor();
+  }
 
   selectedExcerptIds.forEach((excerptId) => {
     const articleId = excerptState.excerpts[excerptId]?.articleId;
@@ -304,62 +333,185 @@ async function deleteSelectedExcerpts() {
   renderExcerptManager();
 }
 
-async function updateExcerpt(excerptId, updater) {
-  const excerpt = excerptState.excerpts[excerptId];
-  if (!excerpt) return;
-
-  const nextExcerpt = updater(excerpt);
-  if (nextExcerpt === excerpt) return;
-
-  excerptState.excerpts[excerptId] = nextExcerpt;
-  await saveExcerptState();
-  renderExcerptManager();
+function isClipEditorDirty() {
+  if (!clipEditorState) return false;
+  return JSON.stringify(normalizeClipTags(clipEditorState.tags)) !== JSON.stringify(clipEditorState.initialTags)
+    || normalizeClipNote(clipEditorState.note) !== clipEditorState.initialNote
+    || splitClipTagInput(document.getElementById('clipTagInput')?.value).length > 0;
 }
 
-async function saveClipEditor(actionTarget) {
-  const excerptId = actionTarget.dataset.excerptId;
-  const item = actionTarget.closest('.excerpt-item');
-  const tagInput = item?.querySelector('[data-role="tag-input"]');
-  const noteInput = item?.querySelector('[data-role="note-input"]');
-  const tag = tagInput?.value || '';
-  const note = noteInput?.value || '';
-
-  await updateExcerpt(excerptId, (excerpt) => {
-    const withTag = addClipTag(excerpt, tag);
-    return updateClipNote(withTag, note);
-  });
-
-  editingExcerptIds.delete(excerptId);
-  renderExcerptManager();
+function setClipEditorStatus(message = '') {
+  document.getElementById('clipEditorStatus').textContent = message;
 }
 
-async function saveTagInput(input) {
-  const item = input.closest('.excerpt-item');
-  const excerptId = item?.dataset.excerptId;
-  const noteInput = item?.querySelector('[data-role="note-input"]');
-  const tag = input.value || '';
-  const note = noteInput?.value || '';
-  const excerpt = excerptState.excerpts[excerptId];
-  if (!excerpt) return;
-
-  if (!tag.trim()) {
-    closeTagInput(input);
+function renderClipEditorTags() {
+  const tags = document.getElementById('clipEditorTags');
+  if (!clipEditorState || clipEditorState.tags.length === 0) {
+    tags.innerHTML = '<span class="clip-editor-empty-tags">No tags yet</span>';
     return;
   }
 
-  const withTag = addClipTag(excerpt, tag);
-  excerptState.excerpts[excerptId] = updateClipNote(withTag, note);
-  await saveExcerptState();
-  renderExcerptManager();
+  tags.innerHTML = clipEditorState.tags.map((tag) => `
+    <button class="tag-chip editor-tag-chip" type="button" data-action="remove-editor-tag" data-tag="${escapeHtml(tag)}" title="Remove tag">
+      <span>${escapeHtml(tag)}</span>
+      <span aria-hidden="true">×</span>
+    </button>
+  `).join('');
 }
 
-function closeTagInput(input) {
-  const editor = input.closest('[data-role="tag-editor"]');
-  const addButton = editor?.parentElement?.querySelector('[data-action="show-tag-input"]');
+function emphasizeDuplicateTags(duplicateTags) {
+  if (duplicateTags.length === 0) return;
+  const duplicateKeys = new Set(duplicateTags.map((tag) => tag.toLocaleLowerCase()));
 
+  document.querySelectorAll('#clipEditorTags [data-tag]').forEach((chip) => {
+    if (!duplicateKeys.has(chip.dataset.tag.toLocaleLowerCase())) return;
+    chip.classList.remove('is-duplicate');
+    requestAnimationFrame(() => chip.classList.add('is-duplicate'));
+  });
+}
+
+function resizeNoteInput() {
+  const noteInput = document.getElementById('clipNoteInput');
+  noteInput.style.height = 'auto';
+  noteInput.style.height = `${Math.min(Math.max(noteInput.scrollHeight, 50), 84)}px`;
+}
+
+function positionClipEditor(anchor = clipEditorState?.anchor) {
+  const popover = document.getElementById('clipEditorPopover');
+  if (!clipEditorState || !anchor?.isConnected) return;
+
+  clipEditorState.anchor = anchor;
+  const anchorRect = anchor.getBoundingClientRect();
+  const popoverRect = popover.getBoundingClientRect();
+  const margin = 12;
+  const gap = 10;
+  const isNarrowViewport = window.innerWidth < 700;
+  const left = isNarrowViewport
+    ? Math.max(margin, Math.min(anchorRect.right - popoverRect.width, window.innerWidth - popoverRect.width - margin))
+    : Math.max(margin, Math.min(anchorRect.right + gap, window.innerWidth - popoverRect.width - margin));
+  const preferredTop = isNarrowViewport ? anchorRect.bottom + gap : anchorRect.top - 18;
+  const top = Math.min(Math.max(margin, preferredTop), Math.max(margin, window.innerHeight - popoverRect.height - margin));
+
+  popover.style.left = `${Math.round(left)}px`;
+  popover.style.top = `${Math.round(top)}px`;
+}
+
+function markEditingClip(excerptId, isEditing) {
+  const item = document.querySelector(`.excerpt-item[data-excerpt-id="${CSS.escape(excerptId)}"]`);
+  item?.classList.toggle('is-editing', isEditing);
+  const button = item?.querySelector('[data-action="open-editor"]');
+  button?.setAttribute('aria-expanded', String(isEditing));
+}
+
+function hideClipEditor() {
+  if (!clipEditorState) return;
+  markEditingClip(clipEditorState.excerptId, false);
+  clipEditorState = null;
+  const popover = document.getElementById('clipEditorPopover');
+  popover.classList.remove('open');
+  popover.setAttribute('aria-hidden', 'true');
+  popover.toggleAttribute('inert', true);
+  setClipEditorStatus('');
+}
+
+function requestCloseClipEditor() {
+  if (!clipEditorState) return;
+  if (isClipEditorDirty()) {
+    setClipEditorStatus('Save or cancel your changes first.');
+    document.querySelector('#clipEditorForm .primary-button')?.focus();
+    return;
+  }
+  hideClipEditor();
+}
+
+function openClipEditor(actionTarget) {
+  const excerptId = actionTarget.dataset.excerptId;
+  const excerpt = excerptState.excerpts[excerptId];
+  if (!excerpt) return;
+
+  if (clipEditorState?.excerptId === excerptId) {
+    document.getElementById('clipTagInput').focus();
+    return;
+  }
+  if (clipEditorState && isClipEditorDirty()) {
+    setClipEditorStatus('Save or cancel your current changes first.');
+    document.querySelector('#clipEditorForm .primary-button')?.focus();
+    return;
+  }
+  if (clipEditorState) hideClipEditor();
+
+  const tags = normalizeClipTags(excerpt.tags);
+  const note = normalizeClipNote(excerpt.note);
+  clipEditorState = {
+    excerptId,
+    tags: [...tags],
+    note,
+    initialTags: tags,
+    initialNote: note,
+    anchor: actionTarget
+  };
+
+  const preview = excerpt.text.replace(/\s+/g, ' ').trim();
+  document.getElementById('clipEditorTitle').textContent = preview.length > 96
+    ? `${preview.slice(0, 96).trim()}…`
+    : preview;
+  document.getElementById('clipTagInput').value = '';
+  document.getElementById('clipNoteInput').value = note;
+  renderClipEditorTags();
+  resizeNoteInput();
+  setClipEditorStatus('');
+  markEditingClip(excerptId, true);
+
+  const popover = document.getElementById('clipEditorPopover');
+  popover.toggleAttribute('inert', false);
+  popover.setAttribute('aria-hidden', 'false');
+  popover.classList.add('open');
+  requestAnimationFrame(() => {
+    positionClipEditor(actionTarget);
+    document.getElementById('clipTagInput').focus();
+  });
+}
+
+function addDraftTags() {
+  if (!clipEditorState) return;
+  const input = document.getElementById('clipTagInput');
+  const result = mergeClipTagInput(clipEditorState.tags, input.value);
+  if (result.added.length === 0 && result.duplicates.length === 0) {
+    setClipEditorStatus('Type a tag first.');
+    return;
+  }
+
+  clipEditorState.tags = result.tags;
   input.value = '';
-  editor?.classList.add('hidden');
-  addButton?.classList.remove('hidden');
+  renderClipEditorTags();
+  if (result.duplicates.length > 0) {
+    const duplicateLabel = result.duplicates.length === 1
+      ? `“${result.duplicates[0]}” is already added.`
+      : `${result.duplicates.length} tags are already added.`;
+    setClipEditorStatus(duplicateLabel);
+    emphasizeDuplicateTags(result.duplicates);
+  } else {
+    setClipEditorStatus('');
+  }
+  input.focus();
+}
+
+async function saveClipEditor() {
+  if (!clipEditorState) return;
+  const excerpt = excerptState.excerpts[clipEditorState.excerptId];
+  if (!excerpt) {
+    hideClipEditor();
+    return;
+  }
+
+  const now = new Date().toISOString();
+  const pendingTag = document.getElementById('clipTagInput').value;
+  const { tags } = mergeClipTagInput(clipEditorState.tags, pendingTag);
+  const withTags = updateClipTags(excerpt, tags, { now });
+  excerptState.excerpts[clipEditorState.excerptId] = updateClipNote(withTags, clipEditorState.note, { now });
+  await saveExcerptState();
+  hideClipEditor();
+  renderExcerptManager();
 }
 
 function currentDateSlug() {
@@ -412,12 +564,22 @@ function bindExcerptManagerEvents() {
   const manager = document.getElementById('excerptManager');
 
   manager.addEventListener('change', (event) => {
-    if (event.target.dataset.action !== 'select-excerpt') return;
-
-    if (event.target.checked) {
-      selectedExcerptIds.add(event.target.dataset.excerptId);
+    const action = event.target.dataset.action;
+    if (action === 'select-excerpt') {
+      if (event.target.checked) {
+        selectedExcerptIds.add(event.target.dataset.excerptId);
+      } else {
+        selectedExcerptIds.delete(event.target.dataset.excerptId);
+      }
+    } else if (action === 'select-group') {
+      const groups = filterExcerptGroups(groupExcerptsByArticle(), excerptSearchQuery);
+      const group = groups.find(({ article }) => article.id === event.target.dataset.articleId);
+      group?.excerpts.forEach((excerpt) => {
+        if (event.target.checked) selectedExcerptIds.add(excerpt.id);
+        else selectedExcerptIds.delete(excerpt.id);
+      });
     } else {
-      selectedExcerptIds.delete(event.target.dataset.excerptId);
+      return;
     }
     renderExcerptManager();
   });
@@ -425,23 +587,8 @@ function bindExcerptManagerEvents() {
   manager.addEventListener('click', async (event) => {
     const actionTarget = event.target.closest('[data-action]');
     const action = actionTarget?.dataset.action;
-    if (action === 'remove-tag') {
-      await updateExcerpt(actionTarget.dataset.excerptId, (excerpt) => removeClipTag(excerpt, actionTarget.dataset.tag));
-    } else if (action === 'show-tag-input') {
-      const item = actionTarget.closest('.excerpt-item');
-      const editor = item?.querySelector('[data-role="tag-editor"]');
-      const input = editor?.querySelector('[data-role="tag-input"]');
-      actionTarget.classList.add('hidden');
-      editor?.classList.remove('hidden');
-      if (input) {
-        input.value = '';
-        input.focus();
-      }
-    } else if (action === 'open-editor') {
-      editingExcerptIds.add(actionTarget.dataset.excerptId);
-      renderExcerptManager();
-    } else if (action === 'save-editor') {
-      await saveClipEditor(actionTarget);
+    if (action === 'open-editor') {
+      openClipEditor(actionTarget);
     } else if (action === 'toggle-expanded') {
       const excerptId = actionTarget.dataset.excerptId;
       const item = actionTarget.closest('.excerpt-item');
@@ -454,22 +601,6 @@ function bindExcerptManagerEvents() {
       actionTarget.setAttribute('aria-expanded', String(isExpanded));
       actionTarget.textContent = isExpanded ? 'Show less' : 'Show full clip';
     }
-  });
-
-  manager.addEventListener('keydown', async (event) => {
-    if (event.key !== 'Enter' || event.target.dataset.role !== 'tag-input') return;
-
-    event.preventDefault();
-    await saveTagInput(event.target);
-  });
-
-  manager.addEventListener('focusout', (event) => {
-    if (event.target.dataset.role !== 'tag-input') return;
-
-    setTimeout(async () => {
-      if (!document.body.contains(event.target)) return;
-      await saveTagInput(event.target);
-    }, 0);
   });
 }
 
@@ -502,6 +633,15 @@ function bindExportMenu() {
 }
 
 function bindSelectionActions() {
+  document.getElementById('selectAllVisible').addEventListener('change', (event) => {
+    const groups = filterExcerptGroups(groupExcerptsByArticle(), excerptSearchQuery);
+    getVisibleExcerptIds(groups).forEach((excerptId) => {
+      if (event.target.checked) selectedExcerptIds.add(excerptId);
+      else selectedExcerptIds.delete(excerptId);
+    });
+    renderExcerptManager();
+  });
+
   document.getElementById('deleteSelectedBtn').addEventListener('click', async () => {
     const selectedCount = getSelectedExcerptCount();
     if (selectedCount > 0 && confirm(`Delete ${selectedCount} selected clip${selectedCount === 1 ? '' : 's'}?`)) {
@@ -514,6 +654,62 @@ function bindSelectionActions() {
     renderExcerptManager();
   });
 
+}
+
+function bindClipEditor() {
+  const popover = document.getElementById('clipEditorPopover');
+  popover.toggleAttribute('inert', true);
+
+  document.getElementById('closeClipEditorBtn').addEventListener('click', requestCloseClipEditor);
+  document.getElementById('cancelClipEditorBtn').addEventListener('click', hideClipEditor);
+  const tagInput = document.getElementById('clipTagInput');
+  tagInput.addEventListener('compositionstart', () => {
+    isTagInputComposing = true;
+  });
+  tagInput.addEventListener('compositionend', () => {
+    isTagInputComposing = false;
+    if (/[,，\r\n]/.test(tagInput.value)) addDraftTags();
+  });
+  tagInput.addEventListener('input', () => {
+    if (isTagInputComposing || !/[,，\r\n]/.test(tagInput.value)) return;
+    addDraftTags();
+  });
+  tagInput.addEventListener('keydown', (event) => {
+    if (event.key !== 'Enter' || event.isComposing || isTagInputComposing) return;
+    event.preventDefault();
+    addDraftTags();
+  });
+  document.getElementById('clipNoteInput').addEventListener('input', (event) => {
+    if (!clipEditorState) return;
+    clipEditorState.note = event.target.value;
+    setClipEditorStatus('');
+    resizeNoteInput();
+  });
+  document.getElementById('clipEditorTags').addEventListener('click', (event) => {
+    const removeButton = event.target.closest('[data-action="remove-editor-tag"]');
+    if (!removeButton || !clipEditorState) return;
+    const targetTag = removeButton.dataset.tag.toLocaleLowerCase();
+    clipEditorState.tags = clipEditorState.tags.filter((tag) => tag.toLocaleLowerCase() !== targetTag);
+    setClipEditorStatus('');
+    renderClipEditorTags();
+  });
+  document.getElementById('clipEditorForm').addEventListener('submit', async (event) => {
+    event.preventDefault();
+    await saveClipEditor();
+  });
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape' && clipEditorState) requestCloseClipEditor();
+  });
+  let positionFrame = null;
+  const scheduleEditorPosition = () => {
+    if (!clipEditorState || positionFrame) return;
+    positionFrame = requestAnimationFrame(() => {
+      positionFrame = null;
+      positionClipEditor();
+    });
+  };
+  window.addEventListener('resize', scheduleEditorPosition);
+  window.addEventListener('scroll', scheduleEditorPosition, { passive: true });
 }
 
 function bindExcerptSearch() {
@@ -535,5 +731,6 @@ document.addEventListener('DOMContentLoaded', () => {
   bindExcerptManagerEvents();
   bindExportMenu();
   bindSelectionActions();
+  bindClipEditor();
   loadExcerptData();
 });

@@ -2,7 +2,7 @@
   "$schema": "https://json.schemastore.org/chrome-manifest.json",
   "chromium:manifest_version": 3,
   "firefox:manifest_version": 2,
-  "version": "0.4.9",
+  "version": "0.5.0",
   "name": "X-TOC: Navigate & Clip X Articles",
   "description": "Navigate long X articles with a floating table of contents, then save, organize, and export useful passages locally.",
   "icons": {
