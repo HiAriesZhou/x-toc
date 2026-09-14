@@ -38,6 +38,8 @@ Use an isolated browser profile for screenshots. Restoring real data after loadi
 
 `chrome-store-assets.html` is the source for the generated 1280 × 800 screenshot and 1400 × 560 marquee image.
 
+`chrome-store-small-440x280.png` is the small promotional tile. Open `chrome-store-assets.html?variant=small` and capture `.small` at a device scale factor of 1. Export an opaque RGB PNG at 440 × 280. Its outline and bookmark are illustrations of navigation and clipping, with no real article or user data.
+
 ## Social preview
 
 `x-toc-social-1280x640.png` is an opaque RGB PNG for GitHub and website link cards. It reflows the reading demo at 1280 × 640 rather than cropping the store screenshot. The content is fictional demo data describing released behavior.
