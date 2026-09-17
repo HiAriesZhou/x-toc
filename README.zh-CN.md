@@ -27,11 +27,11 @@ X-TOC 帮你浏览有标题结构的 X 长文，在阅读时连同来源上下�
 
 ## 视频演示
 
-[![观看 X-TOC 视频演示](store-assets/demo-poster.jpg)](https://x-toc.vercel.app/videos/x-toc-demo.mp4)
+https://github.com/user-attachments/assets/b107995f-3b2a-4432-9530-48a93c886aa3
 
 观看约 40 秒演示：目录导航、保存摘录、编辑标签与笔记，以及导出。
 
-[播放视频](https://x-toc.vercel.app/videos/x-toc-demo.mp4) · [体验交互演示](https://x-toc.vercel.app/)
+[体验交互演示](https://x-toc.vercel.app/)
 
 ## 使用方式
 
