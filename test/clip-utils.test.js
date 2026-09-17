@@ -4,11 +4,16 @@ import test from 'node:test';
 import {
   addClipTag,
   filterExcerptGroups,
+  getAuthorProfileUrl,
   getClipDisplayMeta,
   getClipLibraryEmptyState,
+  getSelectionState,
+  getVisibleExcerptIds,
+  mergeClipTagInput,
   normalizeClipNote,
   normalizeClipTags,
   removeClipTag,
+  splitClipTagInput,
   updateClipNote,
   updateClipTags
 } from '../src/options/clip-utils.js';
@@ -35,6 +40,32 @@ test('normalizeClipTags trims, removes blanks, and deduplicates tags', () => {
 test('normalizeClipTags treats missing and non-array tags as empty', () => {
   assert.deepEqual(normalizeClipTags(), []);
   assert.deepEqual(normalizeClipTags('product'), []);
+});
+
+test('splitClipTagInput supports commas and pasted lines while preserving spaces inside tags', () => {
+  assert.deepEqual(
+    splitClipTagInput('research, product design，AI\nreading workflow\r\nResearch'),
+    ['research', 'product design', 'AI', 'reading workflow']
+  );
+});
+
+test('mergeClipTagInput adds new tags and reports existing tags case-insensitively', () => {
+  assert.deepEqual(
+    mergeClipTagInput(['Product', 'AI'], 'research， product design\nai'),
+    {
+      tags: ['Product', 'AI', 'research', 'product design'],
+      added: ['research', 'product design'],
+      duplicates: ['ai']
+    }
+  );
+});
+
+test('getAuthorProfileUrl creates X profile links only for valid handles', () => {
+  assert.equal(getAuthorProfileUrl('@HiAriesZhou'), 'https://x.com/HiAriesZhou');
+  assert.equal(getAuthorProfileUrl('alice_dev'), 'https://x.com/alice_dev');
+  assert.equal(getAuthorProfileUrl('not a handle'), null);
+  assert.equal(getAuthorProfileUrl('https://x.com/alice'), null);
+  assert.equal(getAuthorProfileUrl(), null);
 });
 
 test('normalizeClipNote trims notes and handles missing values', () => {
@@ -199,6 +230,21 @@ test('filterExcerptGroups searches author, tags, and notes', () => {
 
 test('filterExcerptGroups removes groups without matching excerpts', () => {
   assert.deepEqual(filterExcerptGroups(searchGroups, 'missing'), []);
+});
+
+test('visible selection helpers support all, partial, and filtered results', () => {
+  const visibleIds = getVisibleExcerptIds(filterExcerptGroups(searchGroups, 'alice'));
+  assert.deepEqual(visibleIds, ['excerpt_1', 'excerpt_2']);
+  assert.deepEqual(getSelectionState(visibleIds, new Set(['excerpt_1'])), {
+    selectedVisibleCount: 1,
+    allSelected: false,
+    someSelected: true
+  });
+  assert.deepEqual(getSelectionState(visibleIds, new Set(['excerpt_1', 'excerpt_2', 'excerpt_3'])), {
+    selectedVisibleCount: 2,
+    allSelected: true,
+    someSelected: false
+  });
 });
 
 test('getClipLibraryEmptyState returns no clips copy', () => {

@@ -511,6 +511,10 @@ class TOCPanel {
     this.navigationTargetIndex = null;
     this.navigationTargetScroll = null;
     this.navigationTimeout = null;
+    this.collapseLayoutTimeout = null;
+    this.layoutResizeObserver = null;
+    this.layoutResizeFrame = null;
+    this.layoutSignature = null;
     this.handleScroll = () => {
       if (this.scrollFrame) return;
       this.scrollFrame = requestAnimationFrame(() => {
@@ -531,7 +535,10 @@ class TOCPanel {
       if (event.type === 'keydown' && !TOC_NAVIGATION_KEYS.has(event.key)) return;
       this.cancelNavigation();
     };
-    this.handleResize = () => this.keepInViewport();
+    this.handleResize = () => {
+      this.syncCurtainHeight();
+      this.keepInViewport();
+    };
   }
 
   async init() {
@@ -545,8 +552,13 @@ class TOCPanel {
   create() {
     // Remove existing panel if any
     if (this.panel) {
+      this.layoutResizeObserver?.disconnect();
+      if (this.layoutResizeFrame) cancelAnimationFrame(this.layoutResizeFrame);
       this.panel.remove();
     }
+    this.layoutResizeObserver = null;
+    this.layoutResizeFrame = null;
+    this.layoutSignature = null;
 
     // Create panel element
     this.panel = document.createElement('div');
@@ -598,11 +610,8 @@ class TOCPanel {
           <span class="clips-label">Clips</span>
         </button>
         <button class="collapse-btn" type="button" title="Collapse panel" aria-label="Collapse table of contents" aria-expanded="true">
-          <svg class="panel-action-icon collapse-icon collapse-icon-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <svg class="panel-action-icon collapse-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="m6 15 6-6 6 6"/>
-          </svg>
-          <svg class="panel-action-icon collapse-icon collapse-icon-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="m6 9 6 6 6-6"/>
           </svg>
         </button>
         <button class="close-btn" type="button" title="Hide panel" aria-label="Hide table of contents">
@@ -617,13 +626,44 @@ class TOCPanel {
     const body = document.createElement('div');
     body.className = 'toc-panel-body';
 
+    const curtain = document.createElement('div');
+    curtain.className = 'toc-panel-curtain';
+    const curtainInner = document.createElement('div');
+    curtainInner.className = 'toc-panel-curtain-inner';
+    curtainInner.appendChild(body);
+    curtain.appendChild(curtainInner);
+
     this.panel.appendChild(header);
-    this.panel.appendChild(body);
+    this.panel.appendChild(curtain);
 
     document.body.appendChild(this.panel);
 
     // Add event listeners
     this.setupEventListeners(header);
+    this.setupLayoutObserver(header, body);
+  }
+
+  setupLayoutObserver(header, body) {
+    if (typeof ResizeObserver !== 'function') return;
+
+    this.layoutResizeObserver = new ResizeObserver(() => {
+      const panelWidth = Math.round(this.panel?.getBoundingClientRect().width || 0);
+      const headerHeight = Math.round(header.getBoundingClientRect().height);
+      const bodyHeight = Math.round(body.scrollHeight);
+      const signature = `${panelWidth}:${headerHeight}:${bodyHeight}`;
+      if (signature === this.layoutSignature) return;
+      this.layoutSignature = signature;
+      if (this.layoutResizeFrame) return;
+
+      this.layoutResizeFrame = requestAnimationFrame(() => {
+        this.layoutResizeFrame = null;
+        this.syncCurtainHeight();
+        this.keepInViewport();
+      });
+    });
+    this.layoutResizeObserver.observe(this.panel);
+    this.layoutResizeObserver.observe(header);
+    this.layoutResizeObserver.observe(body);
   }
 
   setupEventListeners(header) {
@@ -653,11 +693,29 @@ class TOCPanel {
   toggleCollapsed(button) {
     this.setCollapsed(!this.isCollapsed, button);
     this.keepInViewport();
+    clearTimeout(this.collapseLayoutTimeout);
+    this.collapseLayoutTimeout = setTimeout(() => this.keepInViewport(), 280);
+  }
+
+  syncCurtainHeight() {
+    const curtain = this.panel?.querySelector('.toc-panel-curtain');
+    const body = this.panel?.querySelector('.toc-panel-body');
+    const header = this.panel?.querySelector('.toc-panel-header');
+    if (!curtain || !body || !header) return;
+
+    const availableHeight = Math.max(0, window.innerHeight * 0.6 - header.getBoundingClientRect().height);
+    const expandedHeight = Math.min(body.scrollHeight, availableHeight);
+    curtain.style.setProperty('--toc-curtain-height', `${expandedHeight}px`);
   }
 
   setCollapsed(isCollapsed, button = this.panel?.querySelector('.collapse-btn')) {
     this.isCollapsed = isCollapsed;
+    this.syncCurtainHeight();
     this.panel?.classList.toggle('collapsed', isCollapsed);
+    const body = this.panel?.querySelector('.toc-panel-body');
+    const curtain = this.panel?.querySelector('.toc-panel-curtain');
+    body?.toggleAttribute('inert', isCollapsed);
+    curtain?.setAttribute('aria-hidden', String(isCollapsed));
     if (!button) return;
 
     button.setAttribute('aria-expanded', String(!isCollapsed));
@@ -774,6 +832,7 @@ class TOCPanel {
       this.setCollapsed(placement.collapsed);
     }
     this.panel.style.display = 'flex';
+    this.syncCurtainHeight();
     this.isVisible = true;
     this.keepInViewport();
 
@@ -920,6 +979,12 @@ class TOCPanel {
     window.removeEventListener('touchstart', this.handleUserScrollIntent);
     window.removeEventListener('keydown', this.handleUserScrollIntent);
     if (this.scrollFrame) cancelAnimationFrame(this.scrollFrame);
+    if (this.layoutResizeFrame) cancelAnimationFrame(this.layoutResizeFrame);
+    this.layoutResizeObserver?.disconnect();
+    this.layoutResizeFrame = null;
+    this.layoutResizeObserver = null;
+    this.layoutSignature = null;
+    clearTimeout(this.collapseLayoutTimeout);
     this.clearNavigation();
   }
 }

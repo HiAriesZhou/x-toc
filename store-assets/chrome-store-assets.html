@@ -260,8 +260,9 @@
       right: 20px;
       bottom: 20px;
       width: 190px;
+      overflow: hidden;
       border-radius: 18px;
-      padding: 16px;
+      padding: 0;
     }
 
     .screenshot .floating-panel {
@@ -269,18 +270,81 @@
       right: 34px;
       bottom: auto;
       width: 360px;
-      padding: 18px;
+      padding: 0;
+    }
+
+    .panel-head {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      min-height: 50px;
+      padding: 10px 11px;
+      border-bottom: 1px solid var(--soft);
+      background: linear-gradient(180deg, #ffffff 0%, #f4f9fd 100%);
+      box-shadow: 0 3px 10px rgba(15, 20, 25, 0.05);
+    }
+
+    .panel-head::after {
+      content: "";
+      position: absolute;
+      right: 14px;
+      bottom: -2px;
+      left: 14px;
+      height: 2px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, transparent, var(--line) 18%, var(--blue) 50%, var(--line) 82%, transparent);
+      opacity: 0.62;
+    }
+
+    .panel-drag,
+    .panel-icon {
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      flex: 0 0 28px;
+      border-radius: 7px;
+      color: var(--muted);
+    }
+
+    .panel-drag svg,
+    .panel-icon svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .panel-actions {
+      display: flex;
+      align-items: center;
+      gap: 1px;
+    }
+
+    .panel-icon.clips {
+      display: flex;
+      width: auto;
+      padding: 0 6px;
+      gap: 4px;
+      font-size: 11px;
+      font-weight: 760;
     }
 
     .screenshot .floating-panel .panel-title {
-      padding-bottom: 12px;
-      border-bottom: 1px solid var(--soft);
+      flex: 1;
       font-size: 16px;
+      text-align: center;
+    }
+
+    .panel-brand-accent { color: var(--blue); }
+
+    .panel-curtain {
+      padding: 8px 0 10px;
+      background: rgba(255, 255, 255, 0.97);
     }
 
     .screenshot .floating-panel .toc-item {
       position: relative;
-      margin-top: 4px;
+      margin: 0 8px;
       border-radius: 8px;
       padding: 10px 12px;
       font-size: 14px;
@@ -376,6 +440,11 @@
       border-bottom: 1px solid var(--soft);
     }
 
+    .library-title {
+      font-size: 20px;
+      font-weight: 880;
+    }
+
     .saved-title {
       display: flex;
       align-items: center;
@@ -398,22 +467,46 @@
     }
 
     .export {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
       border: 1px solid var(--line);
-      border-radius: 999px;
+      border-radius: 10px;
       background: white;
-      font-size: 15px;
+      font-size: 13px;
       font-weight: 840;
-      padding: 10px 17px;
+      padding: 9px 12px;
+    }
+
+    .export svg { width: 14px; height: 14px; }
+
+    .search-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--soft);
+    }
+
+    .select-all {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 760;
+      white-space: nowrap;
     }
 
     .search {
-      margin: 16px 24px 0;
+      flex: 1;
+      margin: 0;
       border: 1px solid var(--line);
-      border-radius: 14px;
+      border-radius: 10px;
       color: #7a8793;
-      font-size: 16px;
+      font-size: 13px;
       font-weight: 650;
-      padding: 13px 15px;
+      padding: 10px 12px;
     }
 
     .clip-list {
@@ -438,6 +531,19 @@
       background: linear-gradient(180deg, #ffffff, #f7f9fb);
     }
 
+    .clip-card-title {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      min-width: 0;
+    }
+
+    .clip-card-meta {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+    }
+
     .clip-article {
       overflow: hidden;
       text-overflow: ellipsis;
@@ -454,11 +560,29 @@
     }
 
     .check {
+      display: grid;
+      place-items: center;
       width: 18px;
       height: 18px;
-      margin-top: 4px;
-      border: 2px solid #8a98a6;
-      border-radius: 5px;
+      flex: 0 0 18px;
+      border: 1px solid #a9b5c0;
+      border-radius: 4px;
+      background: white;
+    }
+
+    .check.checked {
+      border-color: var(--blue);
+      background: var(--blue);
+      color: white;
+    }
+
+    .check.checked::after {
+      content: "";
+      width: 8px;
+      height: 4px;
+      border: solid currentColor;
+      border-width: 0 0 2px 2px;
+      transform: translateY(-1px) rotate(-45deg);
     }
 
     .quote {
@@ -495,6 +619,32 @@
       font-weight: 680;
       line-height: 1.45;
       padding: 8px 10px;
+    }
+
+    .clip-footer {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-top: 10px;
+    }
+
+    .saved-time {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .edit-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--ink);
+      font-size: 11px;
+      font-weight: 820;
+      padding: 6px 8px;
     }
 
     .marquee .layout {
@@ -553,7 +703,7 @@
     }
 
     .promo-panel .search {
-      margin: 18px 26px 0;
+      margin: 0;
     }
 
     .promo-panel .clip-list {
@@ -573,6 +723,72 @@
       padding: 13px 17px;
       box-shadow: 0 20px 50px rgba(15, 20, 25, 0.24);
     }
+
+    .clip-editor-demo {
+      position: absolute;
+      top: 82px;
+      right: 18px;
+      z-index: 3;
+      width: 260px;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.98);
+      box-shadow: 0 22px 55px rgba(15, 20, 25, 0.2);
+    }
+
+    .editor-head {
+      padding: 13px 14px 11px;
+      border-bottom: 1px solid var(--soft);
+    }
+
+    .editor-eyebrow {
+      color: var(--blue);
+      font-size: 10px;
+      font-weight: 880;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .editor-preview {
+      overflow: hidden;
+      margin-top: 4px;
+      font-size: 12px;
+      font-weight: 820;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .editor-body { padding: 12px 14px 13px; }
+    .editor-label { color: var(--muted); font-size: 10px; font-weight: 820; }
+    .editor-input,
+    .editor-note {
+      margin-top: 5px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      color: var(--muted);
+      font-size: 11px;
+      padding: 8px 9px;
+    }
+    .editor-note { height: 46px; line-height: 1.35; }
+    .editor-tags { display: flex; gap: 5px; margin: 7px 0 10px; }
+    .editor-tags .tag { padding: 3px 7px; }
+    .editor-actions { display: flex; justify-content: flex-end; gap: 6px; margin-top: 10px; }
+    .editor-button {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: white;
+      font-size: 10px;
+      font-weight: 820;
+      padding: 7px 10px;
+    }
+    .editor-button.primary { border-color: var(--blue); background: var(--blue); color: white; }
+
+    .promo-panel .clip-card { margin-right: 240px; }
+    .promo-panel .clip-article { font-size: 14px; }
+    .promo-panel .clip-body { padding: 13px 15px; }
+    .promo-panel .quote { font-size: 13px; line-height: 1.38; }
+    .promo-panel .tags { margin-top: 8px; }
+    .promo-panel .note { display: none; }
     /* Reflow the reading demo for social cards; keep store layouts unchanged. */
     body[data-variant="social"] .screenshot { display: block; width: 1280px; height: 640px; padding: 32px 46px; }
     body[data-variant="social"] .logo { width: 48px; height: 48px; border-radius: 12px; }
@@ -591,6 +807,25 @@
     body[data-variant="social"] .selection { margin-top: 12px; padding: 12px 16px; }
     body[data-variant="social"] .floating-panel { top: 22px; }
     body[data-variant="social"] .save-button { margin-top: 12px; }
+    body[data-variant="small"] { min-width: 440px; min-height: 280px; }
+    body[data-variant="small"] .small { display: block; }
+    .small { width: 440px; height: 280px; padding: 26px 28px; }
+    .small .brand { gap: 9px; }
+    .small .logo { width: 32px; height: 32px; border-radius: 8px; box-shadow: none; }
+    .small .brand-name { font-size: 22px; font-weight: 800; }
+    .small h1 { position: relative; z-index: 1; margin-top: 23px; font-size: 34px; line-height: 1.08; font-weight: 800; letter-spacing: -1px; }
+    .small .small-sub { position: absolute; left: 28px; bottom: 26px; margin: 0; color: var(--muted); font-size: 14px; font-weight: 650; }
+    .small-outline { position: absolute; right: 24px; top: 85px; width: 128px; height: 124px; border: 1px solid #dce5ed; border-radius: 13px; background: #fff; box-shadow: 0 10px 24px rgba(15, 20, 25, 0.09); transform: rotate(4deg); }
+    .small-outline-head { height: 28px; border-bottom: 1px solid #e8eef4; background: linear-gradient(#fff, #f3f9fd); border-radius: 13px 13px 0 0; display: flex; align-items: center; padding: 0 12px; gap: 4px; }
+    .small-outline-head i { width: 3px; height: 3px; border-radius: 50%; background: #9badbc; }
+    .small-outline-row { height: 24px; margin: 3px 8px; display: flex; align-items: center; gap: 7px; padding: 0 8px; border-radius: 5px; }
+    .small-outline-row i { width: 4px; height: 4px; border-radius: 50%; background: #a4b1bc; }
+    .small-outline-row b { height: 4px; width: 61px; border-radius: 3px; background: #cbd5dd; }
+    .small-outline-row.active { position: relative; background: #e8f5fd; }
+    .small-outline-row.active::before { content: ""; position: absolute; left: 0; height: 16px; width: 3px; background: var(--blue); border-radius: 2px; }
+    .small-outline-row.active i, .small-outline-row.active b { background: var(--blue); }
+    .small-bookmark { position: absolute; right: 13px; bottom: -15px; width: 38px; height: 42px; display: grid; place-items: center; border-radius: 10px; background: var(--blue); box-shadow: 0 5px 12px #1d9bf025; transform: rotate(-4deg); }
+    .small-bookmark svg { width: 22px; height: 24px; color: white; }
   </style>
 </head>
 <body>
@@ -599,7 +834,7 @@
       <img class="logo" src="../src/logo.png" alt="">
       <div>
         <div class="brand-name">X-TOC</div>
-        <div class="brand-sub">TOC & Clips for X Articles</div>
+        <div class="brand-sub">Navigate & Clip X Articles</div>
       </div>
     </div>
 
@@ -625,12 +860,24 @@
           <div class="selection">Good long-form reading starts with a visible structure: where you are, what comes next, and how to return.</div>
           <div class="save-button">Save to X-TOC</div>
           <div class="floating-panel">
-            <div class="panel-title"><span style="color: var(--blue)">X-TOC</span> · Contents</div>
-            <div class="toc-item">A field guide to durable product thinking</div>
-            <div class="toc-item active">1. Start with the reader</div>
-            <div class="toc-item">2. Make structure visible</div>
-            <div class="toc-item">3. Keep useful passages</div>
-            <div class="toc-item">4. Export reusable context</div>
+            <div class="panel-head">
+              <span class="panel-drag" aria-hidden="true">
+                <svg viewBox="0 0 16 16" fill="currentColor"><circle cx="5" cy="3" r="1.2"/><circle cx="11" cy="3" r="1.2"/><circle cx="5" cy="8" r="1.2"/><circle cx="11" cy="8" r="1.2"/><circle cx="5" cy="13" r="1.2"/><circle cx="11" cy="13" r="1.2"/></svg>
+              </span>
+              <div class="panel-title"><span class="panel-brand-accent">X-TOC</span> · Contents</div>
+              <div class="panel-actions" aria-hidden="true">
+                <span class="panel-icon clips"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span>Clips</span></span>
+                <span class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 15 6-6 6 6"/></svg></span>
+                <span class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></span>
+              </div>
+            </div>
+            <div class="panel-curtain">
+              <div class="toc-item">A field guide to durable product thinking</div>
+              <div class="toc-item active">1. Start with the reader</div>
+              <div class="toc-item">2. Make structure visible</div>
+              <div class="toc-item">3. Keep useful passages</div>
+              <div class="toc-item">4. Export reusable context</div>
+            </div>
           </div>
         </div>
       </div>
@@ -644,13 +891,13 @@
           <img class="logo" src="../src/logo.png" alt="">
           <div>
             <div class="brand-name">X-TOC</div>
-            <div class="brand-sub">TOC & Clips for X Articles</div>
+            <div class="brand-sub">Navigate & Clip X Articles</div>
           </div>
         </div>
         <h1>Turn X Articles into searchable clips.</h1>
-        <div class="lead">Navigate long reads, save important passages locally, and export your notes when you need them.</div>
+        <div class="lead">Navigate long reads, save important passages locally, and export useful clips when you need them.</div>
         <div class="feature-row">
-          <span class="feature-chip">Floating TOC</span>
+          <span class="feature-chip">Pinned TOC</span>
           <span class="feature-chip">Local clips</span>
           <span class="feature-chip">Tags & notes</span>
           <span class="feature-chip">Markdown / JSON</span>
@@ -659,22 +906,27 @@
 
       <div class="promo-panel">
         <div class="options-head">
-          <div class="saved-title">
-            Saved Clips
+          <div>
+            <div class="library-title">Your library</div>
+            <div class="saved-title">
             <span class="pill">3 articles</span>
             <span class="pill">7 clips</span>
+            </div>
           </div>
-          <div class="export">Export all</div>
+          <div class="export">Export all <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></div>
         </div>
-        <div class="search">Search saved passages</div>
+        <div class="search-row">
+          <div class="select-all"><span class="check checked"></span>Select all</div>
+          <div class="search">Search text, title, author, tags, or notes</div>
+        </div>
         <div class="clip-list">
           <div class="clip-card">
             <div class="clip-card-head">
-              <div class="clip-article">Lessons from building reliable AI workflows</div>
-              <span class="pill">2 clips</span>
+              <div class="clip-card-title"><span class="check checked"></span><div class="clip-article">Lessons from building reliable AI workflows</div></div>
+              <div class="clip-card-meta"><span class="pill">@noah_demo</span><span class="pill">2 clips</span></div>
             </div>
             <div class="clip-body">
-              <div class="check"></div>
+              <div class="check checked"></div>
               <div>
                 <div class="quote">Long workflows make mistakes more expensive, so review points and recovery paths become product features.</div>
                 <div class="tags">
@@ -682,14 +934,38 @@
                   <span class="tag">reliability</span>
                   <span class="tag">workflow</span>
                 </div>
-                <div class="note">Agent UX is not just automation, it is failure handling.</div>
+                <div class="clip-footer"><span class="saved-time">Saved Sep 10, 2026</span><span class="edit-pill">Tags & note</span></div>
               </div>
             </div>
+          </div>
+        </div>
+        <div class="clip-editor-demo">
+          <div class="editor-head"><div class="editor-eyebrow">Edit clip</div><div class="editor-preview">Long workflows make mistakes more expensive…</div></div>
+          <div class="editor-body">
+            <div class="editor-label">Tags · Enter or comma to add</div>
+            <div class="editor-input">Type a tag</div>
+            <div class="editor-tags"><span class="tag">agents</span><span class="tag">reliability</span></div>
+            <div class="editor-label">Note</div>
+            <div class="editor-note">Agent UX includes failure handling, not only automation.</div>
+            <div class="editor-actions"><span class="editor-button">Cancel</span><span class="editor-button primary">Save</span></div>
           </div>
         </div>
         <div class="promo-badge">Save locally. Export anytime.</div>
       </div>
     </div>
+  </section>
+
+  <section class="asset small" aria-label="Chrome Web Store small promo tile">
+    <div class="brand"><img class="logo" src="../src/logo.png" alt=""><span class="brand-name">X-TOC</span></div>
+    <h1>Read long.<br>Keep what<br>matters.</h1>
+    <div class="small-outline" aria-hidden="true">
+      <div class="small-outline-head"><i></i><i></i><i></i></div>
+      <div class="small-outline-row"><i></i><b></b></div>
+      <div class="small-outline-row active"><i></i><b></b></div>
+      <div class="small-outline-row"><i></i><b style="width: 43px"></b></div>
+      <span class="small-bookmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></span>
+    </div>
+    <p class="small-sub">TOC &amp; clips for X Articles</p>
   </section>
 
   <script>

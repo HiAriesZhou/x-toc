@@ -29,13 +29,30 @@
 }
 
 .twitter-toc-panel .toc-panel-header {
+  position: relative;
+  z-index: 1;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 10px 12px;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 1px solid color-mix(in srgb, var(--border-color) 82%, var(--accent-color));
+  background: linear-gradient(180deg, var(--bg-primary) 0%, color-mix(in srgb, var(--bg-primary) 92%, var(--accent-soft)) 100%);
+  box-shadow: 0 3px 10px rgba(15, 20, 25, 0.05);
   user-select: none;
   cursor: grab;
+}
+
+.twitter-toc-panel .toc-panel-header::after {
+  content: "";
+  position: absolute;
+  right: 12px;
+  bottom: -2px;
+  left: 12px;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, var(--border-color) 18%, var(--accent-color) 50%, var(--border-color) 82%, transparent);
+  opacity: 0.55;
+  pointer-events: none;
 }
 
 .twitter-toc-panel .panel-brand {
@@ -127,20 +144,12 @@
   outline-offset: 1px;
 }
 
-.twitter-toc-panel .collapse-icon-down {
-  display: none;
+.twitter-toc-panel .collapse-icon {
+  transition: transform 0.24s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .twitter-toc-panel.collapsed {
   resize: none !important;
-}
-
-.twitter-toc-panel.collapsed .toc-panel-body {
-  display: none;
-}
-
-.twitter-toc-panel.collapsed .collapse-icon-up {
-  display: none;
 }
 
 .twitter-toc-panel .clips-btn:disabled {
@@ -153,8 +162,8 @@
   font-size: 12px;
 }
 
-.twitter-toc-panel.collapsed .collapse-icon-down {
-  display: block;
+.twitter-toc-panel.collapsed .collapse-icon {
+  transform: rotate(180deg);
 }
 
 .twitter-toc-panel.dragging {
@@ -167,6 +176,37 @@
   overflow-y: auto;
   overflow-x: hidden;
   padding: 8px 0;
+}
+
+.twitter-toc-panel .toc-panel-curtain {
+  max-height: var(--toc-curtain-height, calc(60vh - 49px));
+  min-height: 0;
+  overflow: hidden;
+  opacity: 1;
+  transform: translateY(0) scaleY(1);
+  transform-origin: top;
+  transition:
+    max-height 0.26s cubic-bezier(0.2, 0.8, 0.2, 1),
+    opacity 0.16s ease,
+    transform 0.26s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.twitter-toc-panel .toc-panel-curtain-inner {
+  min-height: 0;
+}
+
+.twitter-toc-panel.collapsed .toc-panel-curtain {
+  max-height: 0;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-5px) scaleY(0.985);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .twitter-toc-panel .toc-panel-curtain,
+  .twitter-toc-panel .collapse-icon {
+    transition: none;
+  }
 }
 
 .twitter-toc-panel .toc-list {

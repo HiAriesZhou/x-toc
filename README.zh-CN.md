@@ -14,7 +14,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/HiAriesZhou/x-toc/releases"><img src="https://img.shields.io/badge/version-0.4.9-blue" alt="Version 0.4.9"></a>
+  <a href="https://github.com/HiAriesZhou/x-toc/releases"><img src="https://img.shields.io/badge/version-0.5.0-blue" alt="Version 0.5.0"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License"></a>
   <a href="https://chromewebstore.google.com/detail/nbdgpckkcfkomnmdefinikjijgljgjfp?utm_source=item-share-cb"><img src="https://img.shields.io/chrome-web-store/size/nbdgpckkcfkomnmdefinikjijgljgjfp" alt="Chrome Web Store"></a>
 </p>
@@ -25,11 +25,13 @@
 
 X-TOC 帮你浏览有标题结构的 X 长文，在阅读时连同来源上下文保存有用段落，并在读完后把摘录带到开放格式中。
 
-<p align="center">
-  <img src="store-assets/chrome-store-screenshot-1280x800.png" alt="X 长文阅读页右侧固定了 X-TOC 文章目录">
-  <br>
-  <sub>阅读时持续看到文章结构，并在章节之间快速跳转。</sub>
-</p>
+## 视频演示
+
+[![观看 X-TOC 视频演示](store-assets/demo-poster.jpg)](https://x-toc.vercel.app/videos/x-toc-demo.mp4)
+
+观看约 40 秒演示：目录导航、保存摘录、编辑标签与笔记，以及导出。
+
+[播放视频](https://x-toc.vercel.app/videos/x-toc-demo.mp4) · [体验交互演示](https://x-toc.vercel.app/)
 
 ## 使用方式
 
