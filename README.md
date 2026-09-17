@@ -27,11 +27,11 @@ X-TOC helps you navigate structured X Articles, save useful passages with their 
 
 ## Video demo
 
-[![Watch the X-TOC video demo](store-assets/demo-poster.jpg)](https://x-toc.vercel.app/videos/x-toc-demo.mp4)
+https://github.com/user-attachments/assets/b107995f-3b2a-4432-9530-48a93c886aa3
 
 Watch the 40-second demo: navigate an article, save passages, edit tags and notes, and export clips.
 
-[Play video](https://x-toc.vercel.app/videos/x-toc-demo.mp4) · [Try the interactive demo](https://x-toc.vercel.app/)
+[Try the interactive demo](https://x-toc.vercel.app/)
 
 ## How it works
 
