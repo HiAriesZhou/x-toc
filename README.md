@@ -25,11 +25,13 @@
 
 X-TOC helps you navigate structured X Articles, save useful passages with their source context, and move your clips into an open format when you are done reading.
 
-<p align="center">
-  <img src="store-assets/chrome-store-screenshot-1280x800.png" alt="X Article with the X-TOC table of contents pinned beside the reading column">
-  <br>
-  <sub>Keep the article structure visible and jump between sections while reading.</sub>
-</p>
+## Video demo
+
+[![Watch the X-TOC video demo](store-assets/demo-poster.jpg)](https://x-toc.vercel.app/videos/x-toc-demo.mp4)
+
+Watch the 40-second demo: navigate an article, save passages, edit tags and notes, and export clips.
+
+[Play video](https://x-toc.vercel.app/videos/x-toc-demo.mp4) · [Try the interactive demo](https://x-toc.vercel.app/)
 
 ## How it works
 
