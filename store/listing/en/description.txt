@@ -1,0 +1,22 @@
+Long X/Twitter articles are easier to follow when their structure stays visible. X-TOC turns article headings into a table of contents you can open from the toolbar or pin beside the article. Move, resize, or collapse the panel to fit your reading space.
+
+While reading, select a useful passage and save it with one click. Each clip keeps its source article, saved time, and surrounding context, so it still makes sense when you return to it.
+
+What you can do:
+
+• Jump between article sections and follow your current section while scrolling
+• Pin, move, resize, and collapse the table of contents
+• Save selected passages locally with one click
+• Open your clip library directly from the pinned panel or extension popup
+• Search by passage text, article title, author, tags, or notes
+• Add tags and short notes in a compact editor
+• Select individual clips, an article’s clips, or all search results
+• Export selected clips or your full library as Markdown or JSON
+
+Privacy:
+
+Clips, tags, notes, and settings are stored locally in your browser. X-TOC does not upload saved clips or require a separate X-TOC account. Exports are created only when you request them.
+
+Works with long-form articles on x.com and twitter.com. The table of contents depends on headings being present in the article. Saved clips are not restored as highlights in the original article or synced to a cloud service.
+
+X-TOC is an independent extension and is not affiliated with X Corp.

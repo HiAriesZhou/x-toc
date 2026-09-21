@@ -12,8 +12,8 @@
       --line: #d9e1e8;
       --panel: #ffffff;
       --wash: #f6f8fb;
-      --blue: #1d9bf0;
-      --blue-strong: #0c7ecf;
+      --blue: #087aff;
+      --blue-strong: #0870dc;
       --green: #00a36c;
       --orange: #d96c15;
       --shadow: 0 28px 70px rgba(15, 20, 25, 0.16);
@@ -87,10 +87,8 @@
     }
 
     .logo {
-      width: 62px;
-      height: 62px;
-      border-radius: 18px;
-      box-shadow: 0 18px 42px rgba(15, 20, 25, 0.18);
+      width: 202px;
+      height: auto;
     }
 
     .brand-name {
@@ -791,7 +789,7 @@
     .promo-panel .note { display: none; }
     /* Reflow the reading demo for social cards; keep store layouts unchanged. */
     body[data-variant="social"] .screenshot { display: block; width: 1280px; height: 640px; padding: 32px 46px; }
-    body[data-variant="social"] .logo { width: 48px; height: 48px; border-radius: 12px; }
+    body[data-variant="social"] .logo { width: 170px; height: auto; }
     body[data-variant="social"] .brand-name { font-size: 26px; }
     body[data-variant="social"] .headline { margin-top: 24px; grid-template-columns: 570px 1fr; }
     body[data-variant="social"] h1 { font-size: 44px; }
@@ -811,7 +809,7 @@
     body[data-variant="small"] .small { display: block; }
     .small { width: 440px; height: 280px; padding: 26px 28px; }
     .small .brand { gap: 9px; }
-    .small .logo { width: 32px; height: 32px; border-radius: 8px; box-shadow: none; }
+    .small .logo { width: 122px; height: auto; }
     .small .brand-name { font-size: 22px; font-weight: 800; }
     .small h1 { position: relative; z-index: 1; margin-top: 23px; font-size: 34px; line-height: 1.08; font-weight: 800; letter-spacing: -1px; }
     .small .small-sub { position: absolute; left: 28px; bottom: 26px; margin: 0; color: var(--muted); font-size: 14px; font-weight: 650; }
@@ -831,9 +829,8 @@
 <body>
   <section class="asset screenshot" aria-label="Chrome Web Store screenshot">
     <div class="brand">
-      <img class="logo" src="../src/logo.png" alt="">
+      <img class="logo" src="../src/wordmark.svg" alt="X-TOC">
       <div>
-        <div class="brand-name">X-TOC</div>
         <div class="brand-sub">Navigate & Clip X Articles</div>
       </div>
     </div>
@@ -888,9 +885,8 @@
     <div class="layout">
       <div>
         <div class="brand">
-          <img class="logo" src="../src/logo.png" alt="">
+          <img class="logo" src="../src/wordmark.svg" alt="X-TOC">
           <div>
-            <div class="brand-name">X-TOC</div>
             <div class="brand-sub">Navigate & Clip X Articles</div>
           </div>
         </div>
@@ -956,7 +952,7 @@
   </section>
 
   <section class="asset small" aria-label="Chrome Web Store small promo tile">
-    <div class="brand"><img class="logo" src="../src/logo.png" alt=""><span class="brand-name">X-TOC</span></div>
+    <div class="brand"><img class="logo" src="../src/wordmark.svg" alt="X-TOC"></div>
     <h1>Read long.<br>Keep what<br>matters.</h1>
     <div class="small-outline" aria-hidden="true">
       <div class="small-outline-head"><i></i><i></i><i></i></div>

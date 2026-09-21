@@ -98,6 +98,12 @@ Before creating a GitHub Release:
 5. Do not publish a release when this verification fails.
 6. Before publishing a source manifest schema change, validate it against the Portfolio contract.
 
+## Post-merge release status
+
+- After merging any PR that carries or corresponds to a release version, immediately check and report whether the matching Git tag and formal GitHub Release exist, which commit they reference, and whether that tagged commit contains `.portfolio/project.json`.
+- Treat browser-store publication, PR merge, Git tag creation, and GitHub Release publication as separate states. Do not report the release workflow as complete while any required state is missing.
+- If a matching tag or formal GitHub Release is missing, call out the gap in the same completion report. Create it only when the user has explicitly authorized release publication, then run the Portfolio release contract checks above.
+
 ## Release-readiness checks
 
 Before reporting a release-ready change:

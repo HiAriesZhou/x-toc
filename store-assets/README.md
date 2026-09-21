@@ -1,5 +1,21 @@
 # Store asset fixtures
 
+Chrome Web Store desired-state files live in [`../store`](../store). That directory
+contains only the Dashbye release definition, its referenced upload-ready copies,
+and versioned release locks. This `store-assets` directory remains the workspace for
+HTML generation sources, fixtures, social artwork, README media, prototypes, and
+other files that are not uploaded directly by Dashbye.
+
+The upload-ready screenshot and promotional images under `store/assets` are copied
+from the generated files kept here. Preserve these source files and update the
+release copies deliberately when regenerating artwork.
+
+Run `npm run check:store-assets` from the repository root to verify that every
+local file referenced by `store/release.yml` exists, no unreferenced upload file
+has been left under `store/assets` or `store/listing`, and the release copies match
+their canonical source files. The same check runs automatically before `npm test`
+and `npm run build:zip`.
+
 `mock-storage-data.json` contains fictional, public-safe content for taking screenshots of the Saved Clips interface. It matches the current `chrome.storage.local` keys and includes three articles and seven clips.
 
 The fixture deliberately covers:

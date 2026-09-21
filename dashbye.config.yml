@@ -1,0 +1,8 @@
+schema: dashbye/config/v1
+project: .
+artifact: v0.5.1.zip
+resources: store
+target:
+  itemId: nbdgpckkcfkomnmdefinikjijgljgjfp
+  language: English
+  endpoint: http://127.0.0.1:9333
