@@ -1,8 +1,6 @@
-<p align="center">
-  <img src="src/logo.png" width="96" height="96" alt="X-TOC logo">
-</p>
-
-<h1 align="center">X-TOC</h1>
+<h1 align="center">
+  <img src="src/wordmark.svg" width="280" alt="X-TOC">
+</h1>
 
 <p align="center">
   <strong>Jump to a section. Keep the lines that matter.</strong><br>
