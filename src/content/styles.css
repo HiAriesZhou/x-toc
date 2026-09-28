@@ -172,7 +172,8 @@
 }
 
 .twitter-toc-panel .toc-panel-body {
-  max-height: calc(60vh - 50px);
+  box-sizing: border-box;
+  max-height: var(--toc-curtain-height, calc(60vh - 49px));
   overflow-y: auto;
   overflow-x: hidden;
   padding: 8px 0;

@@ -1,0 +1,34 @@
+{
+  "schema": "dashbye/lock/v1",
+  "version": "0.5.2",
+  "artifactSha256": "156c20f034e2662402a4aa14b10b7c58927cd79845d05e446b8ed52dc1d6f143",
+  "releaseHash": "65b85f709658e571bbaa3873b60fc83952f0426c32b84bb5c1cf1677aa6bbaa5",
+  "manifest": {
+    "version": "0.5.2",
+    "name": "X-TOC: Navigate & Clip X Articles",
+    "summary": "Navigate long X articles with a floating table of contents, then save, organize, and export useful passages locally.",
+    "permissions": [
+      "activeTab",
+      "contextMenus",
+      "storage"
+    ],
+    "optionalPermissions": [],
+    "hostPermissions": [
+      "https://twitter.com/*",
+      "https://x.com/*"
+    ],
+    "optionalHostPermissions": [],
+    "contentScriptMatches": [
+      "https://twitter.com/*",
+      "https://x.com/*"
+    ]
+  },
+  "resourceHashes": {
+    "assets/icon/icon-128.png": "77aaa10f2180875aaa01debc157eda03b5657be3223379a6932c5c37181e8f64",
+    "assets/promo/marquee-1400x560.png": "9a14aefbeb0e38d4d0fdb542d84b7697503199f6ff8fa34eb053a1ea212772ec",
+    "assets/promo/small-440x280.png": "aa8643e35ccb055187f26d621f0e66d93b82cff00c4161e688b390e2c0842b9d",
+    "assets/screenshots/01-x-toc-1280x800.png": "0f3837efe993aa08dd23e7728d66343e86c835c80b867161d280ad2ab2c27e88",
+    "listing/en/description.txt": "7b25cc40889a12ba82cac2d9b98ef90b8c3c00a06883079358f1b006ce03f341"
+  },
+  "recordedAt": "2026-09-28T01:41:32.982Z"
+}
