@@ -4,6 +4,8 @@ import {
   getActiveSectionIndex,
   hasReachedScrollTarget
 } from './navigation-utils.js';
+import { captureCurrent, initLibraryCapture } from './library-capture.js';
+let destroyLibraryCapture = null;
 
 // Content script for extracting TOC from Twitter/X articles
 
@@ -266,19 +268,9 @@ async function saveExcerptToStorage(selectedText) {
     source: window.location.hostname
   };
 
-  await chrome.storage.local.set({
-    [XTOC_STORAGE_KEYS.articles]: {
-      ...articles,
-      [article.id]: nextArticle
-    },
-    [XTOC_STORAGE_KEYS.excerpts]: {
-      ...excerpts,
-      [excerpt.id]: excerpt
-    },
-    [XTOC_STORAGE_KEYS.settings]: settings
-  });
-
-  return { duplicate: false, article: nextArticle, excerpt };
+  const result = await chrome.runtime.sendMessage({ action: 'library:saveClip', payload: { article: nextArticle, clip: excerpt } });
+  if (!result?.ok) throw new Error(result?.error || 'Could not save excerpt.');
+  return result.data;
 }
 
 function createSaveExcerptButton() {
@@ -607,7 +599,7 @@ class TOCPanel {
           <svg class="panel-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
           </svg>
-          <span class="clips-label">Clips</span>
+          <span class="clips-label">Library</span>
         </button>
         <button class="collapse-btn" type="button" title="Collapse panel" aria-label="Collapse table of contents" aria-expanded="true">
           <svg class="panel-action-icon collapse-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -1138,6 +1130,7 @@ function scrollToHeader(index) {
 
 // Initialize
 async function init() {
+  destroyLibraryCapture = initLibraryCapture();
   // Wait for page to fully load
   setTimeout(() => {
     tocData = extractTOC();
@@ -1177,6 +1170,10 @@ async function init() {
 
 // Listen for messages from popup or background
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'captureCurrent') {
+    captureCurrent().then(data => sendResponse({ ok: true, data }), error => sendResponse({ ok: false, error: error.message }));
+    return true;
+  }
   if (message.action === 'getTOC') {
     tocData = extractTOC();
     sendResponse({ toc: tocData, isPanelVisible: tocPanel?.isVisible || false });
@@ -1213,5 +1210,6 @@ export default function main() {
       tocPanel.destroy();
     }
     destroyExcerptFeature();
+    destroyLibraryCapture?.();
   };
 }

@@ -2,7 +2,7 @@
   "private": true,
   "name": "twitter-toc-extension",
   "description": "Add a floating table of contents and save useful excerpts while reading X/Twitter long-form articles.",
-  "version": "0.6.2",
+  "version": "0.7.0",
   "license": "MIT",
   "type": "module",
   "author": {
@@ -16,6 +16,7 @@
     "start": "extension start",
     "pretest": "npm run check:store-assets",
     "test": "node --test",
+    "test:browser": "node tooling/library-browser-check.mjs",
     "build": "extension build",
     "prebuild:zip": "npm run check:store-assets",
     "build:zip": "npm run build && cd dist/chromium && zip -r ../../v$npm_package_version.zip .",
@@ -24,7 +25,8 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "extension": "^3.7.0"
+    "extension": "^3.7.0",
+    "playwright": "^1.62.1"
   },
   "packageManager": "npm@10.8.2"
 }

@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   const repositoryUrl = 'https://github.com/HiAriesZhou/x-toc';
 
   function renderOptionsButton() {
-    return '<button class="options-link-btn" id="optionsBtn" type="button">Clips</button>';
+    return '<button class="options-link-btn" id="optionsBtn" type="button">Library</button>';
   }
 
   function renderFooter() {
@@ -29,11 +29,23 @@ document.addEventListener('DOMContentLoaded', async () => {
       chrome.runtime.openOptionsPage();
       window.close();
     });
+    if (isTwitter) {
+      const box = document.createElement('div'); box.className = 'capture-actions';
+      const save = document.createElement('button'); save.type = 'button'; save.className = 'options-link-btn'; save.textContent = 'Save page to Library';
+      const status = document.createElement('p'); status.className = 'hint'; status.setAttribute('role', 'status');
+      box.append(save, status); root.querySelector('.container').insertBefore(box, root.querySelector('.popup-footer'));
+      save.onclick = async () => {
+        save.disabled = true;
+        try { const result = await chrome.tabs.sendMessage(tab.id, { action: 'captureCurrent' }); if (!result?.ok) throw new Error(result?.error || 'Capture failed.'); status.textContent = result.data?.duplicate ? 'Already in Library. Saved text was refreshed unless a verified body exists.' : 'Saved as a partial capture. Review completeness in Library.'; }
+        catch (e) { status.textContent = e.message; }
+        finally { save.disabled = false; }
+      };
+    }
   }
 
   // Get current tab info
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
-  const isTwitter = tab?.url?.includes('x.com') || tab?.url?.includes('twitter.com');
+  const isTwitter = /^https:\/\/(x\.com|twitter\.com)\//.test(tab?.url || '');
 
   if (!isTwitter) {
     root.innerHTML = `
@@ -90,7 +102,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         <ul class="toc-list">
           ${toc.map((item, index) => `
             <li class="toc-item level-${item.level}" data-index="${index}" data-id="${item.id}">
-              <a href="#" class="toc-link">${item.text}</a>
+              <a href="#" class="toc-link">${String(item.text).replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;')}</a>
             </li>
           `).join('')}
         </ul>
