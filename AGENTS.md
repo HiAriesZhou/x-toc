@@ -45,6 +45,13 @@ npm run build:zip
 - `npm run build` creates the Chromium build in `dist/chromium`; `build:firefox` and `build:edge` exercise their respective Extension.js targets. `dist/` and generated ZIP files are build artifacts and must stay untracked.
 - `build:zip` packages the Chromium build for release. Do not run it as a substitute for Firefox or Edge validation.
 
+## Release package cleanup
+
+- After successfully publishing a new version, clean up older X-TOC release ZIPs automatically so the repository directory retains only the current latest release ZIP. Do not wait for a separate cleanup request.
+- Before cleanup, verify the retained ZIP exists, passes an archive integrity check, and contains a manifest with the intended release version. A version bump or build alone does not trigger post-release cleanup.
+- Remove only confirmed older X-TOC release packages; preserve unrelated archives, dependencies, and user changes. Prefer recoverable removal and report the removed versions and recovery location.
+- Release ZIPs remain ignored build artifacts. Do not commit or force-add them, and do not delete historical Git tags, GitHub Releases, or remote release assets as part of local cleanup.
+
 ## Browser boundaries and manual validation
 
 - Chrome/Chromium is the documented load-unpacked and store path. Load `dist/chromium` from `chrome://extensions/`.
