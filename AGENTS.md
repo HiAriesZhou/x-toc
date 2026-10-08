@@ -62,20 +62,16 @@ npm run build:zip
 - Do not add telemetry, remote storage, background sync, uploads, external endpoints, or new host permissions unless the user explicitly requests an implemented feature and the behavior is disclosed, opt-in where appropriate, and reviewed for least privilege.
 - Never place secrets, tokens, webhook secrets, real credentials, private endpoints, or internal service details in code, fixtures, docs, screenshots, or examples.
 
-## Public-content safety and product boundaries
+## Public-content safety and product scope
 
 - Describe only behavior verified in the current implementation. Types, drafts, mocks, and plans are not proof that a feature ships.
 - Do not publish private strategy, unpublished roadmaps, competitive analysis, internal sequencing, speculative integrations, or unreleased capability claims.
-- Keep X-TOC focused on X/Twitter reading navigation and local clips. Do not fold Bookmark Assistant or Bookmark Assistant Pro features, positioning, data, or promises into X-TOC.
-- When those products must be referenced, use the names **Bookmark Assistant** and **Bookmark Assistant Pro**; do not use “OSS” and “Commercial” as public product names. Confirm that a change does not blur the Free/Pro boundary.
-- LiteContext is a separate system. X-TOC must not claim direct LiteContext sync or integration merely because compatibility types or private plans exist. Any future integration must remain explicit, local-first, and limited to implemented, approved behavior.
+- Keep X-TOC focused on X/Twitter reading navigation and local clips.
 
-## Export and ContextItem compatibility
+## Export compatibility
 
 - The current JSON export contract is version `1`, source `twitter-toc-extension`, with `articles[].excerpts`; Markdown and JSON exports support all or selected clips.
 - Preserve the article-to-clip relationship, existing field meanings, filename behavior, and compatibility with older clips. Prefer optional additive fields; use a new export version and migration notes for breaking changes.
-- Keep internal storage independent from LiteContext. If shared export compatibility is implemented, map clips to ContextItem at an export boundary rather than replacing the local storage model.
-- ContextItem-compatible output must be additive, user-triggered, tested with legacy v1 consumers, and must not imply upload or synchronization. Do not expose a planned ContextItem mapping as a public contract before its implementation and approval.
 - Update tests whenever storage serialization, selection filtering, Markdown rendering, JSON fields, or export versioning changes.
 
 ## Development version policy
@@ -122,6 +118,4 @@ Every completed task must report:
 - **Files changed:** paths and concise purpose, including any Obsidian note changed separately from Git files.
 - **Validation:** tests, builds, and manual browser checks run; include skips or failures.
 - **Public/private review:** why repository content is safe to publish and what was routed to or retained in Obsidian.
-- **Free/Pro review:** whether X-TOC stayed distinct from Bookmark Assistant and Bookmark Assistant Pro.
-- **LiteContext/ContextItem impact:** compatibility effect, or explicitly “none.”
 - **Follow-up tasks:** only concrete remaining work; say “none” when complete.
