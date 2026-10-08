@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for your interest in X-TOC.
+Thanks for your interest in XTOC.
 
 ## Before You Start
 
@@ -28,7 +28,7 @@ Load `dist/chromium` from `chrome://extensions/` with Developer mode enabled.
 
 ## 贡献说明
 
-欢迎为 X-TOC 提交改进。
+欢迎为 XTOC 提交改进。
 
 - 保持项目聚焦在 X/Twitter 长文阅读、目录导航和本地摘录。
 - Popup 只服务当前文章目录，不放复杂管理功能。

@@ -29,7 +29,7 @@ The fixture deliberately covers:
 To use it:
 
 1. Open `chrome://extensions/`.
-2. Find **X-TOC**, choose **Details**, then choose **Extension options**.
+2. Find **XTOC**, choose **Details**, then choose **Extension options**.
 3. Open DevTools from that Options tab. Do not run the command from an X.com tab or another normal webpage.
 4. In the Console, confirm that the selected execution context belongs to the `chrome-extension://...` Options page:
 
@@ -48,7 +48,7 @@ await chrome.storage.local.set(mockStorageData)
 location.reload()
 ```
 
-If `chrome.storage` is undefined, use the Console's execution-context selector to switch from the inspected web page to the X-TOC extension context. The same command can also run in the X-TOC service-worker console opened from `chrome://extensions/`.
+If `chrome.storage` is undefined, use the Console's execution-context selector to switch from the inspected web page to the XTOC extension context. The same command can also run in the XTOC service-worker console opened from `chrome://extensions/`.
 
 Use an isolated browser profile for screenshots. Restoring real data after loading the fixture is intentionally left to the profile boundary instead of adding a destructive reset command.
 

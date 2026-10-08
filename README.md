@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="src/wordmark.svg" width="280" alt="X-TOC">
+  <img src="src/wordmark.svg" width="280" alt="XTOC">
 </h1>
 
 <p align="center">
@@ -23,7 +23,7 @@
 
 **A star won't fix bugs, but it makes the person fixing them happy.**
 
-X-TOC helps you navigate structured X Articles, save useful passages with their source context, and move your clips into an open format when you are done reading.
+XTOC helps you navigate structured X Articles, save useful passages with their source context, and move your clips into an open format when you are done reading.
 
 ## Video demo
 
@@ -36,7 +36,7 @@ Watch the 40-second demo: navigate an article, save passages, edit tags and note
 ## How it works
 
 1. **Navigate the article.** Open the popup to see detected headings, jump to a section, or pin a movable table of contents beside the article.
-2. **Save a passage.** Select text and click `save to xtoc`. X-TOC stores the passage locally with its article, author when available, timestamps, and surrounding context.
+2. **Save a passage.** Select text and click `save to xtoc`. XTOC stores the passage locally with its article, author when available, timestamps, and surrounding context.
 3. **Organize and export.** Open Options to search clips, add tags or notes, delete items, and export all or selected clips as Markdown or JSON.
 
 ## What ships today
@@ -47,9 +47,9 @@ Watch the 40-second demo: navigate an article, save passages, edit tags and note
 - One-click local clipping from text selections in supported articles.
 - An article-grouped clip library with search, tags, and notes.
 - Selected or full-library export to Markdown and JSON.
-- Local storage with no clip uploads or separate X-TOC account.
+- Local storage with no clip uploads or separate XTOC account.
 
-X-TOC currently saves passages for later review; it does not restore highlights in the original article or sync clips to a cloud service.
+XTOC currently saves passages for later review; it does not restore highlights in the original article or sync clips to a cloud service.
 
 ## Install
 
@@ -85,7 +85,7 @@ Public product metadata for downstream sites lives in [`.portfolio/project.json`
 
 ## Privacy
 
-Saved clips, tags, notes, and settings remain in `chrome.storage.local`. Exports happen only when you request them. X-TOC does not send saved clips to an external server.
+Saved clips, tags, notes, and settings remain in `chrome.storage.local`. Exports happen only when you request them. XTOC does not send saved clips to an external server.
 
 ## Project links
 
