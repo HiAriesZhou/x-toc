@@ -10,8 +10,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   function renderFooter() {
     return `
       <footer class="popup-footer">
-        <span>Enjoying X-TOC? Give it a</span>
-        <a href="${repositoryUrl}" target="_blank" rel="noopener noreferrer" aria-label="Star X-TOC on GitHub">
+        <span>Enjoying XTOC? Give it a</span>
+        <a href="${repositoryUrl}" target="_blank" rel="noopener noreferrer" aria-label="Star XTOC on GitHub">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3.28-.36 6.72-1.61 6.72-7A5.4 5.4 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.4 5.4 0 0 0-1.42 2.73c0 5.42 3.44 6.66 6.72 7A4.8 4.8 0 0 0 9 18v4"/>
             <path d="M9 18c-4.51 2-5-2-7-2"/>

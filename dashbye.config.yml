@@ -1,6 +1,6 @@
 schema: dashbye/config/v1
 project: .
-artifact: v0.5.2.zip
+artifact: v0.6.2.zip
 resources: store
 target:
   itemId: nbdgpckkcfkomnmdefinikjijgljgjfp

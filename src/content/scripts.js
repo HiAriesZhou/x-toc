@@ -565,7 +565,7 @@ class TOCPanel {
     this.panel.id = 'twitter-toc-panel';
     this.panel.className = 'twitter-toc-panel';
     this.panel.setAttribute('role', 'complementary');
-    this.panel.setAttribute('aria-label', 'X-TOC article contents');
+    this.panel.setAttribute('aria-label', 'XTOC article contents');
     this.panel.style.cssText = `
       position: fixed;
       z-index: 999999;
@@ -601,7 +601,7 @@ class TOCPanel {
           <circle cx="15" cy="18" r="1.5"/>
         </svg>
       </span>
-      <span class="panel-title"><span class="panel-brand">X-TOC</span><span class="panel-title-separator" aria-hidden="true"> · </span>Contents</span>
+      <span class="panel-title"><span class="panel-brand">XTOC</span><span class="panel-title-separator" aria-hidden="true"> · </span>Contents</span>
       <span class="panel-actions">
         <button class="clips-btn" type="button" title="Open clips" aria-label="Open clips">
           <svg class="panel-action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -757,20 +757,20 @@ class TOCPanel {
       return;
     }
 
-    console.error('[X-TOC] Extension action failed:', error);
+    console.error('[XTOC] Extension action failed:', error);
   }
 
   showReconnectMessage() {
     const title = this.panel?.querySelector('.panel-title');
     const clipsButton = this.panel?.querySelector('.clips-btn');
     if (title) {
-      title.textContent = 'Reload page to reconnect X-TOC';
+      title.textContent = 'Reload page to reconnect XTOC';
       title.classList.add('context-invalid');
     }
     if (clipsButton) {
       clipsButton.disabled = true;
-      clipsButton.setAttribute('title', 'Reload this page to reconnect X-TOC');
-      clipsButton.setAttribute('aria-label', 'Reload this page to reconnect X-TOC');
+      clipsButton.setAttribute('title', 'Reload this page to reconnect XTOC');
+      clipsButton.setAttribute('aria-label', 'Reload this page to reconnect XTOC');
     }
   }
 
