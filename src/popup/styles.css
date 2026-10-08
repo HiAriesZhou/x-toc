@@ -84,7 +84,8 @@ body {
 
 .options-link-btn:focus-visible,
 .pin-icon-btn:focus-visible,
-.toc-link:focus-visible {
+.toc-link:focus-visible,
+.popup-footer a:focus-visible {
   outline: 2px solid var(--accent-color);
   outline-offset: 2px;
 }
@@ -169,4 +170,31 @@ body {
 
 .toc-link:active {
   background: var(--border-color);
+}
+
+.popup-footer {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 3px;
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  font-size: 11px;
+  line-height: 1.45;
+}
+
+.popup-footer a {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  color: var(--text-secondary);
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.popup-footer a:hover {
+  color: var(--accent-color);
 }

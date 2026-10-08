@@ -12,7 +12,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/HiAriesZhou/x-toc/releases"><img src="https://img.shields.io/badge/version-0.5.2-blue" alt="Version 0.5.2"></a>
+  <a href="https://github.com/HiAriesZhou/x-toc/releases"><img src="https://img.shields.io/badge/version-0.6.0-blue" alt="Version 0.6.0"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License"></a>
   <a href="https://chromewebstore.google.com/detail/nbdgpckkcfkomnmdefinikjijgljgjfp?utm_source=item-share-cb"><img src="https://img.shields.io/chrome-web-store/size/nbdgpckkcfkomnmdefinikjijgljgjfp" alt="Chrome Web Store"></a>
 </p>
@@ -20,6 +20,8 @@
 <p align="center">
   <a href="https://chromewebstore.google.com/detail/nbdgpckkcfkomnmdefinikjijgljgjfp?utm_source=item-share-cb"><strong>Install from the Chrome Web Store</strong></a>
 </p>
+
+**A star won't fix bugs, but it makes the person fixing them happy.**
 
 X-TOC helps you navigate structured X Articles, save useful passages with their source context, and move your clips into an open format when you are done reading.
 
