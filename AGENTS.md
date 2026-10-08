@@ -1,11 +1,11 @@
-# X-TOC Agent Rules
+# XTOC Agent Rules
 
 ## Repository role
 
-- This is the public source repository for the X-TOC browser extension at `github.com/HiAriesZhou/x-toc`.
-- X-TOC provides an X/Twitter long-form article table of contents and a local clip workflow.
+- This is the public source repository for the XTOC browser extension at `github.com/HiAriesZhou/x-toc`.
+- XTOC provides an X/Twitter long-form article table of contents and a local clip workflow.
 - Keep this repository small, implementation-led, and safe for users, contributors, extension reviewers, and the public.
-- This is not the product-planning home for X-TOC and is not the source repository for Bookmark Assistant, Bookmark Assistant Pro, or LiteContext.
+- This is not the product-planning home for XTOC and is not the source repository for Bookmark Assistant, Bookmark Assistant Pro, or LiteContext.
 
 ## Source-of-truth routing
 
@@ -21,7 +21,7 @@
 ## Before changing files
 
 - Read these rules, check `git status`, and preserve all user changes. Do not overwrite or reformat unrelated work.
-- Identify whether the request concerns X-TOC code, public maintenance documentation, or private/product material, then route it accordingly.
+- Identify whether the request concerns XTOC code, public maintenance documentation, or private/product material, then route it accordingly.
 - Audit the relevant README, package scripts, manifest/build configuration, tests, and implementation before describing behavior.
 - Do not commit, push, publish, deploy, create a release, or update a browser-store listing unless the user explicitly requests that action.
 
@@ -47,9 +47,9 @@ npm run build:zip
 
 ## Release package cleanup
 
-- After successfully publishing a new version, clean up older X-TOC release ZIPs automatically so the repository directory retains only the current latest release ZIP. Do not wait for a separate cleanup request.
+- After successfully publishing a new version, clean up older XTOC release ZIPs automatically so the repository directory retains only the current latest release ZIP. Do not wait for a separate cleanup request.
 - Before cleanup, verify the retained ZIP exists, passes an archive integrity check, and contains a manifest with the intended release version. A version bump or build alone does not trigger post-release cleanup.
-- Remove only confirmed older X-TOC release packages; preserve unrelated archives, dependencies, and user changes. Prefer recoverable removal and report the removed versions and recovery location.
+- Remove only confirmed older XTOC release packages; preserve unrelated archives, dependencies, and user changes. Prefer recoverable removal and report the removed versions and recovery location.
 - Release ZIPs remain ignored build artifacts. Do not commit or force-add them, and do not delete historical Git tags, GitHub Releases, or remote release assets as part of local cleanup.
 
 ## Browser boundaries and manual validation
@@ -73,7 +73,7 @@ npm run build:zip
 
 - Describe only behavior verified in the current implementation. Types, drafts, mocks, and plans are not proof that a feature ships.
 - Do not publish private strategy, unpublished roadmaps, competitive analysis, internal sequencing, speculative integrations, or unreleased capability claims.
-- Keep X-TOC focused on X/Twitter reading navigation and local clips.
+- Keep XTOC focused on X/Twitter reading navigation and local clips.
 
 ## Export compatibility
 
