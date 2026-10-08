@@ -20,14 +20,14 @@ listing:
   matureContent: false
 privacy:
   singlePurpose: >-
-    X-TOC is a local-first reading companion for supported X/Twitter long-form
+    XTOC is a local-first reading companion for supported X/Twitter long-form
     articles. It builds an interactive table of contents for navigation and lets
     users save, organize, and export selected passages with source context.
   permissionJustifications:
-    contextMenus: Adds the “Show Table of Contents” right-click command on x.com and twitter.com, which opens X-TOC's article navigation.
+    contextMenus: Adds the “Show Table of Contents” right-click command on x.com and twitter.com, which opens XTOC's article navigation.
     activeTab: Allows the popup, when opened by the user, to identify the active tab, verify that it is an X/Twitter page, and exchange navigation commands with the installed content script.
-    storage: Stores saved clips, article metadata, nearby context, tags, notes, panel position and visibility, and clip settings in chrome.storage.local. X-TOC does not use sync storage or upload this data.
-  hostPermissionJustification: Limited to https://x.com/* and https://twitter.com/* so X-TOC can read headings and supported article content, navigate sections, show the in-page panel, and let the user save selected passages locally. It does not request access to other sites.
+    storage: Stores saved clips, article metadata, nearby context, tags, notes, panel position and visibility, and clip settings in chrome.storage.local. XTOC does not use sync storage or upload this data.
+  hostPermissionJustification: Limited to https://x.com/* and https://twitter.com/* so XTOC can read headings and supported article content, navigate sections, show the in-page panel, and let the user save selected passages locally. It does not request access to other sites.
   remoteCode:
     uses: false
     justification: null

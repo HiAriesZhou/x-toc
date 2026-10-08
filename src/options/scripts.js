@@ -567,7 +567,7 @@ async function saveClipEditor() {
       setClipEditorStatus('Could not save this clip. Try again.');
       document.querySelector('#clipEditorForm .primary-button')?.focus();
     }
-    console.error('[X-TOC] Could not save clip changes:', error);
+    console.error('[XTOC] Could not save clip changes:', error);
     return;
   }
 
