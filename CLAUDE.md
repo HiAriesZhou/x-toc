@@ -41,5 +41,5 @@ Data model: articles keyed by `articleId` (`article_<statusId>` from the `/statu
 ## Manifest and metadata
 
 - `src/manifest.json` uses Extension.js browser-prefixed keys (`chromium:` → MV3 with `action`/service worker; `firefox:` → MV2 with `browser_action`/background scripts). Check the generated manifest in `dist/<browser>` after changes.
-- `test/version-metadata.test.js` enforces that `package.json`, `src/manifest.json`, and both READMEs' version badges agree, and that the version is not older than `.portfolio/project.json` `releaseVersion`. `test/portfolio-manifest.test.js` checks every Portfolio asset path exists.
+- `test/release-metadata.test.js` enforces that `package.json`, `src/manifest.json`, and both READMEs' version badges agree, that the version is not older than `.portfolio/project.json` `releaseVersion`, and that every Portfolio asset path exists.
 - `store/` holds the browser-store release definition (`store/release.yml`, listing text, release copies of assets); `store-assets/` holds the source images. `tooling/check-store-assets.js` fails `npm test` and `build:zip` when they diverge.

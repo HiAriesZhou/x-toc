@@ -67,22 +67,6 @@ export function updateClipTags(clip, tags, options = {}) {
   };
 }
 
-export function addClipTag(clip, tag, options = {}) {
-  const normalizedTag = normalizeClipTags([tag])[0];
-  if (!normalizedTag) return clip;
-
-  return updateClipTags(clip, [...normalizeClipTags(clip?.tags), normalizedTag], options);
-}
-
-export function removeClipTag(clip, tag, options = {}) {
-  const target = String(tag || '').trim().toLocaleLowerCase();
-  const nextTags = normalizeClipTags(clip?.tags).filter((value) => (
-    value.toLocaleLowerCase() !== target
-  ));
-
-  return updateClipTags(clip, nextTags, options);
-}
-
 export function updateClipNote(clip, note, options = {}) {
   const now = options.now || new Date().toISOString();
   const normalizedNote = normalizeClipNote(note);
