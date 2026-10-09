@@ -183,26 +183,29 @@ async function forgetAI() {
 }
 
 async function runAI(action, payload) {
-  const config = await readAIConfig();
-  if (!config?.key || !config.model) throw new Error('Set up AI in Settings first.');
-  if (!(await chrome.permissions.contains({ origins: [originPattern(config.endpoint)] }))) {
-    throw new Error('API permission was removed. Save the AI settings again.');
-  }
+  // Reserve the single request slot before any await, so two requests that
+  // arrive together cannot both pass the check and both be billed.
   if (requests.size) throw new Error('Another AI request is running.');
-  const input =
-    action === 'ai:test'
-      ? {
-          id: 'test',
-          title: 'Connection test',
-          text: 'A short note about reading tools.',
-          existingTags: []
-        }
-      : aiInput(await load(), payload.id);
   const requestId = String(payload.requestId || crypto.randomUUID());
   const controller = new AbortController();
   requests.set(requestId, controller);
-  const timer = setTimeout(() => controller.abort(), AI_TIMEOUT_MS);
+  let timer = null;
   try {
+    const config = await readAIConfig();
+    if (!config?.key || !config.model) throw new Error('Set up AI in Settings first.');
+    if (!(await chrome.permissions.contains({ origins: [originPattern(config.endpoint)] }))) {
+      throw new Error('API permission was removed. Save the AI settings again.');
+    }
+    const input =
+      action === 'ai:test'
+        ? {
+            id: 'test',
+            title: 'Connection test',
+            text: 'A short note about reading tools.',
+            existingTags: []
+          }
+        : aiInput(await load(), payload.id);
+    timer = setTimeout(() => controller.abort(), AI_TIMEOUT_MS);
     const suggestion = await generateSuggestion(config, input, controller.signal);
     return action === 'ai:test'
       ? { connected: true }

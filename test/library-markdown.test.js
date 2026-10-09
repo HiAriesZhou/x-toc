@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { domToMarkdown, safeMarkdown } from '../src/library/markdown.js';
+import { domToMarkdown, markdownLink, safeMarkdown } from '../src/library/markdown.js';
 
 test('Markdown link sanitization drops encoded dangerous schemes', () => {
   assert.doesNotMatch(
@@ -61,4 +61,23 @@ test('DOM conversion keeps ordinary punctuation readable and escapes only block 
   assert.match(md, /^\\- not a list$/m);
   assert.match(md, /^1\\\. not ordered$/m);
   assert.match(md, /\[Image\]\(<https:\/\/pbs\.twimg\.com\/media\/a\.jpg>\)/);
+});
+
+test('re-sanitizing saved links keeps their text as is (no double escaping)', () => {
+  const link = markdownLink('foo_bar *x*', 'https://example.com/a');
+  assert.equal(safeMarkdown(link), link);
+  const image = markdownLink('Image: a_b', 'https://example.com/i.png');
+  assert.equal(safeMarkdown(image), image);
+  assert.equal(safeMarkdown('[a_b](javascript:alert)'), 'a_b');
+});
+
+test('X emoji images become their characters; other images stay source links', () => {
+  const emoji = (alt) =>
+    node('img', [], { src: 'https://abs-0.twimg.com/emoji/v2/svg/1f525.svg', alt });
+  const md = domToMarkdown(node('p', ['Great ', emoji('🔥'), ' thread ', emoji('👇')]));
+  assert.equal(md, 'Great 🔥 thread 👇');
+  const photo = domToMarkdown(
+    node('p', [node('img', [], { src: 'https://pbs.twimg.com/media/a.jpg', alt: 'A chart' })])
+  );
+  assert.match(photo, /\[Image: A chart\]\(<https:\/\/pbs\.twimg\.com\/media\/a\.jpg>\)/);
 });

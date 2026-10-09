@@ -19,11 +19,21 @@ export function escapeBlockStart(line) {
 // Plain multi-line text (notes, summaries, context) rendered as Markdown prose.
 export const escapeText = (text) =>
   escapeMarkdown(text).split('\n').map(escapeBlockStart).join('\n');
+const linkTarget = (safe) => `<${safe.replace(/</g, '%3C').replace(/>/g, '%3E')}>`;
+
 export function markdownLink(text, url) {
   const safe = safeUrl(url);
-  return safe
-    ? `[${escapeMarkdown(text)}](<${safe.replace(/</g, '%3C').replace(/>/g, '%3E')}>)`
-    : escapeMarkdown(text);
+  return safe ? `[${escapeMarkdown(text)}](${linkTarget(safe)})` : escapeMarkdown(text);
+}
+
+// X renders emoji as <img alt="🔥" src="https://abs-0.twimg.com/emoji/…">.
+export function isXEmoji(src) {
+  try {
+    const url = new URL(src);
+    return /(^|\.)twimg\.com$/.test(url.hostname) && url.pathname.startsWith('/emoji/');
+  } catch {
+    return false;
+  }
 }
 function fence(text) {
   return '`'.repeat(Math.max(3, ...(text.match(/`+/g) || []).map((s) => s.length + 1)));
@@ -65,7 +75,9 @@ export function domToMarkdown(root) {
     }
     if (tag === 'br') return '\n';
     if (tag === 'a') return markdownLink(node.textContent, node.href);
-    // Media stay as source links; nothing is embedded or fetched on render.
+    // Emoji become their characters; other media stay as source links and
+    // nothing is embedded or fetched on render.
+    if (tag === 'img' && node.alt && isXEmoji(node.src)) return escapeMarkdown(node.alt);
     if (tag === 'img')
       return ` ${markdownLink(node.alt ? `Image: ${node.alt}` : 'Image', node.src)} `;
     if (tag === 'video') return '\n\n[Video — view the original source]\n\n';
@@ -117,16 +129,25 @@ export function safeMarkdown(markdown) {
           return line;
         }
         if (codeFence) return line;
-        return line
-          .replace(/(!?)\[([^\]\n]*)\]\(\s*(<[^>\n]*>|[^)\n]*)\s*\)/g, (_, image, text, target) =>
-            markdownLink(image ? `Image: ${text}` : text, target.trim().replace(/^<|>$/g, ''))
-          )
-          .replace(/!\[([^\]]*)\]/g, '[Image: $1]')
-          .replace(
-            /^(\s*\[[^\]]+\]:)\s*(.*)$/g,
-            (_, prefix, target) => `${prefix} ${safeUrl(target.replace(/^<|>$/g, '')) || '#'}`
-          )
-          .replace(/<(?!https?:\/\/)([^>]*?)>/g, '&lt;$1&gt;');
+        return (
+          line
+            // Link text is already Markdown; only the target is re-checked, so
+            // saved text is not escaped twice.
+            .replace(
+              /(!?)\[([^\]\n]*)\]\(\s*(<[^>\n]*>|[^)\n]*)\s*\)/g,
+              (_, image, text, target) => {
+                const label = image ? `Image: ${text}` : text;
+                const safe = safeUrl(target.trim().replace(/^<|>$/g, ''));
+                return safe ? `[${label}](${linkTarget(safe)})` : label;
+              }
+            )
+            .replace(/!\[([^\]]*)\]/g, '[Image: $1]')
+            .replace(
+              /^(\s*\[[^\]]+\]:)\s*(.*)$/g,
+              (_, prefix, target) => `${prefix} ${safeUrl(target.replace(/^<|>$/g, '')) || '#'}`
+            )
+            .replace(/<(?!https?:\/\/)([^>]*?)>/g, '&lt;$1&gt;')
+        );
       })
       .join('\n') + (codeFence ? `\n${codeFence}\n` : '')
   );

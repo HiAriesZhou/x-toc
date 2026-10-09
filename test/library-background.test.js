@@ -200,3 +200,35 @@ test('a remembered key is not reused for a different endpoint', async () => {
   assert.equal((await call('ai:status')).data.connected, false);
   await call('ai:forget');
 });
+
+test('only one AI request runs at a time, even when two arrive together', async () => {
+  const endpoint = 'https://provider.example/v1';
+  await call('ai:configure', { provider: 'custom', endpoint, key: 'synthetic-key', model: 'm' });
+  const originalFetch = globalThis.fetch;
+  let requests = 0;
+  globalThis.fetch = async () => {
+    requests++;
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    const content = JSON.stringify({ tags: [], summary: '' });
+    const body = JSON.stringify({ choices: [{ finish_reason: 'stop', message: { content } }] });
+    return { ok: true, status: 200, text: async () => body };
+  };
+  try {
+    // ai:suggest reads the library before sending, which is where the race was.
+    const results = await Promise.all([
+      call('ai:suggest', { id: 'article_2', requestId: 'a' }),
+      call('ai:suggest', { id: 'article_2', requestId: 'b' })
+    ]);
+    assert.deepEqual(results.map((r) => r.ok).sort(), [false, true]);
+    assert.match(results.find((r) => !r.ok).error, /Another AI request/);
+    assert.equal(requests, 1);
+    assert.equal(
+      (await call('ai:test', { requestId: 'c' })).ok,
+      true,
+      'the slot is released afterwards'
+    );
+  } finally {
+    globalThis.fetch = originalFetch;
+    await call('ai:forget');
+  }
+});
