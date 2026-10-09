@@ -16,6 +16,7 @@ npm run check:store-assets                 # store/ release copies must match st
 npm run dev                                # Extension.js dev mode with hot reload
 npm run build                              # dist/chromium
 npm run build:firefox / build:edge         # per-browser targets
+npm run build:dev                          # dist/chromium-dev: local debug copy with DEV name/icons
 ```
 
 There is no lint script. Extension.js (`extension` devDependency) bundles each entry, so `src/` files may use ES `import` even in the content script. `extension.config.js` pins persistent browser profiles under `dist/extension-profile-*`.

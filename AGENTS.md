@@ -37,12 +37,14 @@ npm test
 npm run build
 npm run build:firefox
 npm run build:edge
+npm run build:dev
 npm run build:zip
 ```
 
 - `npm test` runs the Node test suite under `test/`.
 - There is currently no lint script. Do not report lint as passed and do not run `npm run lint`. Add lint tooling only when that is part of the requested implementation work.
 - `npm run build` creates the Chromium build in `dist/chromium`; `build:firefox` and `build:edge` exercise their respective Extension.js targets. `dist/` and generated ZIP files are build artifacts and must stay untracked.
+- `build:dev` runs `build`, then writes a local-only debug copy to `dist/chromium-dev` with the name `XTOC (Development)` and the icons from `tooling/dev-icons/`. Use it for local Chrome load-unpacked debugging only; never package, upload, or submit it. Regenerate dev icons with `node tooling/generate-dev-icons.mjs` after changing `src/icons/`; a test fails when they are stale.
 - `build:zip` packages the Chromium build for release. Do not run it as a substitute for Firefox or Edge validation.
 
 ## Release package cleanup
@@ -63,7 +65,7 @@ npm run build:zip
 
 ## Local data and privacy
 
-- Clips, article metadata, settings, and floating-panel state belong in `chrome.storage.local`. Current persistent keys include `twitterTocArticles`, `twitterTocExcerpts`, `twitterTocExcerptSettings`, `tocPanelPosition`, and `tocPanelVisible`.
+- Clips, article metadata, settings, and floating-panel state belong in `chrome.storage.local`. Current persistent keys include `twitterTocArticles`, `twitterTocExcerpts`, `twitterTocExcerptSettings`, `tocPanelPosition`, `tocPanelVisible`, `xtocLibraryItems` (bookmarks), and `xtocAIPrefs` (AI provider, base URL, model and remember flag; never the key). The AI key lives in `chrome.storage.session`, or, only when the user enables "Remember on this device", AES-GCM-encrypted in the extension-origin IndexedDB `xtoc-vault` (`src/library/key-vault.js`). Never move it to `chrome.storage.local`/`sync`, which content scripts can read, and never include it in exports.
 - Preserve existing keys and tolerate older clips with missing optional fields. Storage migrations must be explicit, backward-compatible, tested, and loss-resistant.
 - Current exports are local, user-triggered downloads. They can contain selected text, surrounding context, article URLs, author metadata, tags, and notes; treat all of it as user-private data.
 - Do not add telemetry, remote storage, background sync, uploads, external endpoints, or new host permissions unless the user explicitly requests an implemented feature and the behavior is disclosed, opt-in where appropriate, and reviewed for least privilege.

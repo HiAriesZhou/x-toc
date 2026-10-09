@@ -37,7 +37,8 @@
     "contextMenus",
     "activeTab",
     "storage",
-    "unlimitedStorage"
+    "unlimitedStorage",
+    "scripting"
   ],
   "chromium:host_permissions": [
     "https://x.com/*",

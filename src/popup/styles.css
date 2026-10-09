@@ -5,6 +5,12 @@
   --text-secondary: #536471;
   --border-color: #eff3f4;
   --accent-color: #1d9bf0;
+  --accent-tint: #e8f5fe;
+  --accent-strong: #1a8cd8;
+  --success-color: #00a36c;
+  --success-tint: #e6f6f0;
+  --danger-color: #cf2940;
+  --danger-tint: #fdecee;
   --hover-bg: #f7f9f9;
 }
 
@@ -16,6 +22,12 @@
     --text-secondary: #8b98a5;
     --border-color: #38444d;
     --accent-color: #1d9bf0;
+    --accent-tint: #1b3448;
+    --accent-strong: #4cb0f5;
+    --success-color: #2fc48d;
+    --success-tint: #173a33;
+    --danger-color: #ff6c7b;
+    --danger-tint: #3b2229;
     --hover-bg: #273340;
   }
 }
@@ -29,157 +41,249 @@
 html,
 body,
 #root {
-  width: 420px;
-  min-width: 420px;
+  width: 380px;
+  min-width: 380px;
 }
 
 body {
-  min-height: 200px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  overflow-x: hidden;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
   background: var(--bg-primary);
   color: var(--text-primary);
 }
 
-.container {
-  padding: 16px;
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
 }
 
+.container {
+  padding: 14px 16px 12px;
+}
+
+/* Header */
 .header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
   padding-bottom: 12px;
   border-bottom: 1px solid var(--border-color);
 }
 
-.header h1 {
-  font-size: 18px;
-  font-weight: 700;
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 800;
+  letter-spacing: -0.2px;
+}
+
+.brand img {
+  display: block;
+  box-sizing: content-box;
+  padding: 2px;
+  border-radius: 6px;
+}
+
+/* The logo ink is dark navy; give it a light tile so it stays legible. */
+@media (prefers-color-scheme: dark) {
+  .brand img {
+    background: #f7f9f9;
+  }
 }
 
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 
-.options-link-btn {
+.text-btn,
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 32px;
   border: 1px solid var(--border-color);
+  border-radius: 8px;
   background: transparent;
   color: var(--text-secondary);
-  padding: 7px 10px;
-  border-radius: 6px;
   font-size: 13px;
   font-weight: 600;
-  cursor: pointer;
-  transition: all 0.15s ease;
+  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
 }
 
-.options-link-btn:hover {
+.text-btn {
+  padding: 0 12px;
+}
+
+.icon-btn {
+  width: 32px;
+}
+
+.text-btn:hover,
+.icon-btn:hover {
   background: var(--hover-bg);
   border-color: var(--accent-color);
   color: var(--accent-color);
 }
 
-.options-link-btn:focus-visible,
-.pin-icon-btn:focus-visible,
-.toc-link:focus-visible,
-.popup-footer a:focus-visible {
+.icon-btn.active {
+  background: var(--accent-color);
+  border-color: var(--accent-color);
+  color: #ffffff;
+}
+
+:focus-visible {
   outline: 2px solid var(--accent-color);
   outline-offset: 2px;
 }
 
-.pin-icon-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  background: transparent;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
+/* Body */
+.body {
+  padding: 12px 0 2px;
+}
+
+.section-label {
+  margin: 2px 0 6px;
   color: var(--text-secondary);
-  cursor: pointer;
-  transition: all 0.15s ease;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
 }
 
-.pin-icon-btn:hover {
-  background: var(--hover-bg);
-  border-color: var(--accent-color);
-  color: var(--accent-color);
-}
-
-.pin-icon-btn.active {
-  background: var(--accent-color);
-  border-color: var(--accent-color);
-  color: white;
-}
-
-.count {
-  display: block;
-  font-size: 12px;
+.muted-line {
+  margin: 4px 0 12px;
   color: var(--text-secondary);
-  margin-bottom: 12px;
-}
-
-.content {
-  padding: 20px 0;
-}
-
-.hint, .empty {
-  text-align: center;
-  color: var(--text-secondary);
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .toc-list {
   list-style: none;
-  padding-left: 0;
+  max-height: 340px;
+  margin: 0 -6px 12px;
+  overflow-y: auto;
 }
 
-.toc-item {
-  margin-bottom: 4px;
-}
-
-.toc-item.level-1 .toc-link { padding-left: 12px; }
-.toc-item.level-2 .toc-link { padding-left: 24px; }
-.toc-item.level-3 .toc-link { padding-left: 36px; }
-.toc-item.level-4 .toc-link { padding-left: 48px; }
-.toc-item.level-5 .toc-link { padding-left: 60px; }
-.toc-item.level-6 .toc-link { padding-left: 72px; }
+.toc-item.level-1 .toc-link { padding-left: 8px; font-weight: 700; }
+.toc-item.level-2 .toc-link { padding-left: 8px; }
+.toc-item.level-3 .toc-link { padding-left: 22px; }
+.toc-item.level-4 .toc-link { padding-left: 36px; }
+.toc-item.level-5 .toc-link { padding-left: 50px; }
+.toc-item.level-6 .toc-link { padding-left: 64px; }
 
 .toc-link {
   display: block;
-  padding: 8px 12px;
+  padding: 7px 8px;
+  border-radius: 8px;
   color: var(--text-primary);
-  text-decoration: none;
   font-size: 14px;
   line-height: 1.35;
-  border-radius: 8px;
-  transition: background-color 0.15s ease;
-  white-space: normal;
+  text-decoration: none;
   overflow-wrap: anywhere;
-  word-break: normal;
+  transition: background-color 0.15s ease;
 }
 
 .toc-link:hover {
   background: var(--hover-bg);
 }
 
-.toc-link:active {
-  background: var(--border-color);
+/* Empty and guidance states */
+.notice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 18px 12px 14px;
+  text-align: center;
 }
 
+.notice-icon {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  background: var(--accent-tint);
+  color: var(--accent-color);
+}
+
+.notice h2 {
+  margin-bottom: 6px;
+  font-size: 15px;
+  font-weight: 700;
+}
+
+.notice p {
+  max-width: 290px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.notice .text-btn {
+  margin-top: 14px;
+}
+
+/* Instant tooltip for icon buttons; anchored right so it stays inside the popup. */
+[data-tip] {
+  position: relative;
+}
+
+[data-tip]:hover::after,
+[data-tip]:focus-visible::after {
+  content: attr(data-tip);
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 10;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: var(--text-primary);
+  color: var(--bg-primary);
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* Save icon button states */
+.save-btn[data-state='saving'] {
+  cursor: progress;
+  animation: pulse 1s ease-in-out infinite;
+}
+
+.save-btn[data-state='saved'] {
+  border-color: var(--success-color);
+  background: var(--success-tint);
+  color: var(--success-color);
+}
+
+.save-btn[data-state='error'] {
+  border-color: var(--danger-color);
+  color: var(--danger-color);
+}
+
+@keyframes pulse {
+  50% { opacity: 0.45; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .save-btn[data-state='saving'] { animation: none; }
+}
+
+/* Footer */
 .popup-footer {
   display: flex;
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
   gap: 3px;
-  margin-top: 14px;
-  padding-top: 12px;
+  margin-top: 12px;
+  padding-top: 10px;
   border-top: 1px solid var(--border-color);
   color: var(--text-secondary);
   font-size: 11px;

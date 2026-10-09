@@ -74,31 +74,15 @@ export interface XtocJsonExportV1 {
   articles: XtocJsonExportArticle[];
 }
 
-export type XtocContentStatus = 'complete' | 'partial' | 'excerpts_only';
-export interface XtocLibraryItem {
+export interface XtocBookmark {
   id: string;
   kind: 'article' | 'post';
   markdown: string;
-  contentStatus: XtocContentStatus;
+  fromXBookmarks: boolean;
   capturedAt: string;
   updatedAt: string;
   tags: string[];
-  collectionIds: string[];
   note: string;
-  organized: boolean;
-  bookmarked: boolean;
   summary: string;
   summaryModel: string;
-  trashedAt: string;
-  lastExportedAt: string;
-}
-export interface XtocCollection { id: string; name: string; }
-export interface XtocLibraryBackupV1 {
-  format: 'xtoc-library';
-  version: 1;
-  exportedAt: string;
-  articles: XtocArticle[];
-  clips: XtocClip[];
-  items: XtocLibraryItem[];
-  collections: XtocCollection[];
 }

@@ -1,15 +1,23 @@
-import { KEYS, readState, writeState, mutate, cleanItem, now } from './library/model.js';
-import {
-  aiEndpoint,
-  aiInput,
-  generateSuggestion,
-  applySuggestion,
-  undoSuggestion
-} from './library/ai.js';
+import { KEYS, readState, writeState, mutate } from './library/model.js';
+import { aiInput, generateSuggestion, listModels, normalizeBaseUrl } from './library/ai.js';
+import { detectProvider, findProvider, parseModelList } from './library/ai-providers.js';
+import { applySeed, removeSeed, SEED_PATH } from './library/dev-seed.js';
+import { reinjectionTargets } from './reinject.js';
+import { createVault, idbStore, memoryStore } from './library/key-vault.js';
+
+const AI_CONFIG_KEY = 'xtocAIConfig'; // session storage: includes the key
+const AI_PREFS_KEY = 'xtocAIPrefs'; // local storage: provider, URL, model, remember flag; never the key
+const AI_TIMEOUT_MS = 25000;
+const X_HOSTS = ['x.com', 'twitter.com'];
+
 let writes = Promise.resolve();
-let sessionConfig = null;
+let memoryConfig = null; // fallback when storage.session is unavailable
 const requests = new Map();
+
 const load = async () => readState(await chrome.storage.local.get(Object.values(KEYS)));
+
+// Every library write runs here, one at a time, so concurrent saves from
+// several tabs cannot overwrite each other. Only changed keys are written.
 function transaction(fn) {
   const work = writes.then(async () => {
     const state = await load();
@@ -23,49 +31,204 @@ function transaction(fn) {
     try {
       if (Object.keys(changes).length) await chrome.storage.local.set(changes);
     } catch {
-      throw new Error(
-        'Could not save locally. Storage may be full. Export a backup or free space; existing records were not removed.'
-      );
+      throw new Error('Could not save locally. Storage may be full; existing items were kept.');
     }
     return result;
   });
   writes = work.catch(() => {});
   return work;
 }
-const trusted = (s) =>
-  s.id === chrome.runtime.id && s.url?.startsWith(chrome.runtime.getURL('options/'));
-const xPage = (s) => {
+
+const fromLibrary = (sender) =>
+  sender.id === chrome.runtime.id && sender.url?.startsWith(chrome.runtime.getURL('options/'));
+
+function fromXPage(sender) {
   try {
-    const u = new URL(s.url);
+    const url = new URL(sender.url);
     return (
-      s.id === chrome.runtime.id &&
-      s.tab &&
-      u.protocol === 'https:' &&
-      ['x.com', 'twitter.com'].includes(u.hostname)
+      sender.id === chrome.runtime.id &&
+      sender.tab &&
+      url.protocol === 'https:' &&
+      X_HOSTS.includes(url.hostname)
     );
   } catch {
     return false;
   }
-};
-chrome.runtime.onInstalled.addListener(() => {
-  chrome.contextMenus.removeAll(() =>
-    chrome.contextMenus.create({
-      id: 'showTOC',
-      title: 'Show Table of Contents',
-      contexts: ['page'],
-      documentUrlPatterns: ['https://x.com/*', 'https://twitter.com/*']
-    })
-  );
-});
-chrome.contextMenus.onClicked.addListener(() => {
-  const action = chrome.action || chrome.browserAction;
-  action?.openPopup?.()?.catch(() => {});
-});
-async function config() {
-  return chrome.storage.session
-    ? (await chrome.storage.session.get('xtocAIConfig')).xtocAIConfig
-    : sessionConfig;
 }
+
+// "Remember on this device" keeps an encrypted copy of the key in the
+// extension's IndexedDB (see library/key-vault.js). Memory is used only where
+// IndexedDB does not exist, such as unit tests.
+const vault = createVault({ store: globalThis.indexedDB ? idbStore() : memoryStore() });
+
+async function readSessionConfig() {
+  return chrome.storage.session
+    ? (await chrome.storage.session.get(AI_CONFIG_KEY))[AI_CONFIG_KEY]
+    : memoryConfig;
+}
+
+async function writeSessionConfig(value) {
+  if (chrome.storage.session) {
+    await chrome.storage.session.setAccessLevel?.({ accessLevel: 'TRUSTED_CONTEXTS' });
+    await chrome.storage.session.set({ [AI_CONFIG_KEY]: value });
+  } else {
+    memoryConfig = value;
+  }
+}
+
+const readPrefs = async () => (await chrome.storage.local.get(AI_PREFS_KEY))[AI_PREFS_KEY] || {};
+const writePrefs = async (prefs) => chrome.storage.local.set({ [AI_PREFS_KEY]: prefs });
+
+// After a browser restart the session is empty; a remembered key for the same
+// endpoint restores it.
+async function readAIConfig() {
+  const session = await readSessionConfig();
+  if (session) return session;
+  const prefs = await readPrefs();
+  if (!prefs.remember) return null;
+  const saved = await vault.load();
+  if (!saved || saved.endpoint !== prefs.endpoint) return null;
+  const restored = {
+    provider: prefs.provider,
+    endpoint: prefs.endpoint,
+    model: prefs.model || '',
+    key: saved.key
+  };
+  await writeSessionConfig(restored);
+  return restored;
+}
+
+async function rememberKey(config, remember) {
+  if (remember) await vault.save({ key: config.key, endpoint: config.endpoint });
+  else await vault.clear();
+}
+
+const originPattern = (endpoint) => `${new URL(endpoint).origin}/*`;
+
+const validKey = (key) =>
+  typeof key === 'string' && key.length > 0 && key.length <= 8192 && !/[^\x21-\x7e]/.test(key);
+
+// Saves provider, URL, model and key for this browser session. Omitting the key
+// keeps the current one when the URL is unchanged, so switching models is cheap.
+async function configureAI(payload) {
+  const endpoint = normalizeBaseUrl(payload.endpoint);
+  const current = await readAIConfig();
+  const key = payload.key || (current?.endpoint === endpoint ? current.key : '');
+  if (!validKey(key)) throw new Error('Enter a valid API key.');
+  if (!(await chrome.permissions.contains({ origins: [originPattern(endpoint)] }))) {
+    throw new Error('Grant access to this API origin first.');
+  }
+  const provider = findProvider(payload.provider).id;
+  const model = String(payload.model || '')
+    .trim()
+    .slice(0, 200);
+  const value = { provider, endpoint, model, key };
+  const remember =
+    typeof payload.remember === 'boolean'
+      ? payload.remember
+      : Boolean((await readPrefs()).remember);
+  await writeSessionConfig(value);
+  await rememberKey(value, remember);
+  await writePrefs({ provider, endpoint, model, remember });
+  return aiStatus();
+}
+
+async function aiStatus() {
+  const config = await readAIConfig();
+  const prefs = await readPrefs();
+  const source = config || prefs;
+  return {
+    connected: Boolean(config?.key),
+    configured: Boolean(config?.key && config?.model),
+    remember: Boolean(prefs.remember),
+    provider: source.provider || (source.endpoint ? detectProvider(source.endpoint).id : ''),
+    endpoint: source.endpoint || '',
+    model: source.model || ''
+  };
+}
+
+async function setRemember(remember) {
+  const config = await readAIConfig();
+  if (remember && !config?.key) throw new Error('Connect a provider first.');
+  if (config?.key) await rememberKey(config, remember);
+  else await vault.clear();
+  await writePrefs({ ...(await readPrefs()), remember });
+  return aiStatus();
+}
+
+async function fetchModels() {
+  const config = await readAIConfig();
+  if (!config?.key) throw new Error('Connect a provider first.');
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), AI_TIMEOUT_MS);
+  try {
+    return parseModelList(await listModels(config, controller.signal));
+  } catch (error) {
+    if (controller.signal.aborted) throw new Error('Listing models timed out.');
+    throw new Error(
+      error instanceof TypeError ? 'Could not reach the provider. Check the URL.' : error.message
+    );
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+async function forgetAI() {
+  for (const controller of requests.values()) controller.abort();
+  memoryConfig = null;
+  await chrome.storage.session?.remove(AI_CONFIG_KEY);
+  await vault.clear();
+  await writePrefs({ ...(await readPrefs()), remember: false });
+  return {};
+}
+
+async function runAI(action, payload) {
+  const config = await readAIConfig();
+  if (!config?.key || !config.model) throw new Error('Set up AI in Settings first.');
+  if (!(await chrome.permissions.contains({ origins: [originPattern(config.endpoint)] }))) {
+    throw new Error('API permission was removed. Save the AI settings again.');
+  }
+  if (requests.size) throw new Error('Another AI request is running.');
+  const input =
+    action === 'ai:test'
+      ? {
+          id: 'test',
+          title: 'Connection test',
+          text: 'A short note about reading tools.',
+          existingTags: []
+        }
+      : aiInput(await load(), payload.id);
+  const requestId = String(payload.requestId || crypto.randomUUID());
+  const controller = new AbortController();
+  requests.set(requestId, controller);
+  const timer = setTimeout(() => controller.abort(), AI_TIMEOUT_MS);
+  try {
+    const suggestion = await generateSuggestion(config, input, controller.signal);
+    return action === 'ai:test'
+      ? { connected: true }
+      : { ...suggestion, model: config.model, updatedAt: input.updatedAt };
+  } catch (error) {
+    if (controller.signal.aborted) throw new Error('The request was cancelled or timed out.');
+    throw new Error(
+      error instanceof TypeError ? 'Could not reach the provider. Check the URL.' : error.message
+    );
+  } finally {
+    clearTimeout(timer);
+    requests.delete(requestId);
+  }
+}
+
+// The seed file exists only in local development builds (see tooling/build-dev.mjs).
+async function readSeed() {
+  try {
+    const response = await fetch(chrome.runtime.getURL(SEED_PATH));
+    if (!response.ok) throw new Error();
+    return await response.json();
+  } catch {
+    throw new Error('Sample data is only available in development builds.');
+  }
+}
+
 async function dispatch(message, sender) {
   const { action, payload = {} } = message;
   if (action === 'openClips' || action === 'openLibrary') {
@@ -74,140 +237,70 @@ async function dispatch(message, sender) {
     return {};
   }
   if (action === 'library:capture' || action === 'library:saveClip') {
-    if (!xPage(sender)) throw new Error('Capture must originate on X.');
-    return transaction((s) => mutate(s, action.slice(8), payload));
+    if (!fromXPage(sender)) throw new Error('Saving must start on X.');
+    return transaction((state) => mutate(state, action.slice('library:'.length), payload));
   }
-  if (action === 'capture:importStatus') {
-    if (!xPage(sender)) throw new Error('Not allowed.');
-    return transaction((s) =>
-      mutate(s, 'importStatus', {
-        id: String(payload.id || ''),
-        added: Number(payload.added) || 0,
-        duplicates: Number(payload.duplicates) || 0,
-        failed: Number(payload.failed) || 0,
-        reason: String(payload.reason || '').slice(0, 500)
-      })
-    );
-  }
-  if (!trusted(sender)) throw new Error('Open Library to perform this action.');
+  if (!fromLibrary(sender)) throw new Error('Open the Library to do this.');
   if (action === 'library:load') {
     await writes;
     return load();
   }
-  if (action.startsWith('library:')) return transaction((s) => mutate(s, action.slice(8), payload));
-  if (action === 'ai:configure') {
-    if (
-      typeof payload.key !== 'string' ||
-      !payload.key ||
-      /[^\x21-\x7e]/.test(payload.key) ||
-      payload.key.length > 8192 ||
-      typeof payload.model !== 'string' ||
-      !payload.model.trim()
-    )
-      throw new Error('Enter a model and a valid API key.');
-    const endpoint = aiEndpoint(payload.endpoint);
-    if (!(await chrome.permissions.contains({ origins: [`${endpoint.origin}/*`] })))
-      throw new Error('Grant access to this API origin first.');
-    const value = {
-      endpoint: endpoint.href,
-      model: payload.model.trim().slice(0, 200),
-      key: payload.key
-    };
-    if (chrome.storage.session) {
-      await chrome.storage.session.setAccessLevel?.({ accessLevel: 'TRUSTED_CONTEXTS' });
-      await chrome.storage.session.set({ xtocAIConfig: value });
-    } else sessionConfig = value;
-    return { endpoint: value.endpoint, model: value.model };
+  if (action === 'library:edit' || action === 'library:delete') {
+    return transaction((state) => mutate(state, action.slice('library:'.length), payload));
   }
-  if (action === 'ai:status') {
-    const c = await config();
-    return c ? { endpoint: c.endpoint, model: c.model, configured: true } : { configured: false };
+  if (action === 'library:seed') {
+    const seed = await readSeed();
+    return transaction((state) =>
+      payload.mode === 'remove' ? removeSeed(state) : applySeed(state, seed)
+    );
   }
-  if (action === 'ai:forget') {
-    for (const controller of requests.values()) controller.abort();
-    sessionConfig = null;
-    await chrome.storage.session?.remove('xtocAIConfig');
-    return {};
-  }
+  if (action === 'ai:configure') return configureAI(payload);
+  if (action === 'ai:status') return aiStatus();
+  if (action === 'ai:models') return fetchModels();
+  if (action === 'ai:forget') return forgetAI();
+  if (action === 'ai:remember') return setRemember(payload.remember === true);
   if (action === 'ai:cancel') {
     requests.get(payload.requestId)?.abort();
     return {};
   }
-  if (action === 'ai:preview') return aiInput(await load(), payload.type, payload.id);
-  if (action === 'ai:apply')
-    return transaction((s) => {
-      applySuggestion(s, payload.id, payload.fields, now());
-      return {};
-    });
-  if (action === 'ai:undo')
-    return transaction((s) => {
-      undoSuggestion(s, payload.id);
-      return {};
-    });
-  if (action === 'ai:discard')
-    return transaction((s) => {
-      delete s.suggestions[payload.id];
-      return {};
-    });
-  if (action === 'ai:generate' || action === 'ai:test') {
-    const c = await config();
-    if (!c) throw new Error('Configure AI for this browser session first.');
-    if (action === 'ai:generate' && (payload.endpoint !== c.endpoint || payload.model !== c.model))
-      throw new Error('AI configuration changed. Review the sending preview again.');
-    if (!(await chrome.permissions.contains({ origins: [`${new URL(c.endpoint).origin}/*`] })))
-      throw new Error('API permission was revoked.');
-    if (requests.size) throw new Error('Another AI request is running. Cancel it or wait.');
-    const input =
-      action === 'ai:test'
-        ? {
-            text: 'Connection test. A short reference note.',
-            type: 'clip',
-            existingTags: [],
-            collections: [],
-            contentStatus: 'excerpt'
-          }
-        : aiInput(await load(), payload.type, payload.id);
-    if (action === 'ai:generate' && JSON.stringify(input) !== payload.preview)
-      throw new Error('Content or taxonomy changed. Review the sending preview again.');
-    const controller = new AbortController();
-    requests.set(payload.requestId, controller);
-    const timer = setTimeout(() => controller.abort(), 25000);
-    try {
-      const result = await generateSuggestion(c, input, controller.signal);
-      if (controller.signal.aborted) throw new Error('Request cancelled.');
-      if (action === 'ai:test') return { connected: true };
-      const id = `suggestion_${crypto.randomUUID()}`;
-      await transaction((s) => {
-        if (input.type !== 'clip' && !s.items[input.id])
-          s.items[input.id] = cleanItem({ contentStatus: 'excerpts_only' }, input.id);
-        s.suggestions[id] = {
-          ...result,
-          id,
-          targetId: input.id,
-          type: input.type,
-          updatedAt: input.updatedAt,
-          model: c.model,
-          createdAt: now()
-        };
-      });
-      return { id, ...result };
-    } catch (error) {
-      if (controller.signal.aborted)
-        throw new Error(
-          'Request cancelled or timed out. A provider may still bill an in-flight request. Retry manually.'
-        );
-      throw new Error(
-        error instanceof TypeError
-          ? 'Could not contact the provider. Check endpoint and permission.'
-          : error.message
-      );
-    } finally {
-      clearTimeout(timer);
-      requests.delete(payload.requestId);
-    }
-  }
+  if (action === 'ai:suggest' || action === 'ai:test') return runAI(action, payload);
   throw new Error('Unsupported action.');
 }
+
+chrome.runtime.onInstalled.addListener((details) => {
+  chrome.contextMenus.removeAll(() =>
+    chrome.contextMenus.create({
+      id: 'showTOC',
+      title: 'Show Table of Contents',
+      contexts: ['page'],
+      documentUrlPatterns: ['https://x.com/*', 'https://twitter.com/*']
+    })
+  );
+  if (details.reason === 'install' || details.reason === 'update') {
+    reinjectContentScripts().catch(() => {});
+  }
+});
+
+// Open X tabs keep working after an install or update without a reload.
+// Firefox (Manifest V2, no chrome.scripting) re-injects content scripts itself.
+async function reinjectContentScripts() {
+  if (!chrome.scripting) return;
+  const tabs = await chrome.tabs.query({ url: ['https://x.com/*', 'https://twitter.com/*'] });
+  for (const { tabId, js, css } of reinjectionTargets(chrome.runtime.getManifest(), tabs)) {
+    try {
+      if (css.length) await chrome.scripting.insertCSS({ target: { tabId }, files: css });
+      await chrome.scripting.executeScript({ target: { tabId }, files: js });
+    } catch {
+      // The tab closed, navigated or is not scriptable; it loads the script on its next visit.
+    }
+  }
+}
+
+chrome.contextMenus.onClicked.addListener(() => {
+  const action = chrome.action || chrome.browserAction;
+  action?.openPopup?.()?.catch(() => {});
+});
+
 chrome.runtime.onMessage.addListener((message, sender, respond) => {
   if (typeof message?.action !== 'string') return false;
   dispatch(message, sender).then(

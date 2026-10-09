@@ -64,7 +64,7 @@ test('background serializes concurrent content saves and keeps all records', asy
             canonicalUrl: `https://x.com/example/status/${i}`,
             title: `Article ${i}`
           },
-          item: { markdown: `Text ${i}`, contentStatus: 'partial' }
+          bookmark: { markdown: `Text ${i}` }
         },
         content
       )
@@ -74,13 +74,13 @@ test('background serializes concurrent content saves and keeps all records', asy
   assert.equal(Object.keys(local.twitterTocArticles).length, 12);
   assert.equal(Object.keys(local.xtocLibraryItems).length, 12);
 });
-test('content scripts cannot read library, configure AI, edit metadata or restore backups', async () => {
+test('content scripts cannot read the library, configure AI, edit or delete', async () => {
   for (const action of [
     'library:load',
     'ai:configure',
-    'ai:generate',
+    'ai:suggest',
     'library:edit',
-    'library:restoreBackup'
+    'library:delete'
   ])
     assert.equal((await call(action, {}, content)).ok, false);
   assert.equal(
@@ -92,13 +92,15 @@ test('failed storage write is non-destructive and does not poison subsequent tra
   const before = structuredClone(local);
   failWrite = true;
   assert.equal(
-    (await call('library:batch', { ids: ['article_1'], operation: 'addTags', tags: ['lost'] })).ok,
+    (await call('library:edit', { type: 'bookmark', id: 'article_1', tags: ['lost'], note: '' }))
+      .ok,
     false
   );
   assert.deepEqual(local, before);
   failWrite = false;
   assert.equal(
-    (await call('library:batch', { ids: ['article_1'], operation: 'addTags', tags: ['kept'] })).ok,
+    (await call('library:edit', { type: 'bookmark', id: 'article_1', tags: ['kept'], note: '' }))
+      .ok,
     true
   );
   assert.deepEqual(local.xtocLibraryItems.article_1.tags, ['kept']);
@@ -114,4 +116,87 @@ test('AI session configuration never appears in persistent library data', async 
   assert.doesNotMatch(JSON.stringify(await call('ai:status')), /synthetic-test-only/);
   assert.equal((await call('ai:forget')).ok, true);
   assert.equal(session.xtocAIConfig, undefined);
+});
+
+test('switching models keeps the session key; local prefs never contain it', async () => {
+  const endpoint = 'https://provider.example/v1';
+  assert.equal(
+    (
+      await call('ai:configure', {
+        provider: 'custom',
+        endpoint,
+        key: 'synthetic-key-2',
+        model: ''
+      })
+    ).ok,
+    true
+  );
+  const status = await call('ai:configure', { provider: 'custom', endpoint, model: 'model-b' });
+  assert.equal(status.ok, true);
+  assert.deepEqual(status.data, {
+    connected: true,
+    configured: true,
+    remember: false,
+    provider: 'custom',
+    endpoint,
+    model: 'model-b'
+  });
+  assert.equal(session.xtocAIConfig.key, 'synthetic-key-2');
+  assert.deepEqual(local.xtocAIPrefs, {
+    provider: 'custom',
+    endpoint,
+    model: 'model-b',
+    remember: false
+  });
+  assert.equal(
+    (await call('ai:configure', { endpoint: 'https://other.example/v1', model: 'x' })).ok,
+    false
+  );
+  await call('ai:forget');
+});
+
+test('a remembered key survives a browser restart; Remove key forgets it everywhere', async () => {
+  const endpoint = 'https://provider.example/v1';
+  await call('ai:configure', {
+    provider: 'custom',
+    endpoint,
+    key: 'synthetic-remembered',
+    model: 'm',
+    remember: true
+  });
+  assert.doesNotMatch(JSON.stringify(local), /synthetic-remembered/);
+  delete session.xtocAIConfig; // browser restart clears session storage
+  const restored = await call('ai:status');
+  assert.equal(restored.data.connected, true);
+  assert.equal(restored.data.remember, true);
+  assert.equal(session.xtocAIConfig.key, 'synthetic-remembered');
+
+  await call('ai:remember', { remember: false });
+  delete session.xtocAIConfig;
+  assert.equal((await call('ai:status')).data.connected, false);
+
+  await call('ai:configure', {
+    provider: 'custom',
+    endpoint,
+    key: 'synthetic-remembered',
+    model: 'm',
+    remember: true
+  });
+  await call('ai:forget');
+  assert.equal((await call('ai:status')).data.connected, false);
+  assert.equal(local.xtocAIPrefs.remember, false);
+});
+
+test('a remembered key is not reused for a different endpoint', async () => {
+  await call('ai:configure', {
+    provider: 'custom',
+    endpoint: 'https://a.example/v1',
+    key: 'synthetic-a',
+    model: 'm',
+    remember: true
+  });
+  local.xtocAIPrefs = { ...local.xtocAIPrefs, endpoint: 'https://b.example/v1' };
+  delete session.xtocAIConfig;
+  assert.equal((await call('ai:status')).data.connected, false);
+  await call('ai:forget');
 });

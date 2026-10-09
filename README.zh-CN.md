@@ -41,15 +41,17 @@ https://github.com/user-attachments/assets/b107995f-3b2a-4432-9530-48a93c886aa3
 
 ## 当前源码中的 Library（0.7.0）
 
-从 Popup 或浮动目录打开 **Library**。在 Popup 点击 **Save page to Library** 保存已加载的文章或帖子。采集结果默认标为部分内容；只有与完整加载的原文核对后，才应标记为完整。
+从 Popup 或浮动目录打开 **Library**，包含三个页面：
 
-- 使用待整理、合集、标签和笔记管理资料。删除先进入本地回收站，不修改 X 原始书签。
-- 打开 X 书签页，手动启动页面内导入。支持暂停、取消和重复导入去重；仅保存已加载预览，不保证完整历史或文章全文。
-- 将选中或筛选后的文章导出为 **Markdown 知识包**：每篇一个稳定文件，附来源索引，分开呈现原文、摘录、笔记与已确认的 AI 摘要。可以排除笔记。这是 ZIP 下载，不是目录同步或自动写入 Agent memory。
-- 在设置中下载、恢复完整资料库 JSON 备份。恢复采用合并方式，冲突时保留本地记录。旧版摘录 Markdown 和 JSON v1 导出保持独立。
-- 可选的 **AI suggestions** 使用自行配置的 HTTPS 兼容接口、模型和会话 Key。先预览将发送的正文及分类词表，再确认发送；结果需另行确认应用。个人笔记不发送，撤销会保护后续人工修改。
+- **Clips**：搜索、标注、删除和导出已保存的摘录。
+- **Bookmarks**：在 Popup 点击 **Save to Bookmarks** 保存的文章和帖子，或从 X 书签页导入的书签。导入只读取已加载的预览，不会修改你的 X 书签。
+- **Settings**：可选的 AI 设置和本地存储用量。
 
-AI 接口需支持 Chat Completions JSON mode；费用由服务商收取，界面不提供精确费用估算。Key 不进入备份、导出或页面脚本，但浏览器被入侵仍有凭据泄露风险。原文属于外部参考资料，不是 Agent 指令。媒体仅保留说明或链接，不下载。源码版本不代表商店已发布；`.portfolio/project.json` 仍对应已确认的正式版本。
+Clips 和书签可导出为 Obsidian 风格的 Markdown：ZIP 中每篇文章或帖子一个笔记，带 YAML 属性和标签，摘录以引用 callout 呈现。Clips 也可导出为 JSON v1。
+
+可选 AI 每次为一条书签建议最多三个标签和一段简短摘要。在 **Settings** 中选择服务商（OpenAI、Anthropic Claude、Google Gemini、DeepSeek、OpenRouter、通义千问、Moonshot Kimi，或任意 OpenAI 兼容地址），粘贴 API Key 并连接；XTOC 会读取该服务商的模型列表并预选一个轻量模型。只发送该书签已保存的正文和已有标签名，不发送笔记；点击 **Apply** 前不会修改任何内容。Key 默认只保存在本次浏览器会话中；开启 **Remember on this device** 后，会加密保存在本设备的扩展存储里，不会同步、导出，X 页面也无法读取。费用由服务商收取。
+
+该源码版本尚未发布；`.portfolio/project.json` 对应最新正式版本。
 
 ## 正式版 0.6.2 的已上线能力
 
@@ -93,13 +95,13 @@ npm run build:edge
 
 Chrome/Chromium 是当前有文档说明的商店与本地加载路径。Firefox 和 Edge 有各自的构建目标，分发前仍需在对应浏览器中验证。
 
-构建后运行 `npm run test:browser`，会在隔离的无头 Playwright 配置中加载 `dist/chromium`。必要时用 `npx playwright install chromium` 安装测试浏览器，或设置 `XTOC_CHROMIUM_PATH` 指向已有的 Chromium 测试程序。测试使用合成 X 页面和模拟 AI 服务，不使用真实账号或模型；截图与下载保留在被忽略的 `dist/library-qa` 中。真实 X 页面、模型质量、权限弹窗及 Firefox/Edge 运行行为需另行验收。
+日常调试可运行 `npm run build:dev`，会额外生成 `dist/chromium-dev`：内容与正式构建相同，但名称为 **XTOC (Development)**，工具栏图标为带斜纹的橙色版本，便于与商店正式版区分。加载该目录代替 `dist/chromium`；它拥有独立的扩展 ID 和本地存储。发布 ZIP 始终使用未改标识的 `dist/chromium`。
 
 供下游站点使用的公开产品元数据位于 [`.portfolio/project.json`](.portfolio/project.json)。发布公开版本时，请同步更新清单及其引用的资源。发布工作流可在完成配置后立即通知作品集；否则作品集会通过定时拉取发现变更。
 
 ## 隐私
 
-正文、摘录、标签、笔记和设置保存在 `chrome.storage.local` 中；`unlimitedStorage` 权限仅用于避免保存的正文触及默认本地配额，不授予任何网站访问。导出由用户主动触发。可选 AI 仅在确认后，将预览中的内容及分类词表直接发给配置的服务商；只按需申请该服务商的域名权限，页面脚本仍限于 X/Twitter。Key 使用扩展会话存储，不支持时退回后台内存，不持久化进资料库。“Forget key” 清除 Key 并撤销该服务商权限。不添加遥测、X 登录凭据收集、云端资料库或自动上传。
+正文、摘录、标签、笔记和设置保存在 `chrome.storage.local` 中；`unlimitedStorage` 权限仅用于避免保存的正文触及默认本地配额，不授予任何网站访问。`scripting` 权限用于在安装或更新后，让已打开的 X 标签页无需刷新即可继续使用 XTOC，不增加 X/Twitter 以外的网站访问。导出由用户主动触发。可选 AI 仅在你主动请求时，将一条书签的已保存正文和标签名直接发给配置的服务商；只按需申请该服务商的域名权限，页面脚本仍限于 X/Twitter。API Key 保存在扩展会话存储中；若选择 **Remember on this device**，则以 AES-GCM 加密（密钥为浏览器生成的不可导出密钥）保存在扩展自己的 IndexedDB 中，可避免明文落盘，但无法防范能控制该设备的人。Key 不会同步、导出或随资料库保存。“Remove key” 会在所有位置删除 Key 并撤销该服务商权限。不添加遥测、X 登录凭据收集、云端资料库或自动上传。
 
 ## 项目链接
 

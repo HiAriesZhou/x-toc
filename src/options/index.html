@@ -3,127 +3,88 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Library — XTOC</title>
+    <title>XTOC Library</title>
     <link rel="stylesheet" href="library.css" />
   </head>
   <body>
-    <header class="app-header">
-      <div class="identity">
-        <button id="menu" class="mobile-only" aria-label="Toggle navigation" aria-expanded="false">
-          ☰</button
-        ><img src="../wordmark.svg" alt="XTOC" width="112" height="27" /><span
-          class="divider"
-        ></span
-        ><strong>Library</strong>
-      </div>
-      <div class="header-actions">
-        <span class="local-note">Local first. Yours to keep.</span
-        ><button id="import">Import bookmarks ↗</button><button id="settings">Settings</button>
-      </div>
-    </header>
-    <div class="workspace">
-      <aside id="sidebar" class="sidebar" aria-label="Library navigation">
-        <p class="eyebrow">YOUR LIBRARY</p>
-        <nav id="views">
-          <button data-view="all" class="active">All content <span id="allCount">0</span></button
-          ><button data-view="inbox">Inbox</button><button data-view="bookmarks">Bookmarks</button
-          ><button data-view="clips">Clips</button>
+    <div class="app">
+      <aside class="sidebar">
+        <div class="brand">
+          <img id="brandIcon" alt="" width="24" height="24" /><span>XTOC</span>
+        </div>
+        <nav class="nav" aria-label="Library">
+          <a href="#clips" data-route="clips">
+            <svg
+              class="icon"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M16 3h5v5" />
+              <path d="M8 3H3v5" />
+              <path d="M3 16v5h5" />
+              <path d="M21 16v5h-5" />
+              <path d="M8 10h8" />
+              <path d="M8 14h5" />
+            </svg>
+            <span>Clips</span><span class="nav-count" id="count-clips"></span>
+          </a>
+          <a href="#bookmarks" data-route="bookmarks">
+            <svg
+              class="icon"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z" />
+            </svg>
+            <span>Bookmarks</span><span class="nav-count" id="count-bookmarks"></span>
+          </a>
+          <a href="#settings" data-route="settings">
+            <svg
+              class="icon"
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path
+                d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"
+              />
+              <circle cx="12" cy="12" r="3" />
+            </svg>
+            <span>Settings</span>
+          </a>
         </nav>
-        <div class="sidebar-heading">
-          <p class="eyebrow">COLLECTIONS</p>
-          <button id="newCollection" aria-label="Create collection">+</button>
-        </div>
-        <nav id="collections"></nav>
-        <div class="sidebar-bottom">
-          <button id="savedSuggestions">AI suggestions / undo</button
-          ><button data-view="trash">Trash</button
-          ><button id="manageTags">Rename / merge tags</button>
-          <p class="sidebar-note">From a passing thought<br />to a lasting reference.</p>
-          <a
-            class="star"
-            href="https://github.com/HiAriesZhou/x-toc"
-            target="_blank"
-            rel="noopener noreferrer"
-            >Enjoying XTOC? Star on GitHub ☆</a
-          >
-        </div>
+        <a
+          class="star"
+          href="https://github.com/HiAriesZhou/x-toc"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Enjoying XTOC? Star it on GitHub ⭐</a
+        >
       </aside>
-      <main class="library">
-        <div class="library-heading">
-          <div>
-            <p class="eyebrow">READ · COLLECT · KEEP</p>
-            <h1 id="viewTitle">All content</h1>
-            <p class="muted" id="count">Loading your library…</p>
-          </div>
-          <button id="knowledge" class="primary">Export knowledge pack</button>
-        </div>
-        <div class="search-row">
-          <input
-            id="search"
-            type="search"
-            placeholder="Search text, author, tags, notes…"
-            aria-label="Search library"
-          /><button id="refresh" title="Reload local library">Refresh</button>
-        </div>
-        <div class="filters">
-          <select id="kind" aria-label="Content type">
-            <option value="">All types</option>
-            <option value="article">Articles</option>
-            <option value="post">Posts</option></select
-          ><select id="tag" aria-label="Tag">
-            <option value="">All tags</option></select
-          ><input id="author" placeholder="Author" aria-label="Filter by author" /><select
-            id="organized"
-            aria-label="Organization status"
-          >
-            <option value="">Any status</option>
-            <option value="no">Unorganized</option>
-            <option value="yes">Organized</option></select
-          ><select id="sort" aria-label="Sort">
-            <option value="saved">Latest saved</option>
-            <option value="published">Latest published</option></select
-          ><select id="trashType" aria-label="Trash type" hidden>
-            <option value="item">Articles / posts</option>
-            <option value="clip">Clips</option>
-          </select>
-        </div>
-        <div class="toolbar">
-          <label
-            ><input id="selectAll" type="checkbox" />
-            <span id="selectionCount">Select visible</span></label
-          ><select id="batch" aria-label="Batch action">
-            <option value="">Actions…</option>
-            <option value="organized">Mark organized</option>
-            <option value="unorganized">Move to Inbox</option>
-            <option value="addTags">Add tags</option>
-            <option value="removeTags">Remove tags</option>
-            <option value="collection">Add to collection</option>
-            <option value="trash">Move to Trash</option>
-            <option value="restore">Restore</option>
-            <option value="purge">Delete permanently</option></select
-          ><button id="ai">AI suggestions</button><button id="exportClips">Export clips</button>
-        </div>
-        <p id="status" class="status" role="status" aria-live="polite"></p>
-        <div id="list" class="item-list"></div>
-        <button id="more" class="more" hidden>Show more</button>
-      </main>
-      <aside id="detail" class="detail" aria-label="Content details">
-        <div class="detail-empty">
-          <span class="detail-symbol">↗</span>
-          <h2>A place for what stays.</h2>
-          <p>Select an article or clip to see its source, saved text and notes.</p>
-        </div>
-      </aside>
+      <main class="main" id="main"></main>
+      <aside class="drawer" id="drawer" aria-label="Details" hidden></aside>
     </div>
-    <dialog id="modal">
-      <div class="modal-heading">
-        <h2 id="modalTitle"></h2>
-        <button id="closeModal" aria-label="Close dialog">×</button>
-      </div>
-      <div id="modalBody"></div>
-      <p id="modalStatus" role="status"></p>
-    </dialog>
-    <input id="backupFile" type="file" accept="application/json,.json" hidden />
+    <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
     <script type="module" src="library-page.js"></script>
   </body>
 </html>

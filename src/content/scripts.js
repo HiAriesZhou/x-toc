@@ -1,11 +1,17 @@
 import {
   areTocEntriesEqual,
   clampScrollTarget,
+  classifyXPage,
   getActiveSectionIndex,
   hasReachedScrollTarget
 } from './navigation-utils.js';
-import { captureCurrent, initLibraryCapture } from './library-capture.js';
+import { captureCurrent } from './library-capture.js';
+import { initBookmarkImport } from './bookmark-import-panel.js';
+import { createLifecycle } from './lifecycle.js';
 let destroyLibraryCapture = null;
+let pageObserver = null;
+let initialExtractTimeout = null;
+let active = true; // false once this instance is torn down
 
 // Content script for extracting TOC from Twitter/X articles
 
@@ -1007,8 +1013,26 @@ function findArticleContainer() {
   return null;
 }
 
+const LONGFORM_MARKERS = [
+  '[data-testid="twitterArticleReadView"]',
+  '[data-testid="twitter-article-title"]',
+  '[data-testid="longformRichTextComponent"]',
+  '.longform-header-one, .longform-header-two, .longform-header-three'
+].join(', ');
+
+function getPageKind() {
+  return classifyXPage(window.location.href, Boolean(document.querySelector(LONGFORM_MARKERS)));
+}
+
 // Extract headers from the article
 function extractTOC() {
+  // Timelines, profiles and plain posts have no article structure; their page
+  // headings (for example "Your Home Timeline") must not become a contents list.
+  if (getPageKind() !== 'article') {
+    headerElements = [];
+    return [];
+  }
+
   const article = findArticleContainer();
 
   if (!article) {
@@ -1130,19 +1154,21 @@ function scrollToHeader(index) {
 
 // Initialize
 async function init() {
-  destroyLibraryCapture = initLibraryCapture();
+  destroyLibraryCapture = initBookmarkImport();
   // Wait for page to fully load
-  setTimeout(() => {
+  initialExtractTimeout = setTimeout(() => {
     tocData = extractTOC();
   }, 1500);
 
   // Initialize TOC Panel
   tocPanel = new TOCPanel();
   await tocPanel.init();
+  if (!active) return tocPanel.destroy();
   initExcerptFeature();
 
   // Check if panel was visible before
   const storage = await chrome.storage.local.get('tocPanelVisible');
+  if (!active) return;
   if (storage.tocPanelVisible && tocData.length > 0) {
     tocPanel.show(tocData);
   }
@@ -1162,6 +1188,7 @@ async function init() {
     }, 1000);
   });
 
+  pageObserver = observer;
   observer.observe(document.body, {
     childList: true,
     subtree: true
@@ -1169,14 +1196,14 @@ async function init() {
 }
 
 // Listen for messages from popup or background
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+function handleMessage(message, sender, sendResponse) {
   if (message.action === 'captureCurrent') {
     captureCurrent().then(data => sendResponse({ ok: true, data }), error => sendResponse({ ok: false, error: error.message }));
     return true;
   }
   if (message.action === 'getTOC') {
     tocData = extractTOC();
-    sendResponse({ toc: tocData, isPanelVisible: tocPanel?.isVisible || false });
+    sendResponse({ toc: tocData, isPanelVisible: tocPanel?.isVisible || false, pageKind: getPageKind() });
   } else if (message.action === 'scrollTo') {
     scrollToHeader(message.index);
     sendResponse({ success: true });
@@ -1194,7 +1221,41 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   return true;
-});
+}
+chrome.runtime.onMessage.addListener(handleMessage);
+
+// Removes everything this instance added to the page. Runs when a newer
+// instance replaces it, when the extension context is invalidated, or on
+// Extension.js hot reload.
+function teardown() {
+  active = false;
+  clearTimeout(initialExtractTimeout);
+  clearTimeout(window.tocExtractTimeout);
+  pageObserver?.disconnect();
+  tocPanel?.destroy();
+  destroyExcerptFeature();
+  destroyLibraryCapture?.();
+  try {
+    chrome.runtime.onMessage.removeListener(handleMessage);
+  } catch {
+    // The extension context is already gone.
+  }
+}
+
+// UI left behind by an older build that predates the replace event.
+const STALE_ELEMENT_IDS = ['twitter-toc-panel', 'xtoc-save-excerpt-button', 'xtoc-library-capture'];
+
+const isExtensionAlive = () => {
+  try {
+    return Boolean(chrome.runtime?.id);
+  } catch {
+    return false;
+  }
+};
+
+const lifecycle = createLifecycle({ isAlive: isExtensionAlive, onTeardown: teardown });
+lifecycle.start();
+STALE_ELEMENT_IDS.forEach((id) => document.getElementById(id)?.remove());
 
 // Start when DOM is ready
 if (document.readyState === 'loading') {
@@ -1205,11 +1266,5 @@ if (document.readyState === 'loading') {
 
 // Export for Extension.js hot reload
 export default function main() {
-  return () => {
-    if (tocPanel) {
-      tocPanel.destroy();
-    }
-    destroyExcerptFeature();
-    destroyLibraryCapture?.();
-  };
+  return () => lifecycle.teardown();
 }

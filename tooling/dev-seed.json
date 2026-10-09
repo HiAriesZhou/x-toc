@@ -1,0 +1,355 @@
+{
+  "articles": [
+    {
+      "id": "mock_article_1",
+      "url": "https://x.com/maya_mock/status/3000000000000000001",
+      "canonicalUrl": "https://x.com/maya_mock/status/3000000000000000001",
+      "title": "Designing tools that stay useful",
+      "authorName": "Maya Chen",
+      "authorHandle": "@maya_mock",
+      "publishedAt": "2026-09-18T08:00:00Z",
+      "createdAt": "2026-09-18T08:00:00Z",
+      "updatedAt": "2026-09-18T08:00:00Z"
+    },
+    {
+      "id": "mock_article_2",
+      "url": "https://x.com/inklab_mock/status/3000000000000000002",
+      "canonicalUrl": "https://x.com/inklab_mock/status/3000000000000000002",
+      "title": "Local-first software, five years later",
+      "authorName": "Ink Lab",
+      "authorHandle": "@inklab_mock",
+      "publishedAt": "2026-09-21T10:30:00Z",
+      "createdAt": "2026-09-21T10:30:00Z",
+      "updatedAt": "2026-09-21T10:30:00Z"
+    },
+    {
+      "id": "mock_article_3",
+      "url": "https://x.com/linyi_mock/status/3000000000000000003",
+      "canonicalUrl": "https://x.com/linyi_mock/status/3000000000000000003",
+      "title": "如何建立长期有效的阅读系统",
+      "authorName": "林一",
+      "authorHandle": "@linyi_mock",
+      "publishedAt": "2026-09-25T02:00:00Z",
+      "createdAt": "2026-09-25T02:00:00Z",
+      "updatedAt": "2026-09-25T02:00:00Z"
+    },
+    {
+      "id": "mock_article_4",
+      "url": "https://x.com/noah_mock/status/3000000000000000004",
+      "canonicalUrl": "https://x.com/noah_mock/status/3000000000000000004",
+      "title": "Lessons from building reliable AI workflows",
+      "authorName": "Noah Park",
+      "authorHandle": "@noah_mock",
+      "publishedAt": "2026-09-28T15:45:00Z",
+      "createdAt": "2026-09-28T15:45:00Z",
+      "updatedAt": "2026-09-28T15:45:00Z"
+    },
+    {
+      "id": "mock_article_5",
+      "url": "https://x.com/sam_mock/status/3000000000000000005",
+      "canonicalUrl": "https://x.com/sam_mock/status/3000000000000000005",
+      "title": "Writing in public without burning out",
+      "authorName": "Sam Rivera",
+      "authorHandle": "@sam_mock",
+      "publishedAt": "2026-10-03T07:20:00Z",
+      "createdAt": "2026-10-03T07:20:00Z",
+      "updatedAt": "2026-10-03T07:20:00Z"
+    }
+  ],
+  "clips": [
+    {
+      "id": "mock_clip_01",
+      "articleId": "mock_article_1",
+      "text": "Keep the original source close to the insight; a quote without its context decays into a slogan.",
+      "contextBefore": "",
+      "contextAfter": "",
+      "pageUrl": "https://x.com/maya_mock/status/3000000000000000001",
+      "createdAt": "2026-10-02T08:15:00Z",
+      "updatedAt": "2026-10-02T08:15:00Z",
+      "tags": [
+        "design",
+        "reading"
+      ],
+      "note": "Use in the onboarding essay."
+    },
+    {
+      "id": "mock_clip_02",
+      "articleId": "mock_article_1",
+      "text": "Tools that ask for organization up front get abandoned. Let structure emerge from use.",
+      "contextBefore": "",
+      "contextAfter": "",
+      "pageUrl": "https://x.com/maya_mock/status/3000000000000000001",
+      "createdAt": "2026-10-03T09:15:00Z",
+      "updatedAt": "2026-10-03T09:15:00Z",
+      "tags": [
+        "design",
+        "pkm"
+      ],
+      "note": ""
+    },
+    {
+      "id": "mock_clip_03",
+      "articleId": "mock_article_1",
+      "text": "The best default is the one people never notice they accepted.",
+      "contextBefore": "",
+      "contextAfter": "",
+      "pageUrl": "https://x.com/maya_mock/status/3000000000000000001",
+      "createdAt": "2026-10-04T10:15:00Z",
+      "updatedAt": "2026-10-04T10:15:00Z",
+      "tags": [
+        "design"
+      ],
+      "note": ""
+    },
+    {
+      "id": "mock_clip_04",
+      "articleId": "mock_article_1",
+      "text": "Every feature you add is a feature someone has to learn to ignore.",
+      "contextBefore": "",
+      "contextAfter": "",
+      "pageUrl": "https://x.com/maya_mock/status/3000000000000000001",
+      "createdAt": "2026-10-05T11:15:00Z",
+      "updatedAt": "2026-10-05T11:15:00Z",
+      "tags": [
+        "product",
+        "design"
+      ],
+      "note": "Counterpoint to the settings page debate."
+    },
+    {
+      "id": "mock_clip_05",
+      "articleId": "mock_article_2",
+      "text": "Sync is a feature; ownership is a property.",
+      "contextBefore": "",
+      "contextAfter": "",
+      "pageUrl": "https://x.com/inklab_mock/status/3000000000000000002",
+      "createdAt": "2026-10-06T08:15:00Z",
+      "updatedAt": "2026-10-06T08:15:00Z",
+      "tags": [
+        "local-first"
+      ],
+      "note": ""
+    },
+    {
+      "id": "mock_clip_06",
+      "articleId": "mock_article_2",
+      "text": "If the server disappears tomorrow, can your users still open their files? That is the whole test.",
+      "contextBefore": "",
+      "contextAfter": "",
+      "pageUrl": "https://x.com/inklab_mock/status/3000000000000000002",
+      "createdAt": "2026-10-07T09:15:00Z",
+      "updatedAt": "2026-10-07T09:15:00Z",
+      "tags": [
+        "local-first",
+        "data"
+      ],
+      "note": "Good framing for the privacy section."
+    },
+    {
+      "id": "mock_clip_07",
+      "articleId": "mock_article_2",
+      "text": "CRDTs solved merging text. They did not solve merging intent.",
+      "contextBefore": "",
+      "contextAfter": "",
+      "pageUrl": "https://x.com/inklab_mock/status/3000000000000000002",
+      "createdAt": "2026-10-08T10:15:00Z",
+      "updatedAt": "2026-10-08T10:15:00Z",
+      "tags": [
+        "local-first",
+        "sync"
+      ],
+      "note": ""
+    },
+    {
+      "id": "mock_clip_08",
+      "articleId": "mock_article_2",
+      "text": "Offline is not an edge case on a train, a plane, or a bad Wi-Fi day.",
+      "contextBefore": "",
+      "contextAfter": "",
+      "pageUrl": "https://x.com/inklab_mock/status/3000000000000000002",
+      "createdAt": "2026-10-01T11:15:00Z",
+      "updatedAt": "2026-10-01T11:15:00Z",
+      "tags": [
+        "local-first"
+      ],
+      "note": ""
+    },
+    {
+      "id": "mock_clip_09",
+      "articleId": "mock_article_3",
+      "text": "摘录不是终点，能被再次找到并使用的摘录才有价值。",
+      "contextBefore": "",
+      "contextAfter": "",
+      "pageUrl": "https://x.com/linyi_mock/status/3000000000000000003",
+      "createdAt": "2026-10-02T08:15:00Z",
+      "updatedAt": "2026-10-02T08:15:00Z",
+      "tags": [
+        "阅读",
+        "笔记"
+      ],
+      "note": "和 Library 的定位一致。"
+    },
+    {
+      "id": "mock_clip_10",
+      "articleId": "mock_article_3",
+      "text": "先读结构，再读细节：目录决定了你记住的骨架。",
+      "contextBefore": "",
+      "contextAfter": "",
+      "pageUrl": "https://x.com/linyi_mock/status/3000000000000000003",
+      "createdAt": "2026-10-03T09:15:00Z",
+      "updatedAt": "2026-10-03T09:15:00Z",
+      "tags": [
+        "阅读"
+      ],
+      "note": ""
+    },
+    {
+      "id": "mock_clip_11",
+      "articleId": "mock_article_3",
+      "text": "给每条笔记写一句“为什么保存它”，三个月后你会感谢自己。",
+      "contextBefore": "",
+      "contextAfter": "",
+      "pageUrl": "https://x.com/linyi_mock/status/3000000000000000003",
+      "createdAt": "2026-10-04T10:15:00Z",
+      "updatedAt": "2026-10-04T10:15:00Z",
+      "tags": [
+        "笔记",
+        "习惯"
+      ],
+      "note": ""
+    },
+    {
+      "id": "mock_clip_12",
+      "articleId": "mock_article_3",
+      "text": "信息过载的解法不是读得更快，而是更早放弃不值得读的内容。",
+      "contextBefore": "",
+      "contextAfter": "",
+      "pageUrl": "https://x.com/linyi_mock/status/3000000000000000003",
+      "createdAt": "2026-10-05T11:15:00Z",
+      "updatedAt": "2026-10-05T11:15:00Z",
+      "tags": [
+        "阅读",
+        "注意力"
+      ],
+      "note": ""
+    },
+    {
+      "id": "mock_clip_13",
+      "articleId": "mock_article_4",
+      "text": "Treat model output as a draft from a fast, confident intern: useful, never final.",
+      "contextBefore": "",
+      "contextAfter": "",
+      "pageUrl": "https://x.com/noah_mock/status/3000000000000000004",
+      "createdAt": "2026-10-06T08:15:00Z",
+      "updatedAt": "2026-10-06T08:15:00Z",
+      "tags": [
+        "ai",
+        "workflow"
+      ],
+      "note": ""
+    },
+    {
+      "id": "mock_clip_14",
+      "articleId": "mock_article_4",
+      "text": "Most reliability problems are retrieval problems wearing a model costume.",
+      "contextBefore": "",
+      "contextAfter": "",
+      "pageUrl": "https://x.com/noah_mock/status/3000000000000000004",
+      "createdAt": "2026-10-07T09:15:00Z",
+      "updatedAt": "2026-10-07T09:15:00Z",
+      "tags": [
+        "ai",
+        "rag"
+      ],
+      "note": "Check this against the export design."
+    },
+    {
+      "id": "mock_clip_15",
+      "articleId": "mock_article_4",
+      "text": "Make the human checkpoint cheap, or people will route around it.",
+      "contextBefore": "",
+      "contextAfter": "",
+      "pageUrl": "https://x.com/noah_mock/status/3000000000000000004",
+      "createdAt": "2026-10-08T10:15:00Z",
+      "updatedAt": "2026-10-08T10:15:00Z",
+      "tags": [
+        "ai",
+        "product"
+      ],
+      "note": ""
+    },
+    {
+      "id": "mock_clip_16",
+      "articleId": "mock_article_4",
+      "text": "Log the prompt, the context and the answer together, or you will never debug the third one.",
+      "contextBefore": "",
+      "contextAfter": "",
+      "pageUrl": "https://x.com/noah_mock/status/3000000000000000004",
+      "createdAt": "2026-10-01T11:15:00Z",
+      "updatedAt": "2026-10-01T11:15:00Z",
+      "tags": [
+        "ai",
+        "engineering"
+      ],
+      "note": ""
+    },
+    {
+      "id": "mock_clip_17",
+      "articleId": "mock_article_5",
+      "text": "Publish the notes you wish you had found last year.",
+      "contextBefore": "",
+      "contextAfter": "",
+      "pageUrl": "https://x.com/sam_mock/status/3000000000000000005",
+      "createdAt": "2026-10-02T08:15:00Z",
+      "updatedAt": "2026-10-02T08:15:00Z",
+      "tags": [
+        "writing"
+      ],
+      "note": ""
+    },
+    {
+      "id": "mock_clip_18",
+      "articleId": "mock_article_5",
+      "text": "A thread is a table of contents for an essay you have not written yet.",
+      "contextBefore": "",
+      "contextAfter": "",
+      "pageUrl": "https://x.com/sam_mock/status/3000000000000000005",
+      "createdAt": "2026-10-03T09:15:00Z",
+      "updatedAt": "2026-10-03T09:15:00Z",
+      "tags": [
+        "writing",
+        "x"
+      ],
+      "note": "Nice line for the XTOC README."
+    },
+    {
+      "id": "mock_clip_19",
+      "articleId": "mock_article_5",
+      "text": "Consistency beats volume: one honest post a week compounds.",
+      "contextBefore": "",
+      "contextAfter": "",
+      "pageUrl": "https://x.com/sam_mock/status/3000000000000000005",
+      "createdAt": "2026-10-04T10:15:00Z",
+      "updatedAt": "2026-10-04T10:15:00Z",
+      "tags": [
+        "writing",
+        "habits"
+      ],
+      "note": ""
+    },
+    {
+      "id": "mock_clip_20",
+      "articleId": "mock_article_5",
+      "text": "Save the replies that disagree with you; they are your next post.",
+      "contextBefore": "",
+      "contextAfter": "",
+      "pageUrl": "https://x.com/sam_mock/status/3000000000000000005",
+      "createdAt": "2026-10-05T11:15:00Z",
+      "updatedAt": "2026-10-05T11:15:00Z",
+      "tags": [
+        "writing"
+      ],
+      "note": ""
+    }
+  ]
+}

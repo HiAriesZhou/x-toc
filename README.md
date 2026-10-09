@@ -41,15 +41,17 @@ Watch the 40-second demo: navigate an article, save passages, edit tags and note
 
 ## Library in this source checkout (0.7.0)
 
-Open **Library** from the popup or pinned contents panel. Use **Save page to Library** in the popup to capture the loaded article or post. Captures start as partial; only mark a body complete after comparing it with the fully loaded original.
+Open **Library** from the popup or the pinned contents panel. It has three pages:
 
-- Organize references with Inbox, collections, tags and notes. Deleted items go to local Trash; X bookmarks are never deleted remotely.
-- Open your X Bookmarks page and start the on-page importer. Pause, cancel or repeat an import without duplicating items. Only loaded previews are captured, not guaranteed full history or article bodies.
-- Export selected or filtered articles as a **Markdown knowledge pack**: one stable file per item and a source-linked index. Original text, clips, notes and accepted AI summaries stay separate. Notes can be excluded. The ZIP is a download, not folder sync or automatic Agent memory.
-- Use **Settings → Download backup / Restore backup** for full-library JSON backup and merge. Existing records win on conflicts. Existing clip Markdown and JSON v1 exports remain available separately.
-- Optional **AI suggestions** use your HTTPS OpenAI-compatible endpoint, model and session-only key. Review selected text and classification vocabulary before sending, then accept or discard tags, collection suggestions and summaries. Notes are not sent. Undo protects subsequent edits.
+- **Clips** — search, tag, annotate, delete and export your saved passages.
+- **Bookmarks** — articles and posts saved with **Save to Bookmarks** in the popup, or imported from your X Bookmarks page. Imports only read loaded previews and never change your X bookmarks.
+- **Settings** — optional AI and local storage usage.
 
-AI compatibility requires Chat Completions JSON mode; provider charges apply and exact cost is unavailable. Keys are excluded from backups, exports and page scripts, but browser compromise can still expose them. Article text is external reference material, not Agent instructions. Media are referenced, not downloaded. This source version does not imply browser-store publication; `.portfolio/project.json` still describes the confirmed published release.
+Clips and bookmarks export as Obsidian-style Markdown: a ZIP with one note per article or post, YAML properties, tags, and clips as quote callouts. Clips can also be exported as JSON v1.
+
+Optional AI suggests up to three tags and a short summary for one bookmark at a time. In **Settings**, pick a provider (OpenAI, Anthropic Claude, Google Gemini, DeepSeek, OpenRouter, Qwen, Moonshot Kimi, or any OpenAI-compatible URL), paste your API key and connect; XTOC lists that provider's models and preselects a fast one. It sends only that bookmark's saved text and your existing tag names; notes are never sent. Nothing changes until you choose **Apply**. By default the key is kept only for the browser session; turn on **Remember on this device** to keep it encrypted in the extension's own storage on this device. It is never synced, exported or readable by X pages. Provider charges apply.
+
+This source version is not yet published; `.portfolio/project.json` describes the latest release.
 
 ## Published 0.6.2 behavior
 
@@ -91,15 +93,15 @@ npm run build:firefox
 npm run build:edge
 ```
 
-Chrome/Chromium is the documented store and load-unpacked path. Firefox and Edge have separate build targets and should be tested in their own browsers before distribution.
+For day-to-day debugging, `npm run build:dev` additionally writes `dist/chromium-dev`: the same build renamed **XTOC (Development)** with an orange, striped toolbar icon, so it is easy to tell apart from the store version. Load that folder instead of `dist/chromium`; it gets its own extension ID and local storage. Release ZIPs always use the unbranded `dist/chromium`.
 
-After building, `npm run test:browser` loads `dist/chromium` in an isolated headless Playwright profile. Install its browser if needed with `npx playwright install chromium`, or set `XTOC_CHROMIUM_PATH` to an existing Chromium testing executable. This uses synthetic X pages and a synthetic AI provider, not a live account or model. Screenshots and downloads remain under ignored `dist/library-qa`. Live X markup, real provider quality, permission prompts and Firefox/Edge runtime need separate validation.
+Chrome/Chromium is the documented store and load-unpacked path. Firefox and Edge have separate build targets and should be tested in their own browsers before distribution.
 
 Public product metadata for downstream sites lives in [`.portfolio/project.json`](.portfolio/project.json). Update the manifest and its referenced assets as part of a public release. The release workflow can notify a configured portfolio immediately; otherwise the portfolio's scheduled pull discovers the change.
 
 ## Privacy
 
-Saved text, clips, tags, notes and settings remain in `chrome.storage.local`; the `unlimitedStorage` permission keeps saved article bodies from hitting the default local quota and grants no site access. Exports are user-triggered downloads. Optional AI sends only previewed content and classification vocabulary directly to the configured provider after confirmation. AI host access is requested for that provider only; page scripts remain limited to X/Twitter. Keys use extension session storage, or worker memory when unavailable, and are never persisted in library data. **Forget key** clears the key and revokes that provider permission. There is no telemetry, X credential collection, cloud library storage or automatic upload.
+Saved text, clips, tags, notes and settings remain in `chrome.storage.local`; the `unlimitedStorage` permission keeps saved article bodies from hitting the default local quota and grants no site access. The `scripting` permission lets XTOC restart itself in X tabs that were already open when it is installed or updated, so they work without a reload; it adds no sites beyond X/Twitter. Exports are user-triggered downloads. Optional AI sends one bookmark's saved text and your tag names directly to the configured provider, only when you ask. AI host access is requested for that provider only; page scripts remain limited to X/Twitter. The API key lives in extension session storage, or, if you choose **Remember on this device**, encrypted (AES-GCM, non-extractable browser key) in the extension's IndexedDB; this keeps it out of plain-text files but does not protect against someone who controls the device. It is never synced, exported or saved with your library. **Remove key** deletes it everywhere and revokes that provider permission. There is no telemetry, X credential collection, cloud library storage or automatic upload.
 
 ## Project links
 

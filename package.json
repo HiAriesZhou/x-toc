@@ -16,8 +16,8 @@
     "start": "extension start",
     "pretest": "npm run check:store-assets",
     "test": "node --test",
-    "test:browser": "node tooling/library-browser-check.mjs",
     "build": "extension build",
+    "build:dev": "npm run build && node tooling/build-dev.mjs",
     "prebuild:zip": "npm run check:store-assets",
     "build:zip": "npm run build && cd dist/chromium && zip -r ../../v$npm_package_version.zip .",
     "build:firefox": "extension build --browser firefox",
@@ -25,8 +25,7 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "extension": "^3.7.0",
-    "playwright": "^1.62.1"
+    "extension": "^3.7.0"
   },
   "packageManager": "npm@10.8.2"
 }
