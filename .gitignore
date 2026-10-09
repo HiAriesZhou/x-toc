@@ -32,3 +32,4 @@ extension-env.d.ts
 
 # built packages
 *.zip
+release/

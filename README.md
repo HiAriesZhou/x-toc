@@ -93,7 +93,9 @@ npm run build:firefox
 npm run build:edge
 ```
 
-For day-to-day debugging, `npm run build:dev` additionally writes `dist/chromium-dev`: the same build renamed **XTOC (Development)** with an orange, striped toolbar icon, so it is easy to tell apart from the store version. Load that folder instead of `dist/chromium`; it gets its own extension ID and local storage. Release ZIPs always use the unbranded `dist/chromium`.
+For day-to-day debugging, `npm run build:dev` additionally writes `dist/chromium-dev`: the same build renamed **XTOC (Development)** with an orange, striped toolbar icon, so it is easy to tell apart from the store version. Load that folder instead of `dist/chromium`; it gets its own extension ID and local storage. Release ZIPs always use the unbranded builds.
+
+`npm run build:zip` builds all three targets and writes the store packages to `release/`: `xtoc-chrome-v<version>.zip`, `xtoc-edge-v<version>.zip`, `xtoc-firefox-v<version>.zip`, plus `xtoc-source-v<version>.zip` (the committed source, for Firefox Add-ons review). Commit first; the source archive is skipped when there are uncommitted changes.
 
 Chrome/Chromium is the documented store and load-unpacked path. Firefox and Edge have separate build targets and should be tested in their own browsers before distribution.
 

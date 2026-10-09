@@ -17,6 +17,7 @@ npm run dev                                # Extension.js dev mode with hot relo
 npm run build                              # dist/chromium
 npm run build:firefox / build:edge         # per-browser targets
 npm run build:dev                          # dist/chromium-dev: local debug copy with DEV name/icons
+npm run build:zip                          # release/: Chrome, Edge, Firefox store ZIPs + Firefox source ZIP
 ```
 
 There is no lint script. Extension.js (`extension` devDependency) bundles each entry, so `src/` files may use ES `import` even in the content script. `extension.config.js` pins persistent browser profiles under `dist/extension-profile-*`.

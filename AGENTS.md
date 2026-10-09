@@ -45,12 +45,12 @@ npm run build:zip
 - There is currently no lint script. Do not report lint as passed and do not run `npm run lint`. Add lint tooling only when that is part of the requested implementation work.
 - `npm run build` creates the Chromium build in `dist/chromium`; `build:firefox` and `build:edge` exercise their respective Extension.js targets. `dist/` and generated ZIP files are build artifacts and must stay untracked.
 - `build:dev` runs `build`, then writes a local-only debug copy to `dist/chromium-dev` with the name `XTOC (Development)` and the icons from `tooling/dev-icons/`. Use it for local Chrome load-unpacked debugging only; never package, upload, or submit it. Regenerate dev icons with `node tooling/generate-dev-icons.mjs` after changing `src/icons/`; a test fails when they are stale.
-- `build:zip` packages the Chromium build for release. Do not run it as a substitute for Firefox or Edge validation.
+- `build:zip` builds Chromium, Edge and Firefox, then writes `release/xtoc-{chrome,edge,firefox}-v<version>.zip` for store upload and `release/xtoc-source-v<version>.zip` (a `git archive` of `HEAD`, for Mozilla review). It verifies each archive, the manifest version and Manifest V3/V2 per target, and refuses development branding or dev-only files. The source archive is skipped when the working tree has uncommitted changes. Packaging is not a substitute for testing in Edge and Firefox, and does not authorize uploading.
 
 ## Release package cleanup
 
-- After successfully publishing a new version, clean up older XTOC release ZIPs automatically so the repository directory retains only the current latest release ZIP. Do not wait for a separate cleanup request.
-- Before cleanup, verify the retained ZIP exists, passes an archive integrity check, and contains a manifest with the intended release version. A version bump or build alone does not trigger post-release cleanup.
+- After successfully publishing a new version, clean up older XTOC release ZIPs automatically so `release/` retains only the current version's packages (and older root-level `v<version>.zip` files from before `release/` existed can be removed the same way). Do not wait for a separate cleanup request.
+- Before cleanup, verify the retained ZIPs exist, pass an archive integrity check, and contain a manifest with the intended release version. A version bump or build alone does not trigger post-release cleanup.
 - Remove only confirmed older XTOC release packages; preserve unrelated archives, dependencies, and user changes. Prefer recoverable removal and report the removed versions and recovery location.
 - Release ZIPs remain ignored build artifacts. Do not commit or force-add them, and do not delete historical Git tags, GitHub Releases, or remote release assets as part of local cleanup.
 

@@ -95,7 +95,9 @@ npm run build:edge
 
 Chrome/Chromium 是当前有文档说明的商店与本地加载路径。Firefox 和 Edge 有各自的构建目标，分发前仍需在对应浏览器中验证。
 
-日常调试可运行 `npm run build:dev`，会额外生成 `dist/chromium-dev`：内容与正式构建相同，但名称为 **XTOC (Development)**，工具栏图标为带斜纹的橙色版本，便于与商店正式版区分。加载该目录代替 `dist/chromium`；它拥有独立的扩展 ID 和本地存储。发布 ZIP 始终使用未改标识的 `dist/chromium`。
+日常调试可运行 `npm run build:dev`，会额外生成 `dist/chromium-dev`：内容与正式构建相同，但名称为 **XTOC (Development)**，工具栏图标为带斜纹的橙色版本，便于与商店正式版区分。加载该目录代替 `dist/chromium`；它拥有独立的扩展 ID 和本地存储。发布 ZIP 始终使用未改标识的正式构建。
+
+`npm run build:zip` 会构建三个平台，并把商店安装包写入 `release/`：`xtoc-chrome-v<版本>.zip`、`xtoc-edge-v<版本>.zip`、`xtoc-firefox-v<版本>.zip`，以及供 Firefox 附加组件审核使用的源码包 `xtoc-source-v<版本>.zip`（来自已提交的代码）。请先提交；存在未提交改动时会跳过源码包。
 
 供下游站点使用的公开产品元数据位于 [`.portfolio/project.json`](.portfolio/project.json)。发布公开版本时，请同步更新清单及其引用的资源。发布工作流可在完成配置后立即通知作品集；否则作品集会通过定时拉取发现变更。
 
