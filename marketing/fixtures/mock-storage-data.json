@@ -35,6 +35,54 @@
       "platform": "x.com",
       "createdAt": "2026-08-28T03:15:00.000Z",
       "updatedAt": "2026-09-08T02:20:00.000Z"
+    },
+    "article_demo_post_ship": {
+      "id": "article_demo_post_ship",
+      "url": "https://x.com/xtoc_demo/status/2000000000000000004",
+      "canonicalUrl": "https://x.com/xtoc_demo/status/2000000000000000004",
+      "title": "Small weekly releases beat big quarterly ones.",
+      "authorName": "Kai Moreno",
+      "authorHandle": "@kai_demo",
+      "publishedAt": "2026-09-24T15:10:00.000Z",
+      "platform": "x.com",
+      "createdAt": "2026-10-01T09:00:00.000Z",
+      "updatedAt": "2026-10-01T09:00:00.000Z"
+    },
+    "article_demo_post_reading": {
+      "id": "article_demo_post_reading",
+      "url": "https://x.com/xtoc_demo/status/2000000000000000005",
+      "canonicalUrl": "https://x.com/xtoc_demo/status/2000000000000000005",
+      "title": "A reading list that never gets read is just a guilty feed.",
+      "authorName": "Lena Fischer",
+      "authorHandle": "@lena_demo",
+      "publishedAt": "2026-09-22T08:45:00.000Z",
+      "platform": "x.com",
+      "createdAt": "2026-10-01T09:00:00.000Z",
+      "updatedAt": "2026-10-01T09:00:00.000Z"
+    },
+    "article_demo_post_notes": {
+      "id": "article_demo_post_notes",
+      "url": "https://x.com/xtoc_demo/status/2000000000000000006",
+      "canonicalUrl": "https://x.com/xtoc_demo/status/2000000000000000006",
+      "title": "Notes are cheap; retrieval is the product.",
+      "authorName": "Sam Okafor",
+      "authorHandle": "@sam_demo",
+      "publishedAt": "2026-09-19T19:30:00.000Z",
+      "platform": "x.com",
+      "createdAt": "2026-10-01T09:00:00.000Z",
+      "updatedAt": "2026-10-01T09:00:00.000Z"
+    },
+    "article_demo_post_focus": {
+      "id": "article_demo_post_focus",
+      "url": "https://x.com/xtoc_demo/status/2000000000000000007",
+      "canonicalUrl": "https://x.com/xtoc_demo/status/2000000000000000007",
+      "title": "Turn the table of contents into a promise: the reader always knows where they are and how far is left.",
+      "authorName": "Mira Chen",
+      "authorHandle": "@mira_demo",
+      "publishedAt": "2026-09-16T11:00:00.000Z",
+      "platform": "x.com",
+      "createdAt": "2026-10-01T09:00:00.000Z",
+      "updatedAt": "2026-10-01T09:00:00.000Z"
     }
   },
   "twitterTocExcerpts": {
@@ -48,7 +96,10 @@
       "selectionLength": 106,
       "createdAt": "2026-09-11T07:08:09.000Z",
       "source": "x.com",
-      "tags": ["reading", "product-design"],
+      "tags": [
+        "reading",
+        "product-design"
+      ],
       "note": "Use this when explaining why the TOC should remain visible beside the article."
     },
     "excerpt_demo_reading_2": {
@@ -61,7 +112,10 @@
       "selectionLength": 146,
       "createdAt": "2026-09-10T06:35:00.000Z",
       "source": "x.com",
-      "tags": ["navigation", "focus"]
+      "tags": [
+        "navigation",
+        "focus"
+      ]
     },
     "excerpt_demo_reading_3": {
       "id": "excerpt_demo_reading_3",
@@ -73,7 +127,10 @@
       "selectionLength": 235,
       "createdAt": "2026-09-09T11:12:00.000Z",
       "source": "x.com",
-      "tags": ["clipping", "context"],
+      "tags": [
+        "clipping",
+        "context"
+      ],
       "note": "Long example for demonstrating Show full clip / Show less."
     },
     "excerpt_demo_agents_1": {
@@ -86,7 +143,11 @@
       "selectionLength": 105,
       "createdAt": "2026-09-10T09:42:00.000Z",
       "source": "x.com",
-      "tags": ["agents", "reliability", "workflow"],
+      "tags": [
+        "agents",
+        "reliability",
+        "workflow"
+      ],
       "note": "Agent UX includes failure handling, not only automation."
     },
     "excerpt_demo_agents_2": {
@@ -99,7 +160,9 @@
       "selectionLength": 95,
       "createdAt": "2026-09-07T04:18:00.000Z",
       "source": "x.com",
-      "tags": ["human-in-the-loop"]
+      "tags": [
+        "human-in-the-loop"
+      ]
     },
     "excerpt_demo_local_1": {
       "id": "excerpt_demo_local_1",
@@ -111,7 +174,10 @@
       "selectionLength": 120,
       "createdAt": "2026-09-08T02:20:00.000Z",
       "source": "x.com",
-      "tags": ["local-first", "ownership"],
+      "tags": [
+        "local-first",
+        "ownership"
+      ],
       "note": "Pairs well with the local storage message in the Options header."
     },
     "excerpt_demo_local_2": {
@@ -129,5 +195,101 @@
   "twitterTocExcerptSettings": {
     "contextLength": 80,
     "defaultExportFormat": "markdown"
+  },
+  "xtocLibraryItems": {
+    "article_demo_reading": {
+      "id": "article_demo_reading",
+      "kind": "article",
+      "markdown": "### Start with the reader\n\nGood long-form reading starts with a visible structure: where you are, what comes next, and how to return.\n\n### Make structure visible\n\nThe best navigation stays quiet until the reader needs it.",
+      "fromXBookmarks": true,
+      "capturedAt": "2026-10-01T09:00:00.000Z",
+      "updatedAt": "2026-10-01T09:00:00.000Z",
+      "tags": [
+        "reading",
+        "product-design"
+      ],
+      "note": "Reference for the onboarding essay.",
+      "summary": "Long reads work best when structure stays visible: show where the reader is, what comes next, and keep navigation quiet until needed.",
+      "summaryModel": "demo-model",
+      "sortKey": 1790845200000
+    },
+    "article_demo_post_ship": {
+      "id": "article_demo_post_ship",
+      "kind": "post",
+      "markdown": "Small weekly releases beat big quarterly ones. Every release is a chance to learn what readers actually use.",
+      "fromXBookmarks": true,
+      "capturedAt": "2026-10-01T09:00:00.000Z",
+      "updatedAt": "2026-10-01T09:00:00.000Z",
+      "tags": [
+        "product",
+        "shipping"
+      ],
+      "note": "",
+      "summary": "",
+      "summaryModel": "",
+      "sortKey": 1790845199999
+    },
+    "article_demo_post_reading": {
+      "id": "article_demo_post_reading",
+      "kind": "post",
+      "markdown": "A reading list that never gets read is just a guilty feed. Keep fewer saves, and give each one a reason.",
+      "fromXBookmarks": true,
+      "capturedAt": "2026-10-01T09:00:00.000Z",
+      "updatedAt": "2026-10-01T09:00:00.000Z",
+      "tags": [
+        "reading"
+      ],
+      "note": "",
+      "summary": "",
+      "summaryModel": "",
+      "sortKey": 1790845199998
+    },
+    "article_demo_post_notes": {
+      "id": "article_demo_post_notes",
+      "kind": "post",
+      "markdown": "Notes are cheap; retrieval is the product. Tag for the question you will ask later, not for the topic.",
+      "fromXBookmarks": true,
+      "capturedAt": "2026-10-01T09:00:00.000Z",
+      "updatedAt": "2026-10-01T09:00:00.000Z",
+      "tags": [
+        "notes",
+        "retrieval"
+      ],
+      "note": "",
+      "summary": "",
+      "summaryModel": "",
+      "sortKey": 1790845199997
+    },
+    "article_demo_post_focus": {
+      "id": "article_demo_post_focus",
+      "kind": "post",
+      "markdown": "Turn the table of contents into a promise: the reader always knows where they are and how far is left.",
+      "fromXBookmarks": true,
+      "capturedAt": "2026-10-01T09:00:00.000Z",
+      "updatedAt": "2026-10-01T09:00:00.000Z",
+      "tags": [
+        "focus",
+        "navigation"
+      ],
+      "note": "",
+      "summary": "",
+      "summaryModel": "",
+      "sortKey": 1790845199996
+    },
+    "article_demo_local_first": {
+      "id": "article_demo_local_first",
+      "kind": "article",
+      "markdown": "### Keep the primary copy close\n\nLocal-first tools keep the primary copy close to the person doing the work.",
+      "fromXBookmarks": true,
+      "capturedAt": "2026-10-01T09:00:00.000Z",
+      "updatedAt": "2026-10-01T09:00:00.000Z",
+      "tags": [
+        "local-first"
+      ],
+      "note": "",
+      "summary": "",
+      "summaryModel": "",
+      "sortKey": 1790845199994
+    }
   }
 }

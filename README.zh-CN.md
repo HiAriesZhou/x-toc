@@ -1,5 +1,5 @@
 <h1 align="center">
-  <img src="src/wordmark.svg" width="280" alt="XTOC">
+  <img src="assets/brand/wordmark.svg" width="280" alt="XTOC">
 </h1>
 
 <p align="center">

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>X-TOC Chrome Web Store Assets</title>
+  <title>XTOC Store Assets</title>
   <style>
     :root {
       --ink: #111820;
@@ -61,7 +61,9 @@
       mask-image: linear-gradient(120deg, #000 0%, rgba(0, 0, 0, 0.45) 48%, transparent 100%);
     }
 
-    body[data-variant="screenshot"] .screenshot,
+    body[data-variant="screenshot"] .screenshot.reading,
+    body[data-variant="library"] .screenshot.library-slide,
+    body[data-variant="export"] .screenshot.export-slide,
     body[data-variant="marquee"] .marquee {
       display: block;
     }
@@ -787,8 +789,21 @@
     .promo-panel .quote { font-size: 13px; line-height: 1.38; }
     .promo-panel .tags { margin-top: 8px; }
     .promo-panel .note { display: none; }
+    /* Real Library captures (marketing/ui/*.png, 2x) inside a window frame. */
+    .shot-frame {
+      position: relative;
+      z-index: 1;
+      overflow: hidden;
+      border: 1px solid rgba(118, 134, 150, 0.24);
+      border-radius: 22px;
+      background: #fff;
+      box-shadow: var(--shadow);
+    }
+    .shot-frame img { display: block; width: 100%; height: 100%; object-fit: cover; object-position: left top; }
+    .screenshot .shot-frame { margin-top: 34px; height: 470px; }
+    .marquee .shot-frame { height: 468px; }
     /* Reflow the reading demo for social cards; keep store layouts unchanged. */
-    body[data-variant="social"] .screenshot { display: block; width: 1280px; height: 640px; padding: 32px 46px; }
+    body[data-variant="social"] .screenshot.reading { display: block; width: 1280px; height: 640px; padding: 32px 46px; }
     body[data-variant="social"] .logo { width: 170px; height: auto; }
     body[data-variant="social"] .brand-name { font-size: 26px; }
     body[data-variant="social"] .headline { margin-top: 24px; grid-template-columns: 570px 1fr; }
@@ -827,9 +842,9 @@
   </style>
 </head>
 <body>
-  <section class="asset screenshot" aria-label="Chrome Web Store screenshot">
+  <section class="asset screenshot reading" aria-label="Store screenshot: reading">
     <div class="brand">
-      <img class="logo" src="../src/wordmark.svg" alt="X-TOC">
+      <img class="logo" src="../assets/brand/wordmark.svg" alt="XTOC">
       <div>
         <div class="brand-sub">Navigate & Clip X Articles</div>
       </div>
@@ -855,15 +870,15 @@
           <div class="article-line"></div>
           <div class="article-line short"></div>
           <div class="selection">Good long-form reading starts with a visible structure: where you are, what comes next, and how to return.</div>
-          <div class="save-button">Save to X-TOC</div>
+          <div class="save-button">save to xtoc</div>
           <div class="floating-panel">
             <div class="panel-head">
               <span class="panel-drag" aria-hidden="true">
                 <svg viewBox="0 0 16 16" fill="currentColor"><circle cx="5" cy="3" r="1.2"/><circle cx="11" cy="3" r="1.2"/><circle cx="5" cy="8" r="1.2"/><circle cx="11" cy="8" r="1.2"/><circle cx="5" cy="13" r="1.2"/><circle cx="11" cy="13" r="1.2"/></svg>
               </span>
-              <div class="panel-title"><span class="panel-brand-accent">X-TOC</span> · Contents</div>
+              <div class="panel-title"><span class="panel-brand-accent">XTOC</span> · Contents</div>
               <div class="panel-actions" aria-hidden="true">
-                <span class="panel-icon clips"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span>Clips</span></span>
+                <span class="panel-icon clips"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg><span>Library</span></span>
                 <span class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 15 6-6 6 6"/></svg></span>
                 <span class="panel-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6 6 18M6 6l12 12"/></svg></span>
               </div>
@@ -881,78 +896,55 @@
     </div>
   </section>
 
+  <section class="asset screenshot library-slide" aria-label="Store screenshot: bookmarks">
+    <div class="brand">
+      <img class="logo" src="../assets/brand/wordmark.svg" alt="XTOC">
+      <div><div class="brand-sub">Navigate & Clip X Articles</div></div>
+    </div>
+    <div class="headline">
+      <h1>Bookmarks that stay useful.</h1>
+      <div class="lead">Import your X bookmarks in one click, add tags and notes, and let optional AI suggest tags and a summary.</div>
+    </div>
+    <div class="shot-frame"><img src="ui/library-bookmarks.png" alt="XTOC Library showing bookmarks and an AI suggestion"></div>
+  </section>
+
+  <section class="asset screenshot export-slide" aria-label="Store screenshot: export">
+    <div class="brand">
+      <img class="logo" src="../assets/brand/wordmark.svg" alt="XTOC">
+      <div><div class="brand-sub">Navigate & Clip X Articles</div></div>
+    </div>
+    <div class="headline">
+      <h1>Ready for Obsidian.</h1>
+      <div class="lead">Search and tag your clips, then export Markdown notes with properties, tags and quoted passages, or JSON.</div>
+    </div>
+    <div class="shot-frame"><img src="ui/library-clips-export.png" alt="XTOC Library clips with the export menu open"></div>
+  </section>
+
   <section class="asset marquee" aria-label="Chrome Web Store marquee promo tile">
     <div class="layout">
       <div>
         <div class="brand">
-          <img class="logo" src="../src/wordmark.svg" alt="X-TOC">
+          <img class="logo" src="../assets/brand/wordmark.svg" alt="XTOC">
           <div>
             <div class="brand-sub">Navigate & Clip X Articles</div>
           </div>
         </div>
-        <h1>Turn X Articles into searchable clips.</h1>
-        <div class="lead">Navigate long reads, save important passages locally, and export useful clips when you need them.</div>
+        <h1>Save what you read on X.</h1>
+        <div class="lead">Navigate long articles, save posts and passages, import bookmarks, and export to Obsidian. Everything stays on your device.</div>
         <div class="feature-row">
           <span class="feature-chip">Pinned TOC</span>
-          <span class="feature-chip">Local clips</span>
-          <span class="feature-chip">Tags & notes</span>
-          <span class="feature-chip">Markdown / JSON</span>
+          <span class="feature-chip">Bookmark import</span>
+          <span class="feature-chip">Obsidian export</span>
+          <span class="feature-chip">Local-first</span>
         </div>
       </div>
 
-      <div class="promo-panel">
-        <div class="options-head">
-          <div>
-            <div class="library-title">Your library</div>
-            <div class="saved-title">
-            <span class="pill">3 articles</span>
-            <span class="pill">7 clips</span>
-            </div>
-          </div>
-          <div class="export">Export all <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m6 9 6 6 6-6"/></svg></div>
-        </div>
-        <div class="search-row">
-          <div class="select-all"><span class="check checked"></span>Select all</div>
-          <div class="search">Search text, title, author, tags, or notes</div>
-        </div>
-        <div class="clip-list">
-          <div class="clip-card">
-            <div class="clip-card-head">
-              <div class="clip-card-title"><span class="check checked"></span><div class="clip-article">Lessons from building reliable AI workflows</div></div>
-              <div class="clip-card-meta"><span class="pill">@noah_demo</span><span class="pill">2 clips</span></div>
-            </div>
-            <div class="clip-body">
-              <div class="check checked"></div>
-              <div>
-                <div class="quote">Long workflows make mistakes more expensive, so review points and recovery paths become product features.</div>
-                <div class="tags">
-                  <span class="tag">agents</span>
-                  <span class="tag">reliability</span>
-                  <span class="tag">workflow</span>
-                </div>
-                <div class="clip-footer"><span class="saved-time">Saved Sep 10, 2026</span><span class="edit-pill">Tags & note</span></div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="clip-editor-demo">
-          <div class="editor-head"><div class="editor-eyebrow">Edit clip</div><div class="editor-preview">Long workflows make mistakes more expensive…</div></div>
-          <div class="editor-body">
-            <div class="editor-label">Tags · Enter or comma to add</div>
-            <div class="editor-input">Type a tag</div>
-            <div class="editor-tags"><span class="tag">agents</span><span class="tag">reliability</span></div>
-            <div class="editor-label">Note</div>
-            <div class="editor-note">Agent UX includes failure handling, not only automation.</div>
-            <div class="editor-actions"><span class="editor-button">Cancel</span><span class="editor-button primary">Save</span></div>
-          </div>
-        </div>
-        <div class="promo-badge">Save locally. Export anytime.</div>
-      </div>
+      <div class="shot-frame"><img src="ui/library-bookmarks.png" alt="XTOC Library showing bookmarks"></div>
     </div>
   </section>
 
   <section class="asset small" aria-label="Chrome Web Store small promo tile">
-    <div class="brand"><img class="logo" src="../src/wordmark.svg" alt="X-TOC"></div>
+    <div class="brand"><img class="logo" src="../assets/brand/wordmark.svg" alt="XTOC"></div>
     <h1>Read long.<br>Keep what<br>matters.</h1>
     <div class="small-outline" aria-hidden="true">
       <div class="small-outline-head"><i></i><i></i><i></i></div>
@@ -961,7 +953,7 @@
       <div class="small-outline-row"><i></i><b style="width: 43px"></b></div>
       <span class="small-bookmark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></span>
     </div>
-    <p class="small-sub">TOC &amp; clips for X Articles</p>
+    <p class="small-sub">TOC, clips &amp; bookmarks for X</p>
   </section>
 
   <script>

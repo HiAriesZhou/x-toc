@@ -309,7 +309,9 @@ textarea.input { resize: vertical; line-height: 1.5; }
   border-bottom: 1px solid var(--border);
   background: var(--surface-muted);
 }
-.group-title { display: inline-flex; align-items: center; gap: 6px; min-width: 0; color: var(--text); font-weight: 700; }
+.group-title { flex: 1; min-width: 0; color: var(--text); font-weight: 700; overflow-wrap: anywhere; }
+/* Inline icon so it follows the last word when a long title wraps. */
+.group-title .icon { display: inline-block; margin-left: 6px; vertical-align: -2px; }
 .group-title:hover { color: var(--accent); text-decoration: none; }
 .group-head .subtle { flex: none; font-size: 12px; }
 

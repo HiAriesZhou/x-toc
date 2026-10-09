@@ -13,9 +13,9 @@
     "projectStory": "https://www.arieszhou.com/projects/x-toc"
   },
   "assets": {
-    "cover": "store-assets/chrome-store-screenshot-1280x800.png",
-    "marquee": "store-assets/chrome-store-marquee-1400x560.png",
-    "logo": "src/logo.png"
+    "cover": "marketing/store/01-reading-1280x800.png",
+    "marquee": "marketing/store/marquee-1400x560.png",
+    "logo": "assets/brand/logo.png"
   },
   "technology": {
     "stack": ["JavaScript", "Extension.js", "Chrome Storage", "Markdown", "JSON"],

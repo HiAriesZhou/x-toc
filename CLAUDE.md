@@ -12,7 +12,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 npm test                                   # runs `check:store-assets` (pretest), then `node --test`
 node --test test/clip-utils.test.js        # single test file (skips the store-asset check)
 node --test --test-name-pattern="clamp"    # tests matching a name
-npm run check:store-assets                 # store/ release copies must match store-assets/ + icons
+npm run check:store-assets                 # store/ upload copies must match marketing/store/ + icons
 npm run dev                                # Extension.js dev mode with hot reload
 npm run build                              # dist/chromium
 npm run build:firefox / build:edge         # per-browser targets
@@ -44,4 +44,4 @@ Data model: articles keyed by `articleId` (`article_<statusId>` from the `/statu
 
 - `src/manifest.json` uses Extension.js browser-prefixed keys (`chromium:` → MV3 with `action`/service worker; `firefox:` → MV2 with `browser_action`/background scripts). Check the generated manifest in `dist/<browser>` after changes.
 - `test/release-metadata.test.js` enforces that `package.json`, `src/manifest.json`, and both READMEs' version badges agree, that the version is not older than `.portfolio/project.json` `releaseVersion`, and that every Portfolio asset path exists.
-- `store/` holds the browser-store release definition (`store/release.yml`, listing text, release copies of assets); `store-assets/` holds the source images. `tooling/check-store-assets.js` fails `npm test` and `build:zip` when they diverge.
+- `store/` holds the browser-store release definition (`store/release.yml`, listing text, release copies of assets); `marketing/` holds how they are made (`store-art.html` template, real UI captures in `ui/`, fixtures, social card); `assets/brand/` holds the logo and wordmark sources. `tooling/check-store-assets.js` fails `npm test` and `build:zip` when they diverge.
