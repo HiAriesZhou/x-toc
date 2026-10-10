@@ -2,6 +2,8 @@ import test from 'node:test';
 import assert from 'node:assert/strict';
 import {
   bookmarkList,
+  cleanArticle,
+  cleanClip,
   clipGroups,
   contentId,
   mutate,
@@ -59,6 +61,56 @@ test('canonical identity deduplicates X/Twitter URLs and rejects unrelated sourc
   assert.equal(contentId('https://twitter.com/a/status/123?x=1'), 'article_123');
   assert.equal(xUrl('https://x.com.evil.test/a/status/123'), '');
   assert.throws(() => contentId('javascript:alert(1)'));
+});
+
+test('cleanArticle/cleanClip keep original visit URLs; only canonicalUrl is normalized', () => {
+  const visit = 'https://twitter.com/example/status/123?s=20&t=abc#reply';
+  const cleaned = cleanArticle({
+    id: 'article_123',
+    url: visit,
+    canonicalUrl: visit,
+    title: 'Kept visit URL'
+  });
+  assert.equal(cleaned.url, visit);
+  assert.equal(cleaned.canonicalUrl, 'https://x.com/example/status/123');
+  assert.equal(contentId(cleaned.canonicalUrl), 'article_123');
+
+  const clip = cleanClip({
+    id: 'clip_visit',
+    articleId: 'article_123',
+    text: 'passage',
+    pageUrl: visit
+  });
+  assert.equal(clip.pageUrl, visit);
+
+  const state = readState();
+  mutate(
+    state,
+    'saveClip',
+    {
+      article: {
+        id: 'article_123',
+        url: visit,
+        canonicalUrl: 'https://x.com/example/status/123',
+        title: 'Visit URL article'
+      },
+      clip: {
+        id: 'clip_roundtrip',
+        articleId: 'article_123',
+        text: 'roundtrip passage',
+        pageUrl: visit
+      }
+    },
+    '2026-10-10T12:00:00Z'
+  );
+  const stored = state.articles.article_123;
+  assert.equal(stored.url, visit);
+  assert.equal(stored.canonicalUrl, 'https://x.com/example/status/123');
+  assert.equal(state.clips.clip_roundtrip.pageUrl, visit);
+  const [group] = clipGroups(state);
+  assert.equal(group.article.url, visit);
+  assert.equal(group.article.canonicalUrl, 'https://x.com/example/status/123');
+  assert.equal(group.excerpts[0].pageUrl, visit);
 });
 
 test('bookmark-page previews and empty captures never replace saved text or annotations', () => {

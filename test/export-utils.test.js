@@ -56,3 +56,18 @@ test('JSON export keeps the v1 contract and fills defaults for older clips', () 
     { tags: [], note: '', updatedAt: null, selectionLength: legacyClip.text.length }
   );
 });
+
+test('JSON export preserves distinct visit url vs canonicalUrl and pageUrl', () => {
+  const visit = 'https://twitter.com/alice/status/1?s=20';
+  const distinct = {
+    ...article,
+    url: visit,
+    canonicalUrl: 'https://x.com/alice/status/1'
+  };
+  const distinctClip = { ...clip, pageUrl: visit };
+  const json = JSON.parse(renderAllJson([{ article: distinct, excerpts: [distinctClip] }], exportedAt));
+  assert.equal(json.articles[0].url, visit);
+  assert.equal(json.articles[0].canonicalUrl, 'https://x.com/alice/status/1');
+  assert.equal(json.articles[0].excerpts[0].pageUrl, visit);
+});
+

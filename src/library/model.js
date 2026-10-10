@@ -58,12 +58,14 @@ export function writeState(state) {
 
 export function cleanArticle(article) {
   if (!article || !validId(article.id)) throw new Error('Invalid article ID.');
-  const url = xUrl(article.canonicalUrl || article.url);
-  if (!url) throw new Error('Invalid X source URL.');
+  // Identity and dedupe use canonical only; url keeps the safe original visit link.
+  const canonicalUrl = xUrl(article.canonicalUrl || article.url);
+  if (!canonicalUrl) throw new Error('Invalid X source URL.');
+  const url = safeUrl(article.url) || canonicalUrl;
   return {
     id: article.id,
     url,
-    canonicalUrl: url,
+    canonicalUrl,
     title: cleanText(article.title, 1000),
     authorName: cleanText(article.authorName, 300),
     authorHandle: cleanText(article.authorHandle, 100),
@@ -83,7 +85,7 @@ export function cleanClip(clip) {
     text,
     contextBefore: cleanText(clip.contextBefore, 10000),
     contextAfter: cleanText(clip.contextAfter, 10000),
-    pageUrl: xUrl(clip.pageUrl),
+    pageUrl: safeUrl(clip.pageUrl),
     selectionLength: text.length,
     source: 'x.com',
     createdAt: cleanText(clip.createdAt, 50) || now(),
