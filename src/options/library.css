@@ -79,24 +79,12 @@ button, input, select, textarea { font: inherit; color: inherit; }
 .star { margin-top: auto; padding: 10px; color: var(--text-muted); font-size: 12px; }
 .star:hover { color: var(--accent); text-decoration: none; }
 
-.main {
-  width: 100%;
-  max-width: 880px;
-  margin: 0 auto;
-  padding: 0 32px 48px;
-  /* Match .drawer drawer-in: 0.18s ease-out when shifting for the open drawer. */
-  transition: max-width 0.18s ease-out, margin 0.18s ease-out, width 0.18s ease-out;
-}
-/* When the detail drawer is closed, main stays centered in the content column.
-   On wide screens with the drawer open, shift main left and leave 400px on the
-   right so the fixed drawer does not cover the list. */
+.main { width: 100%; max-width: 880px; padding: 0 32px 48px; }
+/* The list keeps a fixed position and width: the drawer floats above it, so
+   opening or closing details never reflows or shifts the list. */
 @media (min-width: 1100px) {
-  .app.drawer-open .main {
-    width: auto;
-    max-width: min(880px, calc(100% - 400px));
-    margin-left: 0;
-    margin-right: 400px;
-  }
+  /* Leave room for the 400px drawer (plus scrollbar) so it never covers the list. */
+  .main { max-width: min(880px, calc(100vw - 236px - 400px)); }
 }
 
 /* Page header and toolbar */

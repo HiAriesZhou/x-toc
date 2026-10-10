@@ -10,7 +10,6 @@ const TOAST_MS = 3200;
 
 const main = document.getElementById('main');
 const drawer = document.getElementById('drawer');
-const app = document.querySelector('.app');
 const toastEl = document.getElementById('toast');
 let toastTimer = null;
 
@@ -50,7 +49,6 @@ const ctx = {
   openDrawer(html) {
     drawer.innerHTML = html;
     drawer.hidden = false;
-    app.classList.add('drawer-open');
     ctx.dirty = false;
     drawer.querySelector('form')?.addEventListener('input', () => (ctx.dirty = true));
     return drawer;
@@ -59,7 +57,6 @@ const ctx = {
   closeDrawer() {
     drawer.hidden = true;
     drawer.innerHTML = '';
-    app.classList.remove('drawer-open');
     ctx.dirty = false;
   },
   async reload() {
