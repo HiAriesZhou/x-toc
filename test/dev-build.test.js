@@ -31,8 +31,11 @@ test('dev branding rejects non-Chromium manifests', () => {
 test('committed dev icons match the generator output for the official logo', () => {
   for (const size of DEV_ICON_SIZES) {
     const official = decodePng(readFileSync(`src/icons/logo-${size}.png`));
-    const committed = readFileSync(`tooling/dev-icons/logo-${size}.png`);
-    assert.ok(committed.equals(encodePng(brandDevIcon(official))), `logo-${size}.png is stale`);
+    // Compare pixels, not PNG bytes: zlib output differs between Node versions.
+    const committed = decodePng(readFileSync(`tooling/dev-icons/logo-${size}.png`));
+    const expected = decodePng(encodePng(brandDevIcon(official)));
+    assert.equal(committed.width, expected.width, `logo-${size}.png width`);
+    assert.ok(committed.pixels.equals(expected.pixels), `logo-${size}.png is stale`);
   }
 });
 
