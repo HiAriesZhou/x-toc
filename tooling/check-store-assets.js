@@ -8,15 +8,23 @@ const defaultRepositoryRoot = path.resolve(scriptDirectory, '..')
 
 const releaseCopies = [
   {
-    source: 'store-assets/chrome-store-screenshot-1280x800.png',
+    source: 'marketing/rendered/01-reading-1280x800.png',
     release: 'store/assets/screenshots/01-x-toc-1280x800.png',
   },
   {
-    source: 'store-assets/chrome-store-small-440x280.png',
+    source: 'marketing/rendered/02-bookmarks-1280x800.png',
+    release: 'store/assets/screenshots/02-bookmarks-1280x800.png',
+  },
+  {
+    source: 'marketing/rendered/03-export-1280x800.png',
+    release: 'store/assets/screenshots/03-export-1280x800.png',
+  },
+  {
+    source: 'marketing/rendered/small-440x280.png',
     release: 'store/assets/promo/small-440x280.png',
   },
   {
-    source: 'store-assets/chrome-store-marquee-1400x560.png',
+    source: 'marketing/rendered/marquee-1400x560.png',
     release: 'store/assets/promo/marquee-1400x560.png',
   },
   {

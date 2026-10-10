@@ -18,6 +18,9 @@ function compareVersions(left, right) {
 
 test('extension, package, and README versions agree and never fall behind the published release', () => {
   assert.equal(readJson('src/manifest.json').version, packageVersion);
+  const lock = readJson('package-lock.json');
+  assert.equal(lock.version, packageVersion, 'package-lock.json');
+  assert.equal(lock.packages[''].version, packageVersion, 'package-lock.json root package');
 
   const escaped = packageVersion.replaceAll('.', '\\.');
   for (const readme of ['README.md', 'README.zh-CN.md']) {

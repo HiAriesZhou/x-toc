@@ -24,3 +24,18 @@ export function areTocEntriesEqual(current, next) {
     entry.level === next[index]?.level
   ));
 }
+
+// Classify an X page so only individual posts and long-form articles offer a
+// contents list or saving. Article markers count only on a status route, so a
+// timeline that happens to contain article cards is never treated as an article.
+export function classifyXPage(url, hasLongformMarkers) {
+  let pathname;
+  try {
+    pathname = new URL(url).pathname;
+  } catch {
+    return 'other';
+  }
+  if (/^\/[^/]+\/article\/\d+/.test(pathname)) return 'article';
+  if (!/^\/(?:[^/]+|i\/web)\/status\/\d+/.test(pathname)) return 'other';
+  return hasLongformMarkers ? 'article' : 'post';
+}

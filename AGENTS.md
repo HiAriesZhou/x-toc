@@ -2,7 +2,7 @@
 
 ## Repository role
 
-- This is the public source repository for the XTOC browser extension at `github.com/HiAriesZhou/x-toc`.
+- This is the public source repository for the XTOC browser extension at `github.com/HiAriesZhou/xtoc` (renamed from `x-toc`; the old URL redirects, and the Portfolio slug and release-record payloads keep `x-toc`).
 - XTOC provides an X/Twitter long-form article table of contents and a local clip workflow.
 - Keep this repository small, implementation-led, and safe for users, contributors, extension reviewers, and the public.
 - This is not the product-planning home for XTOC and is not the source repository for Bookmark Assistant, Bookmark Assistant Pro, or LiteContext.
@@ -37,18 +37,20 @@ npm test
 npm run build
 npm run build:firefox
 npm run build:edge
+npm run build:dev
 npm run build:zip
 ```
 
 - `npm test` runs the Node test suite under `test/`.
 - There is currently no lint script. Do not report lint as passed and do not run `npm run lint`. Add lint tooling only when that is part of the requested implementation work.
 - `npm run build` creates the Chromium build in `dist/chromium`; `build:firefox` and `build:edge` exercise their respective Extension.js targets. `dist/` and generated ZIP files are build artifacts and must stay untracked.
-- `build:zip` packages the Chromium build for release. Do not run it as a substitute for Firefox or Edge validation.
+- `build:dev` runs `build`, then writes a local-only debug copy to `dist/chromium-dev` with the name `XTOC (Development)` and the icons from `tooling/dev-icons/`. Use it for local Chrome load-unpacked debugging only; never package, upload, or submit it. Regenerate dev icons with `node tooling/generate-dev-icons.mjs` after changing `src/icons/`; a test fails when they are stale.
+- `build:zip` builds Chromium, Edge and Firefox, then writes `release/xtoc-{chrome,edge,firefox}-v<version>.zip` for store upload and `release/xtoc-source-v<version>.zip` (a `git archive` of `HEAD`, for Mozilla review). It verifies each archive, the manifest version and Manifest V3/V2 per target, and refuses development branding or dev-only files. The source archive is skipped when the working tree has uncommitted changes. Packaging is not a substitute for testing in Edge and Firefox, and does not authorize uploading.
 
 ## Release package cleanup
 
-- After successfully publishing a new version, clean up older XTOC release ZIPs automatically so the repository directory retains only the current latest release ZIP. Do not wait for a separate cleanup request.
-- Before cleanup, verify the retained ZIP exists, passes an archive integrity check, and contains a manifest with the intended release version. A version bump or build alone does not trigger post-release cleanup.
+- After successfully publishing a new version, clean up older XTOC release ZIPs automatically so `release/` retains only the current version's packages (and older root-level `v<version>.zip` files from before `release/` existed can be removed the same way). Do not wait for a separate cleanup request.
+- Before cleanup, verify the retained ZIPs exist, pass an archive integrity check, and contain a manifest with the intended release version. A version bump or build alone does not trigger post-release cleanup.
 - Remove only confirmed older XTOC release packages; preserve unrelated archives, dependencies, and user changes. Prefer recoverable removal and report the removed versions and recovery location.
 - Release ZIPs remain ignored build artifacts. Do not commit or force-add them, and do not delete historical Git tags, GitHub Releases, or remote release assets as part of local cleanup.
 
@@ -58,12 +60,12 @@ npm run build:zip
 - Edge is Chromium-based but has its own build target. Load the generated Edge output from `edge://extensions/` and verify affected behavior there; a Chrome pass alone is not an Edge pass.
 - Firefox uses the manifest's Firefox branch (Manifest V2), while Chromium uses Manifest V3. Validate the generated Firefox manifest and load it as a temporary add-on from `about:debugging`; a successful build does not establish runtime API parity.
 - The implementation uses the `chrome.*` extension namespace and browser-conditional manifest keys. When changing manifest permissions, background behavior, popup opening, storage, messaging, or downloads, test every affected browser rather than assuming compatibility.
-- Host access and content-script behavior are limited to `https://x.com/*` and `https://twitter.com/*`. Do not broaden them without a concrete implemented requirement and privacy review.
+- Host access and content-script behavior are limited to `https://x.com/*` and `https://twitter.com/*`. The one exception is the optional `https://*/*` host permission, requested at runtime only for the AI provider origin the user configures in Settings; never use it for content scripts, page access or any other request. Do not broaden host access further without a concrete implemented requirement and privacy review.
 - For browser-facing changes, inspect extension/background and page console errors, then manually verify the affected flow on a real X/Twitter long-form article: popup TOC, heading navigation, floating panel visibility/position, selection save, Options management, local persistence after reload, deletion, and Markdown/JSON export as applicable.
 
 ## Local data and privacy
 
-- Clips, article metadata, settings, and floating-panel state belong in `chrome.storage.local`. Current persistent keys include `twitterTocArticles`, `twitterTocExcerpts`, `twitterTocExcerptSettings`, `tocPanelPosition`, and `tocPanelVisible`.
+- Clips, article metadata, settings, and floating-panel state belong in `chrome.storage.local`. Current persistent keys include `twitterTocArticles`, `twitterTocExcerpts`, `twitterTocExcerptSettings`, `tocPanelPosition`, `tocPanelVisible`, `xtocLibraryItems` (bookmarks), and `xtocAIPrefs` (AI provider, base URL, model and remember flag; never the key). The AI key lives in `chrome.storage.session`, or, only when the user enables "Remember on this device", AES-GCM-encrypted in the extension-origin IndexedDB `xtoc-vault` (`src/library/key-vault.js`). Never move it to `chrome.storage.local`/`sync`, which content scripts can read, and never include it in exports.
 - Preserve existing keys and tolerate older clips with missing optional fields. Storage migrations must be explicit, backward-compatible, tested, and loss-resistant.
 - Current exports are local, user-triggered downloads. They can contain selected text, surrounding context, article URLs, author metadata, tags, and notes; treat all of it as user-private data.
 - Do not add telemetry, remote storage, background sync, uploads, external endpoints, or new host permissions unless the user explicitly requests an implemented feature and the behavior is disclosed, opt-in where appropriate, and reviewed for least privilege.
@@ -77,7 +79,7 @@ npm run build:zip
 
 ## Export compatibility
 
-- The current JSON export contract is version `1`, source `twitter-toc-extension`, with `articles[].excerpts`; Markdown and JSON exports support all or selected clips.
+- The current JSON export contract is version `1`, source `twitter-toc-extension`, with `articles[].excerpts` (`src/options/export-utils.js`). Markdown export is Obsidian-style notes in a ZIP (`src/library/obsidian.js`), one note per article or bookmark. Both support all or selected items.
 - Preserve the article-to-clip relationship, existing field meanings, filename behavior, and compatibility with older clips. Prefer optional additive fields; use a new export version and migration notes for breaking changes.
 - Update tests whenever storage serialization, selection filtering, Markdown rendering, JSON fields, or export versioning changes.
 
@@ -86,7 +88,7 @@ npm run build:zip
 - Before preparing a development/debug build containing extension changes, automatically ensure its version is newer than the latest confirmed official release; do not wait for a separate bump-version request.
 - Determine the official baseline from the latest published, non-prerelease GitHub Release and any explicitly confirmed browser-store release. Do not infer a published release from working-tree version fields or an unpublished tag. If the baseline cannot be verified, report that limitation rather than guessing.
 - Default to the next patch version (for example, official `0.4.8` becomes development `0.4.9`), unless the user specifies a different version. Use the next minor version for a new backward-compatible user-facing feature. Starting a separate feature branch is a new version boundary even when its base already contains an unreleased bump; repeated edits and builds within that feature branch do not require further increments. Documentation-only changes do not trigger a bump.
-- Keep `package.json`, `src/manifest.json`, any existing local lockfile's root version, and version badges consistent, and verify generated manifests after building. Do not force-add ignored lockfiles or build artifacts.
+- Keep `package.json`, `src/manifest.json`, `package-lock.json`'s root version, and version badges consistent, and verify generated manifests after building. `package-lock.json` is tracked so Extension.js resolves the same way for every build, including Mozilla's source review; update it with `npm install`, never by hand. Do not force-add build artifacts.
 - A development bump does not authorize commit, push, deployment, tag creation, store submission, or publication. Never move an existing release tag. Update Portfolio release metadata as part of the release preparation contract below; do not mark a development build as published merely because its version increased.
 
 ## Portfolio release contract

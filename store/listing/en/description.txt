@@ -1,22 +1,27 @@
-Long X/Twitter articles are easier to follow when their structure stays visible. XTOC turns article headings into a table of contents you can open from the toolbar or pin beside the article. Move, resize, or collapse the panel to fit your reading space.
+Long X/Twitter articles are easier to follow when their structure stays visible, and worth keeping when you find them. XTOC turns article headings into a table of contents you can open from the toolbar or pin beside the article, and keeps the posts, articles and passages you save in a local library.
 
-While reading, select a useful passage and save it with one click. Each clip keeps its source article, saved time, and surrounding context, so it still makes sense when you return to it.
-
-What you can do:
-
+Read
 • Jump between article sections and follow your current section while scrolling
-• Pin, move, resize, and collapse the table of contents
-• Save selected passages locally with one click
-• Open your clip library directly from the pinned panel or extension popup
-• Search by passage text, article title, author, tags, or notes
-• Add tags and short notes in a compact editor
-• Select individual clips, an article’s clips, or all search results
-• Export selected clips or your full library as Markdown or JSON
+• Pin, move, resize and collapse the table of contents
 
-Privacy:
+Save
+• Select a passage and click "save to xtoc" to keep it with its source and surrounding context
+• Save the post or article you are reading from the toolbar button
+• Import your X bookmarks from X's Bookmarks page in one click; XTOC only reads what the page loads and never changes your X bookmarks
 
-Clips, tags, notes, and settings are stored locally in your browser. XTOC does not upload saved clips or require a separate XTOC account. Exports are created only when you request them.
+Organize and export
+• Library with two views: Clips and Bookmarks
+• Search, filter by tag, add tags and notes, select and delete
+• Export as Obsidian-style Markdown (one note per post or article, with properties, tags and quoted clips), or export clips as JSON
 
-Works with long-form articles on x.com and twitter.com. The table of contents depends on headings being present in the article. Saved clips are not restored as highlights in the original article or synced to a cloud service.
+Optional AI (off by default)
+• Suggest up to three tags and a short summary for a bookmark using your own API key (OpenAI, Anthropic, Google Gemini, DeepSeek, OpenRouter, Qwen, Moonshot Kimi or any OpenAI-compatible service)
+• Runs only when you click it. Only that bookmark's saved text and your existing tag names are sent, directly to the provider you choose; your notes are never sent. Nothing changes until you apply the suggestion
+• The key is kept for the browser session, or, if you choose, encrypted on this device. It is never synced or exported
+
+Privacy
+Clips, bookmarks, tags, notes and settings are stored locally in your browser. XTOC has no account, no telemetry and no cloud storage. Exports are created only when you request them.
+
+Works on x.com and twitter.com. The table of contents depends on headings being present in the article. Bookmark import saves the text X shows in the list, which may be a preview of a long post.
 
 XTOC is an independent extension and is not affiliated with X Corp.

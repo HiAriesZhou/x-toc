@@ -1,14 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import {
-  filterExcerptGroups,
-  getSelectionState,
-  getVisibleExcerptIds,
-  mergeClipTagInput,
-  updateClipNote,
-  updateClipTags
-} from '../src/options/clip-utils.js';
+import { filterExcerptGroups, getSelectionState } from '../src/options/clip-utils.js';
+import { normalizeClipTags, splitClipTagInput } from '../src/library/tags.js';
 
 const clip = {
   id: 'excerpt_1',
@@ -21,10 +15,20 @@ const clip = {
 
 const groups = [
   {
-    article: { id: 'article_1', title: 'Product lessons', authorName: 'Alice', authorHandle: '@alice' },
+    article: {
+      id: 'article_1',
+      title: 'Product lessons',
+      authorName: 'Alice',
+      authorHandle: '@alice'
+    },
     excerpts: [
       clip,
-      { id: 'excerpt_2', articleId: 'article_1', text: 'Implementation details matter.', tags: ['engineering'] }
+      {
+        id: 'excerpt_2',
+        articleId: 'article_1',
+        text: 'Implementation details matter.',
+        tags: ['engineering']
+      }
     ]
   },
   {
@@ -34,26 +38,16 @@ const groups = [
 ];
 
 function matchingIds(query) {
-  return getVisibleExcerptIds(filterExcerptGroups(groups, query));
+  return filterExcerptGroups(groups, query).flatMap(({ excerpts }) => excerpts.map((e) => e.id));
 }
 
-test('tag input splits pasted lists and reports existing tags case-insensitively', () => {
-  assert.deepEqual(mergeClipTagInput(['Product'], 'research， product design\nproduct'), {
-    tags: ['Product', 'research', 'product design'],
-    added: ['research', 'product design'],
-    duplicates: ['product']
-  });
-});
-
-test('editing tags and notes keeps the rest of the clip intact', () => {
-  const now = '2026-06-16T02:00:00.000Z';
-  const tagged = updateClipTags(clip, [' quote ', 'Quote'], { now });
-  assert.deepEqual(tagged, { ...clip, tags: ['quote'], updatedAt: now });
-
-  const cleared = updateClipNote(tagged, '   ', { now });
-  assert.equal(Object.hasOwn(cleared, 'note'), false);
-  assert.deepEqual(cleared.tags, ['quote']);
-  assert.equal(clip.note, 'Positioning quote');
+test('tag input splits pasted lists and drops duplicates case-insensitively', () => {
+  assert.deepEqual(splitClipTagInput('research， product design\nResearch,,'), [
+    'research',
+    'product design'
+  ]);
+  assert.deepEqual(normalizeClipTags([' quote ', 'Quote', '', null]), ['quote']);
+  assert.deepEqual(normalizeClipTags('not a list'), []);
 });
 
 test('search matches clip text, article, author, tags, and notes', () => {
@@ -73,5 +67,8 @@ test('selection state counts only clips visible in the current search', () => {
     allSelected: false,
     someSelected: true
   });
-  assert.equal(getSelectionState(visibleIds, new Set(['excerpt_1', 'excerpt_2', 'excerpt_3'])).allSelected, true);
+  assert.equal(
+    getSelectionState(visibleIds, new Set(['excerpt_1', 'excerpt_2', 'excerpt_3'])).allSelected,
+    true
+  );
 });

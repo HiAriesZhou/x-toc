@@ -1,9 +1,9 @@
 schema: dashbye/release/v1
 listing:
-  defaultLanguage: English
+  defaultLanguage: English – en (default)
   category: Tools
   locales:
-    English:
+    English – en (default):
       description: listing/en/description.txt
       screenshots: []
       promoVideoUrl: null
@@ -13,6 +13,8 @@ listing:
     marqueePromo: assets/promo/marquee-1400x560.png
   globalScreenshots:
     - assets/screenshots/01-x-toc-1280x800.png
+    - assets/screenshots/02-bookmarks-1280x800.png
+    - assets/screenshots/03-export-1280x800.png
   globalPromoVideoUrl: null
   officialUrl: null
   homepageUrl: https://x-toc.vercel.app/
@@ -20,18 +22,22 @@ listing:
   matureContent: false
 privacy:
   singlePurpose: >-
-    XTOC is a local-first reading companion for supported X/Twitter long-form
-    articles. It builds an interactive table of contents for navigation and lets
-    users save, organize, and export selected passages with source context.
+    XTOC is a local-first reading companion for X/Twitter. It builds an
+    interactive table of contents for long-form articles and lets users save
+    articles, posts and selected passages to a local library they can
+    organize and export.
   permissionJustifications:
     contextMenus: Adds the “Show Table of Contents” right-click command on x.com and twitter.com, which opens XTOC's article navigation.
-    activeTab: Allows the popup, when opened by the user, to identify the active tab, verify that it is an X/Twitter page, and exchange navigation commands with the installed content script.
-    storage: Stores saved clips, article metadata, nearby context, tags, notes, panel position and visibility, and clip settings in chrome.storage.local. XTOC does not use sync storage or upload this data.
-  hostPermissionJustification: Limited to https://x.com/* and https://twitter.com/* so XTOC can read headings and supported article content, navigate sections, show the in-page panel, and let the user save selected passages locally. It does not request access to other sites.
+    activeTab: Allows the popup, when opened by the user, to identify the active tab, verify that it is an X/Twitter page, and send it navigation and save commands.
+    storage: Stores saved clips, bookmarks, article metadata, tags, notes, panel position and visibility, and non-secret AI preferences in chrome.storage.local, and the optional AI key for the current session in chrome.storage.session (or, only if the user enables “Remember on this device”, AES-GCM-encrypted in the extension's own IndexedDB). XTOC does not use sync storage or upload library data.
+    unlimitedStorage: Saved article and post text can exceed the default local storage quota. This permission only raises the local quota and grants no access to any website.
+    scripting: After XTOC is installed or updated, re-injects its own bundled content script into x.com and twitter.com tabs that are already open, so they keep working without a reload. It is limited to those two hosts and never injects remote code.
+  hostPermissionJustification: Required access is limited to https://x.com/* and https://twitter.com/* so XTOC can read article headings and the post or article the user chooses to save or import, show the in-page panel, and save selected passages locally. The optional https://*/* host permission is requested at runtime only when the user connects an AI provider, and only for that provider's API origin, so XTOC can send the user's request to it; it is removed when the user removes the key.
   remoteCode:
     uses: false
     justification: null
   collectedData:
+    - authenticationInfo
     - userActivity
     - websiteContent
   certifications:
@@ -39,3 +45,16 @@ privacy:
     relatedToSinglePurpose: true
     noCreditworthinessUse: true
   policyUrl: https://x-toc.vercel.app/privacy
+stores:
+  edge:
+    category: Productivity
+    searchTerms:
+      - X
+      - Twitter
+      - articles
+      - table of contents
+      - bookmarks
+      - Markdown
+      - clippings
+    assets:
+      logo: assets/icon/icon-edge-300.png
