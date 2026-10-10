@@ -84,6 +84,8 @@ button, input, select, textarea { font: inherit; color: inherit; }
   max-width: 880px;
   margin: 0 auto;
   padding: 0 32px 48px;
+  /* Match .drawer drawer-in: 0.18s ease-out when shifting for the open drawer. */
+  transition: max-width 0.18s ease-out, margin 0.18s ease-out, width 0.18s ease-out;
 }
 /* When the detail drawer is closed, main stays centered in the content column.
    On wide screens with the drawer open, shift main left and leave 400px on the
