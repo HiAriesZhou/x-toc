@@ -12,3 +12,6 @@ targets:
     artifact: release/xtoc-edge-v0.7.0.zip
     productId: 4cc2402b-2567-46af-9e46-384c556ffb0e
     language: English – en (default)
+  firefox:
+    artifact: release/xtoc-firefox-v0.7.0.zip
+    addon: xtoc@arieszhou.com
