@@ -1,19 +1,8 @@
 import { SEED_PATH } from '../library/dev-seed.js';
 import { createAISettings } from './ai-settings.js';
 
-const formatBytes = (bytes) =>
-  bytes < 1048576
-    ? `${Math.max(1, Math.round(bytes / 1024))} KB`
-    : `${(bytes / 1048576).toFixed(1)} MB`;
-
 export function createSettingsView(ctx) {
   let main = null;
-
-  async function showStorage() {
-    const bytes = await chrome.storage.local.getBytesInUse?.(null);
-    if (typeof bytes === 'number')
-      main.querySelector('#storageUsed').textContent = formatBytes(bytes);
-  }
 
   // Only development builds package the seed file; release builds hide the card.
   async function showSampleData() {
@@ -28,7 +17,6 @@ export function createSettingsView(ctx) {
   async function runSeed(mode) {
     const result = await ctx.rpc('library:seed', { mode });
     await ctx.reload();
-    showStorage();
     if (mode === 'remove') ctx.toast(`Removed ${result.removed} sample clips.`);
     else
       ctx.toast(
@@ -40,10 +28,6 @@ export function createSettingsView(ctx) {
     main.innerHTML = `
       <div class="page-top"><header class="page-head"><div class="page-title"><h1>Settings</h1></div></header></div>
       <section class="card" id="aiCard"></section>
-      <section class="card">
-        <div class="card-head"><h2>Storage</h2><span class="subtle" id="storageUsed"></span></div>
-        <p class="subtle">Clips and bookmarks stay in this browser. Nothing is uploaded.</p>
-      </section>
       <section class="card" id="sampleData" hidden>
         <div class="card-head"><h2>Sample data</h2><span class="badge">Development build</span></div>
         <p class="subtle">Adds 20 sample clips for testing. Remove deletes only sample items.</p>
@@ -59,7 +43,6 @@ export function createSettingsView(ctx) {
     };
     main.onchange = null;
     main.oninput = null;
-    showStorage();
     showSampleData();
   }
 
