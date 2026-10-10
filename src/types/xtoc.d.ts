@@ -37,6 +37,18 @@ export interface XtocStorageShape {
   twitterTocArticles: Record<string, XtocArticle>;
   twitterTocExcerpts: Record<string, XtocClip>;
   twitterTocExcerptSettings: XtocSettings;
+  xtocLibraryItems: Record<string, XtocBookmark>;
+  xtocAIPrefs: XtocAIPrefs;
+  tocPanelPosition: { x: number; y: number };
+  tocPanelVisible: boolean;
+}
+
+// The API key itself is never stored here (see src/library/key-vault.js).
+export interface XtocAIPrefs {
+  provider: string;
+  endpoint: string;
+  model: string;
+  remember: boolean;
 }
 
 export interface XtocJsonExportClip {
@@ -85,4 +97,6 @@ export interface XtocBookmark {
   note: string;
   summary: string;
   summaryModel: string;
+  /** Descending order key; imports follow X's bookmark order. */
+  sortKey: number;
 }

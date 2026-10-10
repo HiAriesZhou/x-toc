@@ -1,13 +1,13 @@
 {
   "private": true,
   "name": "twitter-toc-extension",
-  "description": "Add a floating table of contents and save useful excerpts while reading X/Twitter long-form articles.",
+  "description": "Navigate long X articles with a table of contents, and save posts, articles and passages to a local library you can export.",
   "version": "0.7.0",
   "license": "MIT",
   "type": "module",
   "author": {
     "name": "Aries",
-    "email": "aries0331.dev@email.com",
+    "email": "aries0331.dev@gmail.com",
     "url": "https://arieszhou.cn"
   },
   "scripts": {

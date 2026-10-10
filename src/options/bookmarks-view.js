@@ -1,6 +1,7 @@
 import { bookmarkList } from '../library/model.js';
 import { bookmarkFiles, zipFiles } from '../library/obsidian.js';
-import { getSelectionState, normalizeClipTags, splitClipTagInput } from './clip-utils.js';
+import { normalizeClipTags, splitClipTagInput } from '../library/tags.js';
+import { getSelectionState } from './clip-utils.js';
 import { createDropdown } from './dropdown.js';
 import {
   author,

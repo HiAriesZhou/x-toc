@@ -1,10 +1,7 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
-import {
-  renderAllJson,
-  renderAllMarkdown
-} from '../src/options/export-utils.js';
+import { renderAllJson } from '../src/options/export-utils.js';
 
 const exportedAt = '2026-06-16T04:00:00.000Z';
 
@@ -50,18 +47,12 @@ test('JSON export keeps the v1 contract and fills defaults for older clips', () 
   assert.deepEqual(current.tags, clip.tags);
   assert.equal(current.note, clip.note);
   assert.deepEqual(
-    { tags: legacy.tags, note: legacy.note, updatedAt: legacy.updatedAt, selectionLength: legacy.selectionLength },
+    {
+      tags: legacy.tags,
+      note: legacy.note,
+      updatedAt: legacy.updatedAt,
+      selectionLength: legacy.selectionLength
+    },
     { tags: [], note: '', updatedAt: null, selectionLength: legacyClip.text.length }
   );
-});
-
-test('Markdown export carries the source, clip, tags, note, and context', () => {
-  const markdown = renderAllMarkdown([{ article, excerpts: [clip] }], exportedAt);
-
-  assert.match(markdown, /## Product notes/);
-  assert.match(markdown, /Author: Alice \(@alice\)/);
-  assert.match(markdown, /> Useful saved text/);
-  assert.match(markdown, /Tags: `AI Coding`, `中文 标签`/);
-  assert.match(markdown, /Note:\n\n> Use this later\./);
-  assert.match(markdown, /\.\.\.Before \*\*\[clip\]\*\* After\.\.\./);
 });

@@ -1,6 +1,6 @@
 // Popup entry point. Holds no state: it asks the content script what the
 // current X page is, then renders one of a few states.
-const REPOSITORY_URL = 'https://github.com/HiAriesZhou/x-toc';
+const REPOSITORY_URL = 'https://github.com/HiAriesZhou/xtoc';
 const X_PAGE = /^https:\/\/(x\.com|twitter\.com)\//;
 
 const ICONS = {

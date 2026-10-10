@@ -1,4 +1,4 @@
-import { normalizeClipTags } from '../options/clip-utils.js';
+import { normalizeClipTags } from './tags.js';
 
 // Storage keys. Articles and clips keep their published names; bookmark
 // records reuse the key from the 0.7.0 development line.

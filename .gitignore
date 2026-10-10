@@ -18,9 +18,8 @@ dist
 .env.test.local
 .env.production.local
 
-# lock files
+# lock files (npm's package-lock.json is tracked)
 yarn.lock
-package-lock.json
 
 # debug files
 npm-debug.log*

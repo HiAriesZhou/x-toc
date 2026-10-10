@@ -4,6 +4,7 @@ import { detectProvider, findProvider, parseModelList } from './library/ai-provi
 import { applySeed, removeSeed, SEED_PATH } from './library/dev-seed.js';
 import { reinjectionTargets } from './reinject.js';
 import { createVault, idbStore, memoryStore } from './library/key-vault.js';
+import { aiPermissions } from './library/ai-permissions.js';
 
 const AI_CONFIG_KEY = 'xtocAIConfig'; // session storage: includes the key
 const AI_PREFS_KEY = 'xtocAIPrefs'; // local storage: provider, URL, model, remember flag; never the key
@@ -103,8 +104,6 @@ async function rememberKey(config, remember) {
   else await vault.clear();
 }
 
-const originPattern = (endpoint) => `${new URL(endpoint).origin}/*`;
-
 const validKey = (key) =>
   typeof key === 'string' && key.length > 0 && key.length <= 8192 && !/[^\x21-\x7e]/.test(key);
 
@@ -115,7 +114,7 @@ async function configureAI(payload) {
   const current = await readAIConfig();
   const key = payload.key || (current?.endpoint === endpoint ? current.key : '');
   if (!validKey(key)) throw new Error('Enter a valid API key.');
-  if (!(await chrome.permissions.contains({ origins: [originPattern(endpoint)] }))) {
+  if (!(await chrome.permissions.contains(aiPermissions(endpoint)))) {
     throw new Error('Grant access to this API origin first.');
   }
   const provider = findProvider(payload.provider).id;
@@ -193,7 +192,7 @@ async function runAI(action, payload) {
   try {
     const config = await readAIConfig();
     if (!config?.key || !config.model) throw new Error('Set up AI in Settings first.');
-    if (!(await chrome.permissions.contains({ origins: [originPattern(config.endpoint)] }))) {
+    if (!(await chrome.permissions.contains(aiPermissions(config.endpoint)))) {
       throw new Error('API permission was removed. Save the AI settings again.');
     }
     const input =

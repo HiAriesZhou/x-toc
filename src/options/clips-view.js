@@ -1,6 +1,7 @@
 import { clipGroups } from '../library/model.js';
 import { clipFiles, zipFiles } from '../library/obsidian.js';
-import { filterExcerptGroups, getSelectionState, splitClipTagInput } from './clip-utils.js';
+import { splitClipTagInput } from '../library/tags.js';
+import { filterExcerptGroups, getSelectionState } from './clip-utils.js';
 import { renderAllJson } from './export-utils.js';
 import { createDropdown } from './dropdown.js';
 import {

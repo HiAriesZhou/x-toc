@@ -2,7 +2,7 @@
 
 ## Repository role
 
-- This is the public source repository for the XTOC browser extension at `github.com/HiAriesZhou/x-toc`.
+- This is the public source repository for the XTOC browser extension at `github.com/HiAriesZhou/xtoc` (renamed from `x-toc`; the old URL redirects, and the Portfolio slug and release-record payloads keep `x-toc`).
 - XTOC provides an X/Twitter long-form article table of contents and a local clip workflow.
 - Keep this repository small, implementation-led, and safe for users, contributors, extension reviewers, and the public.
 - This is not the product-planning home for XTOC and is not the source repository for Bookmark Assistant, Bookmark Assistant Pro, or LiteContext.
@@ -60,7 +60,7 @@ npm run build:zip
 - Edge is Chromium-based but has its own build target. Load the generated Edge output from `edge://extensions/` and verify affected behavior there; a Chrome pass alone is not an Edge pass.
 - Firefox uses the manifest's Firefox branch (Manifest V2), while Chromium uses Manifest V3. Validate the generated Firefox manifest and load it as a temporary add-on from `about:debugging`; a successful build does not establish runtime API parity.
 - The implementation uses the `chrome.*` extension namespace and browser-conditional manifest keys. When changing manifest permissions, background behavior, popup opening, storage, messaging, or downloads, test every affected browser rather than assuming compatibility.
-- Host access and content-script behavior are limited to `https://x.com/*` and `https://twitter.com/*`. Do not broaden them without a concrete implemented requirement and privacy review.
+- Host access and content-script behavior are limited to `https://x.com/*` and `https://twitter.com/*`. The one exception is the optional `https://*/*` host permission, requested at runtime only for the AI provider origin the user configures in Settings; never use it for content scripts, page access or any other request. Do not broaden host access further without a concrete implemented requirement and privacy review.
 - For browser-facing changes, inspect extension/background and page console errors, then manually verify the affected flow on a real X/Twitter long-form article: popup TOC, heading navigation, floating panel visibility/position, selection save, Options management, local persistence after reload, deletion, and Markdown/JSON export as applicable.
 
 ## Local data and privacy
@@ -79,7 +79,7 @@ npm run build:zip
 
 ## Export compatibility
 
-- The current JSON export contract is version `1`, source `twitter-toc-extension`, with `articles[].excerpts`; Markdown and JSON exports support all or selected clips.
+- The current JSON export contract is version `1`, source `twitter-toc-extension`, with `articles[].excerpts` (`src/options/export-utils.js`). Markdown export is Obsidian-style notes in a ZIP (`src/library/obsidian.js`), one note per article or bookmark. Both support all or selected items.
 - Preserve the article-to-clip relationship, existing field meanings, filename behavior, and compatibility with older clips. Prefer optional additive fields; use a new export version and migration notes for breaking changes.
 - Update tests whenever storage serialization, selection filtering, Markdown rendering, JSON fields, or export versioning changes.
 
@@ -88,7 +88,7 @@ npm run build:zip
 - Before preparing a development/debug build containing extension changes, automatically ensure its version is newer than the latest confirmed official release; do not wait for a separate bump-version request.
 - Determine the official baseline from the latest published, non-prerelease GitHub Release and any explicitly confirmed browser-store release. Do not infer a published release from working-tree version fields or an unpublished tag. If the baseline cannot be verified, report that limitation rather than guessing.
 - Default to the next patch version (for example, official `0.4.8` becomes development `0.4.9`), unless the user specifies a different version. Use the next minor version for a new backward-compatible user-facing feature. Starting a separate feature branch is a new version boundary even when its base already contains an unreleased bump; repeated edits and builds within that feature branch do not require further increments. Documentation-only changes do not trigger a bump.
-- Keep `package.json`, `src/manifest.json`, any existing local lockfile's root version, and version badges consistent, and verify generated manifests after building. Do not force-add ignored lockfiles or build artifacts.
+- Keep `package.json`, `src/manifest.json`, `package-lock.json`'s root version, and version badges consistent, and verify generated manifests after building. `package-lock.json` is tracked so Extension.js resolves the same way for every build, including Mozilla's source review; update it with `npm install`, never by hand. Do not force-add build artifacts.
 - A development bump does not authorize commit, push, deployment, tag creation, store submission, or publication. Never move an existing release tag. Update Portfolio release metadata as part of the release preparation contract below; do not mark a development build as published merely because its version increased.
 
 ## Portfolio release contract

@@ -12,7 +12,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/HiAriesZhou/x-toc/releases"><img src="https://img.shields.io/badge/version-0.7.0-blue" alt="Version 0.7.0"></a>
+  <a href="https://github.com/HiAriesZhou/xtoc/releases"><img src="https://img.shields.io/badge/version-0.7.0-blue" alt="Version 0.7.0"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-green" alt="MIT License"></a>
   <a href="https://chromewebstore.google.com/detail/nbdgpckkcfkomnmdefinikjijgljgjfp?utm_source=item-share-cb"><img src="https://img.shields.io/chrome-web-store/size/nbdgpckkcfkomnmdefinikjijgljgjfp" alt="Chrome Web Store"></a>
 </p>
@@ -73,8 +73,8 @@ Clips 和书签可导出为 Obsidian 风格的 Markdown：ZIP 中每篇文章或
 <summary>从源码安装</summary>
 
 ```bash
-git clone https://github.com/HiAriesZhou/x-toc.git
-cd x-toc
+git clone https://github.com/HiAriesZhou/xtoc.git
+cd xtoc
 npm install
 npm run build
 ```

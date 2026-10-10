@@ -1,11 +1,11 @@
 // AI provider card: pick a provider preset, paste a key, connect. Models come
 // from the provider's /models endpoint and a sensible default is preselected.
 import { normalizeBaseUrl } from '../library/ai.js';
+import { aiPermissions } from '../library/ai-permissions.js';
 import { PROVIDERS, findProvider, pickDefaultModel } from '../library/ai-providers.js';
 import { createDropdown } from './dropdown.js';
 import { esc, icon } from './ui.js';
 
-const originPattern = (endpoint) => `${new URL(endpoint).origin}/*`;
 const PROVIDER_OPTIONS = PROVIDERS.map((p) => ({ value: p.id, label: p.label }));
 
 // One control for both states: unchecked keeps the key for this browser session only.
@@ -125,7 +125,7 @@ export function createAISettings(ctx, container) {
     const key = form.key.value.trim();
     if (!key) throw new Error('Paste your API key.');
     // The permission prompt must open within the click, before any other await.
-    const granted = await chrome.permissions.request({ origins: [originPattern(endpoint)] });
+    const granted = await chrome.permissions.request(aiPermissions(endpoint));
     if (!granted) throw new Error('Permission declined. AI stays off.');
     setStatus('Connecting…');
     const remember = form.remember.checked;
@@ -179,7 +179,7 @@ export function createAISettings(ctx, container) {
   async function forgetAI() {
     const endpoint = ctx.ai.endpoint;
     await ctx.rpc('ai:forget');
-    if (endpoint) await chrome.permissions.remove({ origins: [originPattern(endpoint)] });
+    if (endpoint) await chrome.permissions.remove(aiPermissions(endpoint));
     ctx.ai = await ctx.rpc('ai:status');
     ui.models = null;
     setStatus('Key removed.');

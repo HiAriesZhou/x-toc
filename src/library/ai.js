@@ -1,5 +1,5 @@
 import { bookmarkList, cleanText } from './model.js';
-import { normalizeClipTags } from '../options/clip-utils.js';
+import { normalizeClipTags } from './tags.js';
 
 const MAX_INPUT_CHARS = 60000;
 const MAX_RESPONSE_CHARS = 100000;
