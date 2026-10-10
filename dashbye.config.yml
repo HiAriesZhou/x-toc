@@ -8,5 +8,7 @@ targets:
     artifact: release/xtoc-chrome-v0.7.0.zip
     itemId: nbdgpckkcfkomnmdefinikjijgljgjfp
     language: English – en (default)
-# Edge target needs Partner Center productId before it can be listed under targets.
-# Edge listing extras live in store/release.yml under stores.edge.
+  edge:
+    artifact: release/xtoc-edge-v0.7.0.zip
+    productId: 4cc2402b-2567-46af-9e46-384c556ffb0e
+    language: English – en (default)
