@@ -15,6 +15,13 @@ const rememberToggle = (checked, attrs = '') => `
     <span>Remember on this device<small>Stored encrypted in this browser. Never synced or exported.</small></span>
   </label>`;
 
+/** What Enter/submit does on the AI form. Pure helper for tests. */
+export function aiFormSubmitAction(connected, hasModelField) {
+  if (!connected) return 'connect';
+  if (hasModelField) return 'save-model';
+  return 'noop';
+}
+
 export function createAISettings(ctx, container) {
   const ui = {
     provider: ctx.ai.provider || PROVIDERS[0].id,
@@ -189,7 +196,9 @@ export function createAISettings(ctx, container) {
   function bind(form) {
     form.onsubmit = (event) => {
       event.preventDefault();
-      connect(form.elements).catch(fail);
+      const action = aiFormSubmitAction(connectedHere(), Boolean(form.elements.model));
+      if (action === 'connect') connect(form.elements).catch(fail);
+      else if (action === 'save-model') saveModel(form.elements.model.value).catch(fail);
     };
     form.onclick = (event) => {
       const action = event.target.closest('[data-action]')?.dataset.action;
