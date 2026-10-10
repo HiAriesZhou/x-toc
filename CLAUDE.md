@@ -12,7 +12,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 npm test                                   # runs `check:store-assets` (pretest), then `node --test`
 node --test test/library.test.js          # single test file (skips the store-asset check)
 node --test --test-name-pattern="clamp"    # tests matching a name
-npm run check:store-assets                 # store/ upload copies must match marketing/store/ + icons
+npm run check:store-assets                 # store/ upload copies must match marketing/rendered/ + icons
 npm run dev                                # Extension.js dev mode with hot reload
 npm run build                              # dist/chromium
 npm run build:firefox / build:edge         # per-browser targets

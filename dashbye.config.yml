@@ -1,8 +1,12 @@
-schema: dashbye/config/v1
+schema: dashbye/config/v2
 project: .
-artifact: v0.6.2.zip
 resources: store
-target:
-  itemId: nbdgpckkcfkomnmdefinikjijgljgjfp
-  language: English
+browser:
   endpoint: http://127.0.0.1:9333
+targets:
+  chrome:
+    artifact: release/xtoc-chrome-v0.7.0.zip
+    itemId: nbdgpckkcfkomnmdefinikjijgljgjfp
+    language: English – en (default)
+# Edge target needs Partner Center productId before it can be listed under targets.
+# Edge listing extras live in store/release.yml under stores.edge.

@@ -13,8 +13,8 @@
     "projectStory": "https://www.arieszhou.com/projects/x-toc"
   },
   "assets": {
-    "cover": "marketing/store/01-reading-1280x800.png",
-    "marquee": "marketing/store/marquee-1400x560.png",
+    "cover": "marketing/rendered/01-reading-1280x800.png",
+    "marquee": "marketing/rendered/marquee-1400x560.png",
     "logo": "assets/brand/logo.png"
   },
   "technology": {

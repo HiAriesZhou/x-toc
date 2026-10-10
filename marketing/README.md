@@ -6,7 +6,7 @@ How XTOC's store images and social card are made. What actually gets uploaded li
 | Path | Contents |
 |---|---|
 | `store-art.html` | Template for every store image and the social card, selected with `?variant=` |
-| `store/` | Rendered store images. `store/assets` in the repository root holds the upload copies |
+| `rendered/` | Rendered candidate store images. Root `store/assets` holds the DashBye upload copies |
 | `ui/` | Real Library captures embedded by the template |
 | `fixtures/mock-storage-data.json` | Fictional, public-safe data for screenshots |
 | `social/xtoc-social-1280x640.png` | GitHub and website link card |
@@ -23,14 +23,14 @@ capture the viewport at a device scale factor of 1, at exactly the output size. 
 
 | Variant | Output | Size | Upload copy |
 |---|---|---|---|
-| `screenshot` | `store/01-reading-1280x800.png` (illustrated) | 1280 × 800 | `store/assets/screenshots/01-x-toc-1280x800.png` |
-| `library` | `store/02-bookmarks-1280x800.png` | 1280 × 800 | `store/assets/screenshots/02-bookmarks-1280x800.png` |
-| `export` | `store/03-export-1280x800.png` | 1280 × 800 | `store/assets/screenshots/03-export-1280x800.png` |
-| `marquee` | `store/marquee-1400x560.png` | 1400 × 560 | `store/assets/promo/marquee-1400x560.png` |
-| `small` | `store/small-440x280.png` | 440 × 280 | `store/assets/promo/small-440x280.png` |
+| `screenshot` | `rendered/01-reading-1280x800.png` (illustrated) | 1280 × 800 | `store/assets/screenshots/01-x-toc-1280x800.png` |
+| `library` | `rendered/02-bookmarks-1280x800.png` | 1280 × 800 | `store/assets/screenshots/02-bookmarks-1280x800.png` |
+| `export` | `rendered/03-export-1280x800.png` | 1280 × 800 | `store/assets/screenshots/03-export-1280x800.png` |
+| `marquee` | `rendered/marquee-1400x560.png` | 1400 × 560 | `store/assets/promo/marquee-1400x560.png` |
+| `small` | `rendered/small-440x280.png` | 440 × 280 | `store/assets/promo/small-440x280.png` |
 | `social` | `social/xtoc-social-1280x640.png` | 1280 × 640 | — |
 
-After rendering, copy each store image to its upload path and run `npm run check:store-assets`.
+After rendering into `marketing/rendered/`, copy each candidate to its upload path under root `store/assets/` and run `npm run check:store-assets`.
 The store icon is `src/icons/logo-128.png`, copied to `store/assets/icon/icon-128.png`. For Edge,
 which recommends a 300 × 300 logo, upload `assets/brand/logo.png` (512 × 512).
 

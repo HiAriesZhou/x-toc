@@ -1,9 +1,9 @@
 schema: dashbye/release/v1
 listing:
-  defaultLanguage: English
+  defaultLanguage: English – en (default)
   category: Tools
   locales:
-    English:
+    English – en (default):
       description: listing/en/description.txt
       screenshots: []
       promoVideoUrl: null
@@ -45,3 +45,16 @@ privacy:
     relatedToSinglePurpose: true
     noCreditworthinessUse: true
   policyUrl: https://x-toc.vercel.app/privacy
+stores:
+  edge:
+    category: Productivity
+    searchTerms:
+      - X
+      - Twitter
+      - articles
+      - table of contents
+      - bookmarks
+      - Markdown
+      - clippings
+    assets:
+      logo: assets/icon/icon-edge-300.png
